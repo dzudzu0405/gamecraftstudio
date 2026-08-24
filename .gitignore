@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------
 # config.php holds your live database user and password.
 # Copy config.example.php to config.php on each machine instead.
-config.php
+/config.php
 
 
 # ---------------------------------------------------------------------
