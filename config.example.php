@@ -53,6 +53,10 @@ return [
     // only hold sample content. Set to true to bring the menu back.
     'discover_enabled' => false,
 
+    // Plans are sold on WarriorPlus. Paste the sales page address here and the
+    // Billing screen sends buyers straight to it. Leave empty to show no link.
+    'purchase_url' => '',
+
     // Secret used to sign cookies and sessions. CHANGE THIS to your own long random string.
     'app_key' => 'replace-this-with-a-long-random-string',
 ];

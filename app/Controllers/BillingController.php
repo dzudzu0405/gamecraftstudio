@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Core\Auth;
+use App\Core\Config;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Core\Flash;
@@ -14,10 +15,10 @@ use App\Services\Tiers;
 /**
  * Plans and billing - FR-21, FR-22, FR-28, FR-29.
  *
- * SCOPE: SRS section 7 places "the detailed payment flow" out of scope, so this
- * screen only switches plans and shows the matching entitlements. No payment
- * gateway is wired up. For a real integration, replace changePlan() with a
- * redirect to the gateway and wait for its webhook to confirm.
+ * Plans are sold on WarriorPlus, which takes the payment. Nothing in the app may
+ * change a plan on its own, so changePlan() is closed to everyone but an
+ * administrator - see the guard there. To fulfil purchases automatically, run the
+ * same update from a WarriorPlus notification rather than reopening this screen.
  */
 class BillingController extends Controller
 {
@@ -51,11 +52,23 @@ class BillingController extends Controller
             'projectCount' => Project::countForUser($userId),
             'limit'        => Tiers::projectLimit($current),
             'startedAt'    => $user['plan_started_at'] ?? null,
+
+            // Only an administrator may move a plan; everyone else buys on WarriorPlus
+            'canSwitchPlan' => Auth::isAdmin(),
+            'purchaseUrl'   => trim((string) Config::get('purchase_url', '')),
         ]);
     }
 
     public function changePlan(Request $request): void
     {
+        // Plans are bought on WarriorPlus. Without this guard any signed-in user
+        // could POST here and hand themselves the Publisher plan for nothing.
+        if (!Auth::isAdmin()) {
+            Flash::warning('Plans are sold through WarriorPlus. Your access updates once a purchase is confirmed.');
+            $this->back('/billing');
+            return;
+        }
+
         $plan = $request->str('plan');
 
         if (!Tiers::exists($plan)) {

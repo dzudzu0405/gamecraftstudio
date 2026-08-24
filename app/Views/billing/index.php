@@ -17,7 +17,8 @@ use App\Services\Tiers;
     <?= Icon::get('info', 17) ?>
     <span>
         Each plan <b>includes everything</b> from the plans below it, plus its own additions.
-        Switching takes effect immediately and never touches projects you have already made.
+        Your plan follows your WarriorPlus purchase, and a change never touches projects
+        you have already made.
     </span>
 </div>
 
@@ -88,6 +89,16 @@ use App\Services\Tiers;
 
             <?php if ($isCurrent): ?>
                 <button class="btn btn--ghost btn--block is-disabled" disabled>Current plan</button>
+            <?php elseif (!$canSwitchPlan): ?>
+                <?php if ($purchaseUrl !== ''): ?>
+                    <a class="btn btn--primary btn--block" href="<?= H::e($purchaseUrl) ?>"
+                       target="_blank" rel="noopener noreferrer">
+                        Get <?= H::e($t['name']) ?> on WarriorPlus
+                    </a>
+                <?php else: ?>
+                    <button class="btn btn--ghost btn--block is-disabled" disabled
+                            title="Purchased on WarriorPlus">Sold on WarriorPlus</button>
+                <?php endif; ?>
             <?php else: ?>
                 <?php $isUpgrade = Tiers::rank($key) > Tiers::rank($current); ?>
                 <form method="post" action="<?= Url::to('/billing/plan') ?>"
@@ -140,13 +151,12 @@ use App\Services\Tiers;
         <div class="card__head"><h3>About payments</h3></div>
         <div class="card__body">
             <p class="small muted">
-                This build has no payment gateway connected. The buttons above switch your library
-                access straight away, which is what you want for demos and testing.
+                Plans are sold through <b>WarriorPlus</b>, which takes the payment and issues the
+                receipt. Nothing on this screen can raise or lower a plan on its own.
             </p>
             <p class="small muted mb-0">
-                With a real gateway (PayPal, Stripe and so on) the flow becomes: choose a plan,
-                get sent to the payment page, and the plan only changes once the gateway confirms.
-                That work is outside the scope of the current SRS (section 7).
+                Once a purchase clears, an administrator sets the plan on the account and the
+                whole library unlocks straight away.
             </p>
         </div>
     </div>
