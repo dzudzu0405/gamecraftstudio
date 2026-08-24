@@ -5,8 +5,8 @@ namespace App\Services;
  * Composes the finished game map (FR-31).
  *
  * Inputs:
- *   - The background image the user generated with ChatGPT / Gemini and
- *     uploaded, or a generated placeholder scene if there is none yet.
+ *   - The background image uploaded for the project, or a generated
+ *     placeholder scene if there is none yet.
  *   - A map frame chosen from the library (12 / 18 / 24 spaces).
  *
  * Output: a complete SVG containing the background, the trail, the numbered

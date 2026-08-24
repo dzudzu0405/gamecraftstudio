@@ -2,12 +2,10 @@
 namespace App\Services;
 
 /**
- * Builds the prompts buyers run themselves on ChatGPT / Gemini
- * (FR-30, step 2 of SRS section 2.3).
+ * Builds the map background prompts (FR-30, step 2 of SRS section 2.3).
  *
- * A note on scope: this product never calls an AI API (SRS section 7, out of
- * scope). It only writes the prompt text for the user to copy. They paste it
- * into ChatGPT or Gemini, generate the background image, then upload it back.
+ * This class only writes the prompt text. Today the buyer copies it, runs it
+ * in an image generator and uploads the result back.
  */
 class PromptGenerator
 {
@@ -219,7 +217,7 @@ class PromptGenerator
     {
         return [
             'Click "Copy prompt" below.',
-            'Open ChatGPT (image mode) or Google Gemini, paste the prompt and send it.',
+            'Open an image generator such as ChatGPT or Google Gemini, paste the prompt and send it.',
             'Wait for the image, then download it to your computer.',
             'Come back here, click "Upload background" and choose that image.',
             'The system composes your image together with the map frame you picked.',

@@ -12,12 +12,12 @@ use App\Services\Tiers;
  *
  * The "How it works" block is REWRITTEN to describe the product's actual
  * assembler flow (SRS section 2.3) rather than the four steps in the reference
- * image, because this product has no real-time AI chat (SRS section 7).
+ * image.
  */
 
 $steps = [
     ['book',    'Pick from the library',   'Choose a difficulty, a theme and a 12, 18 or 24-space map frame.'],
-    ['copy',    'Copy the image prompt',   'We write the prompt; you paste it into ChatGPT or Gemini to make the artwork.'],
+    ['copy',    'Copy the image prompt',   'We write the prompt; run it in an image generator to make the artwork.'],
     ['layers',  'Upload and compose',      'Upload your image and we compose the map, then match the mission cards.'],
     ['printer', 'Preview and export',      'Swap anything you do not like, then export a print-ready file in the right order.'],
 ];

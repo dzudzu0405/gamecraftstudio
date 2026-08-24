@@ -18,15 +18,6 @@ if (!is_array($oldSubjects)) {
     <span class="badge badge--tier">Step 1 of 5</span>
 </div>
 
-<div class="notice notice--info">
-    <?= Icon::get('info', 17) ?>
-    <span>
-        GameCraft works by <b>assembling</b>: you pick from the library, generate a background
-        yourself with ChatGPT or Gemini, upload it, and we compose the printable files.
-        There is no AI chat step.
-    </span>
-</div>
-
 <form method="post" action="<?= Url::to('/create') ?>">
     <?= Csrf::field() ?>
 

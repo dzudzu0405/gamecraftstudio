@@ -63,7 +63,7 @@ $folders = [
         <div class="empty">
             <div class="empty__icon"><?= Icon::get('image', 40) ?></div>
             <div class="empty__title">No uploads yet</div>
-            <div class="empty__desc">Backgrounds you generate with ChatGPT or Gemini and upload will appear here.</div>
+            <div class="empty__desc">Backgrounds you upload will appear here.</div>
         </div>
     <?php else: ?>
         <div class="grid grid--tiles">

@@ -219,7 +219,7 @@ gamecraft/
 | `Difficulty.php` | Difficulty presets: 12/18/24 spaces, 60/90/120 cards |
 | `MissionMatcher.php` | Auto-matches mission cards and generates variations |
 | `MapComposer.php` | Composes the background with the map frame |
-| `PromptGenerator.php` | Writes the ChatGPT / Gemini prompts |
+| `PromptGenerator.php` | Writes the map background prompts |
 | `PrintBundle.php` | Assembles the print bundle in the required order |
 | `Library.php` | Library queries plus real-artwork detection |
 | `Uploader.php` | Safe image uploads |
@@ -229,12 +229,12 @@ gamecraft/
 
 ## 5. How the product works
 
-The product is an **assembler**. There is no real-time AI chat.
+The product is an **assembler**.
 
 ```
 1. Pick from library   Difficulty, theme, question subjects, map frame
         ↓
-2. Copy the prompt     We write it; you run it in ChatGPT or Gemini
+2. Copy the prompt     We write it; run it in an image generator
         ↓
 3. Upload the image    Your background gets composed with the map frame
         ↓

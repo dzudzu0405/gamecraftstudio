@@ -40,7 +40,7 @@ class Tiers
                 'difficulties'    => ['beginner', 'standard'],
                 'projects_limit'  => 5,
                 'perks' => [
-                    'Map background prompts for ChatGPT / Gemini',
+                    'Map background prompts, written for you',
                     'Upload your background and compose the finished map',
                     'Ready-written story and rules',
                     '8 move cards + 1 hero card per game',

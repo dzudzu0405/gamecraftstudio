@@ -1,7 +1,7 @@
 <?php
 /**
  * Step 3 - the map background.
- * FR-30: the system writes the prompt for ChatGPT / Gemini.
+ * FR-30: the system writes the map background prompt.
  * FR-31: upload the result and compose it with the chosen map frame.
  */
 use App\Core\Csrf;
@@ -20,8 +20,8 @@ $pid = (int) $project['id'];
         <div class="notice notice--info">
             <?= Icon::get('info', 17) ?>
             <span>
-                GameCraft does not generate images. Use the prompt below in
-                <b>ChatGPT</b> or <b>Google Gemini</b> to create a background you like, then upload it here.
+                Use the prompt below to create a map background you like,
+                then upload it here.
             </span>
         </div>
 

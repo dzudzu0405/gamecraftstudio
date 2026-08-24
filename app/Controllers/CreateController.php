@@ -20,12 +20,11 @@ use App\Services\Uploader;
 /**
  * The new-game flow - an ASSEMBLER model, exactly as SRS section 2.3 describes.
  *
- * There is NO real-time AI chat step (SRS section 7: out of scope).
- * Instead there are five steps:
+ * The flow has five steps:
  *
  *   1. Basics        - title, theme, difficulty, question subjects (FR-23)
  *   2. Library picks - map frame and character set, filtered by plan
- *   3. Map background - copy the prompt (FR-30), generate it elsewhere, upload it (FR-31)
+ *   3. Map background - copy the prompt (FR-30), generate the image, upload it (FR-31)
  *   4. Mission cards - matched automatically from the library (FR-24, FR-35)
  *   5. Finish        - review, then move on to the Studio
  */
