@@ -10,15 +10,22 @@ REM ======================================================================
 
 setlocal
 
-set "PHP=C:\Users\ADMIN\gamecraft-php\php.exe"
+REM  Leave this as "php" to use the PHP already on your PATH,
+REM  or replace it with a full path such as C:\php\php.exe
+set "PHP=php"
 set "PORT=8000"
 
-if not exist "%PHP%" (
+REM  Accept either a command on the PATH or a full path to php.exe
+set "PHPOK="
+if exist "%PHP%" set "PHPOK=1"
+where "%PHP%" >nul 2>&1 && set "PHPOK=1"
+
+if not defined PHPOK (
     echo.
-    echo  [ERROR] PHP was not found at:
+    echo  [ERROR] PHP was not found:
     echo          %PHP%
     echo.
-    echo  Download a portable copy of PHP, unzip it into that folder,
+    echo  Install PHP 8.1 or newer and make sure it is on your PATH,
     echo  or edit the "set PHP=" line in this file to point at your own PHP.
     echo.
     pause
