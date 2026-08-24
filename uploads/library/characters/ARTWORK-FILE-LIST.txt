@@ -1,0 +1,51 @@
+CHARACTER SETS - ARTWORK FILE NAMES
+==================================================================
+
+Artwork is matched by FILE NAME. Drop a file into this folder using
+one of the names below and it replaces the drawn placeholder.
+No code changes and no clicking upload one item at a time.
+
+Accepted extensions:  .jpg  .jpeg  .png  .webp
+
+Character sets have several poses: add -1, -2, -3 and so on to the code.
+For example, char-01 with 8 poses becomes:
+   char-01-1.jpg  char-01-2.jpg  ...  char-01-8.jpg
+A single shared image named char-01.jpg also works.
+
+Recommended size: 600 x 600 px (square, white background)
+
+------------------------------------------------------------------
+FILE NAME          PLAN       DESCRIPTION
+------------------------------------------------------------------
+char-01.jpg        starter    Maya the Explorer  (3 poses)
+char-02.jpg        starter    Brave Ben  (3 poses)
+char-03.jpg        starter    Clever Chloe  (3 poses)
+char-04.jpg        starter    Quick Kai  (3 poses)
+char-05.jpg        starter    Curious Cora  (3 poses)
+char-06.jpg        starter    Cheerful Theo  (3 poses)
+char-07.jpg        starter    Steady Sana  (3 poses)
+char-08.jpg        starter    Mighty Milo  (3 poses)
+char-09.jpg        starter    Bright Bella  (3 poses)
+char-10.jpg        starter    Patient Pedro  (3 poses)
+char-11.jpg        pro        Gentle Gia  (5 poses)
+char-12.jpg        pro        Playful Pax  (5 poses)
+char-13.jpg        pro        Creative Cleo  (5 poses)
+char-14.jpg        pro        Fearless Finn  (5 poses)
+char-15.jpg        pro        Graceful Grace  (5 poses)
+char-16.jpg        pro        Solid Sam  (5 poses)
+char-17.jpg        pro        Diligent Dara  (5 poses)
+char-18.jpg        pro        Noble Nico  (5 poses)
+char-19.jpg        pro        Thoughtful Thea  (5 poses)
+char-20.jpg        pro        Free-spirited Fox  (5 poses)
+char-21.jpg        publisher  Sharp Sky  (8 poses)
+char-22.jpg        publisher  Sturdy Stone  (8 poses)
+char-23.jpg        publisher  Wise Willow  (8 poses)
+char-24.jpg        publisher  Certain Cedar  (8 poses)
+char-25.jpg        publisher  Kind Kira  (8 poses)
+char-26.jpg        publisher  Decisive Dex  (8 poses)
+char-27.jpg        publisher  Dreamy Delia  (8 poses)
+char-28.jpg        publisher  Roaming Rex  (8 poses)
+char-29.jpg        publisher  Precious Pearl  (8 poses)
+char-30.jpg        publisher  Talented Tessa  (8 poses)
+------------------------------------------------------------------
+Total: 30 items

@@ -1,0 +1,36 @@
+MOVE CARD DESIGNS - ARTWORK FILE NAMES
+==================================================================
+
+Artwork is matched by FILE NAME. Drop a file into this folder using
+one of the names below and it replaces the drawn placeholder.
+No code changes and no clicking upload one item at a time.
+
+Accepted extensions:  .jpg  .jpeg  .png  .webp
+
+Recommended size: 750 x 1050 px (5:7 portrait)
+
+------------------------------------------------------------------
+FILE NAME          PLAN       DESCRIPTION
+------------------------------------------------------------------
+move-01.jpg        starter    Forest move cards
+move-02.jpg        starter    Dinosaurs move cards
+move-03.jpg        starter    Outer space move cards
+move-04.jpg        starter    Ocean move cards
+move-05.jpg        starter    Pirates move cards
+move-06.jpg        pro        Magic move cards
+move-07.jpg        pro        Castle move cards
+move-08.jpg        pro        Desert move cards
+move-09.jpg        pro        Arctic move cards
+move-10.jpg        pro        Candy land move cards
+move-11.jpg        publisher  Robots move cards
+move-12.jpg        publisher  Farm move cards
+move-13.jpg        publisher  Forest move cards
+move-14.jpg        publisher  Dinosaurs move cards
+move-15.jpg        publisher  Outer space move cards
+move-16.jpg        publisher  Ocean move cards
+move-17.jpg        publisher  Pirates move cards
+move-18.jpg        publisher  Magic move cards
+move-19.jpg        publisher  Castle move cards
+move-20.jpg        publisher  Desert move cards
+------------------------------------------------------------------
+Total: 20 items

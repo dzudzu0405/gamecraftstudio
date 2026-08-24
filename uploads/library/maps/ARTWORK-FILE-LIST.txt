@@ -1,0 +1,52 @@
+MAP FRAMES - ARTWORK FILE NAMES
+==================================================================
+
+Artwork is matched by FILE NAME. Drop a file into this folder using
+one of the names below and it replaces the drawn placeholder.
+No code changes and no clicking upload one item at a time.
+
+Accepted extensions:  .jpg  .jpeg  .png  .webp
+
+Recommended size: 1600 x 1100 px (16:11 landscape)
+
+------------------------------------------------------------------
+FILE NAME          PLAN       DESCRIPTION
+------------------------------------------------------------------
+map-12-01.jpg      starter    Woodland Trail - 12 spaces
+map-18-01.jpg      starter    Woodland Trail - 18 spaces
+map-24-01.jpg      pro        Woodland Trail - 24 spaces
+map-12-02.jpg      starter    Dinosaur Valley - 12 spaces
+map-18-02.jpg      starter    Dinosaur Valley - 18 spaces
+map-24-02.jpg      pro        Dinosaur Valley - 24 spaces
+map-12-03.jpg      starter    Deep Space Run - 12 spaces
+map-18-03.jpg      starter    Deep Space Run - 18 spaces
+map-24-03.jpg      pro        Deep Space Run - 24 spaces
+map-12-04.jpg      starter    Coral Reef - 12 spaces
+map-18-04.jpg      starter    Coral Reef - 18 spaces
+map-24-04.jpg      pro        Coral Reef - 24 spaces
+map-12-05.jpg      starter    Pirate Waters - 12 spaces
+map-18-05.jpg      starter    Pirate Waters - 18 spaces
+map-24-05.jpg      pro        Pirate Waters - 24 spaces
+map-12-06.jpg      starter    Wizard Realm - 12 spaces
+map-18-06.jpg      starter    Wizard Realm - 18 spaces
+map-24-06.jpg      pro        Wizard Realm - 24 spaces
+map-12-07.jpg      pro        Storybook Kingdom - 12 spaces
+map-18-07.jpg      pro        Storybook Kingdom - 18 spaces
+map-24-07.jpg      publisher  Storybook Kingdom - 24 spaces
+map-12-08.jpg      pro        Desert Canyon - 12 spaces
+map-18-08.jpg      pro        Desert Canyon - 18 spaces
+map-24-08.jpg      publisher  Desert Canyon - 24 spaces
+map-12-09.jpg      pro        Frozen North - 12 spaces
+map-18-09.jpg      pro        Frozen North - 18 spaces
+map-24-09.jpg      publisher  Frozen North - 24 spaces
+map-12-10.jpg      publisher  Candy Land - 12 spaces
+map-18-10.jpg      publisher  Candy Land - 18 spaces
+map-24-10.jpg      publisher  Candy Land - 24 spaces
+map-12-11.jpg      publisher  Robot City - 12 spaces
+map-18-11.jpg      publisher  Robot City - 18 spaces
+map-24-11.jpg      publisher  Robot City - 24 spaces
+map-12-12.jpg      publisher  Happy Farm - 12 spaces
+map-18-12.jpg      publisher  Happy Farm - 18 spaces
+map-24-12.jpg      publisher  Happy Farm - 24 spaces
+------------------------------------------------------------------
+Total: 36 items

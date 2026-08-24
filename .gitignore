@@ -1,0 +1,70 @@
+# ---------------------------------------------------------------------
+#  Never commit: database credentials
+# ---------------------------------------------------------------------
+# config.php holds your live database user and password.
+# Copy config.example.php to config.php on each machine instead.
+config.php
+
+
+# ---------------------------------------------------------------------
+#  Never commit: user data
+# ---------------------------------------------------------------------
+# The local SQLite database contains real accounts and password hashes
+storage/*.sqlite
+storage/*.sqlite-wal
+storage/*.sqlite-shm
+
+storage/logs/*
+!storage/logs/.gitkeep
+storage/cache/*
+!storage/cache/.gitkeep
+
+# Images uploaded by users
+uploads/backgrounds/**
+uploads/covers/**
+!uploads/backgrounds/.gitkeep
+!uploads/covers/.gitkeep
+
+
+# ---------------------------------------------------------------------
+#  Artwork
+# ---------------------------------------------------------------------
+# Library artwork can be large. Keep the folder structure and the file-name
+# manifests in git, but not the images themselves.
+# Delete these four lines if you would rather version the artwork too.
+uploads/library/**/*.jpg
+uploads/library/**/*.jpeg
+uploads/library/**/*.png
+uploads/library/**/*.webp
+
+
+# ---------------------------------------------------------------------
+#  Build output
+# ---------------------------------------------------------------------
+gamecraft.zip
+*.zip
+
+
+# ---------------------------------------------------------------------
+#  Editor and OS noise
+# ---------------------------------------------------------------------
+.claude/
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini
+.DS_Store
+
+
+# ---------------------------------------------------------------------
+#  Leftovers from an earlier Next.js scaffold that OneDrive keeps restoring
+# ---------------------------------------------------------------------
+node_modules/
+.next/
+src/
+public/
+next-env.d.ts
+package.json
+package-lock.json
+tsconfig.json

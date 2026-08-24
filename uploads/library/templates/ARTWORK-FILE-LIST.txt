@@ -1,0 +1,66 @@
+GAME TEMPLATE COVERS - ARTWORK FILE NAMES
+==================================================================
+
+Cover images for the ready-made game templates.
+Accepted extensions:  .jpg  .jpeg  .png  .webp
+Recommended size: 800 x 550 px (16:11 landscape)
+
+------------------------------------------------------------------
+FILE NAME                            PLAN         DESCRIPTION
+------------------------------------------------------------------
+tpl-forest-beginner.jpg              starter      Secret of the Woods
+tpl-forest-standard.jpg              starter      Secret of the Woods
+tpl-forest-advanced.jpg              pro          Secret of the Woods
+tpl-dino-beginner.jpg                starter      Dinosaur Rescue Mission
+tpl-dino-standard.jpg                starter      Dinosaur Rescue Mission
+tpl-dino-advanced.jpg                pro          Dinosaur Rescue Mission
+tpl-space-beginner.jpg               starter      Space Explorer Quest
+tpl-space-standard.jpg               starter      Space Explorer Quest
+tpl-space-advanced.jpg               pro          Space Explorer Quest
+tpl-ocean-beginner.jpg               starter      Treasure Beneath the Waves
+tpl-ocean-standard.jpg               starter      Treasure Beneath the Waves
+tpl-ocean-advanced.jpg               pro          Treasure Beneath the Waves
+tpl-pirate-beginner.jpg              starter      Pirate Voyage
+tpl-pirate-standard.jpg              starter      Pirate Voyage
+tpl-pirate-advanced.jpg              pro          Pirate Voyage
+tpl-magic-beginner.jpg               starter      Magic Academy Challenge
+tpl-magic-standard.jpg               starter      Magic Academy Challenge
+tpl-magic-advanced.jpg               pro          Magic Academy Challenge
+tpl-castle-beginner.jpg              starter      The Golden Bell
+tpl-castle-standard.jpg              starter      The Golden Bell
+tpl-castle-advanced.jpg              pro          The Golden Bell
+tpl-desert-beginner.jpg              starter      The Hidden Oasis
+tpl-desert-standard.jpg              starter      The Hidden Oasis
+tpl-desert-advanced.jpg              pro          The Hidden Oasis
+tpl-arctic-beginner.jpg              starter      Arctic Adventure
+tpl-arctic-standard.jpg              starter      Arctic Adventure
+tpl-arctic-advanced.jpg              pro          Arctic Adventure
+tpl-candy-beginner.jpg               starter      Candy Land Quest
+tpl-candy-standard.jpg               starter      Candy Land Quest
+tpl-candy-advanced.jpg               pro          Candy Land Quest
+tpl-robot-beginner.jpg               starter      Robot Factory Rescue
+tpl-robot-standard.jpg               starter      Robot Factory Rescue
+tpl-robot-advanced.jpg               pro          Robot Factory Rescue
+tpl-farm-beginner.jpg                starter      A Day on the Farm
+tpl-farm-standard.jpg                starter      A Day on the Farm
+tpl-farm-advanced.jpg                pro          A Day on the Farm
+tpl-forest-standard-b.jpg            publisher    Secret of the Woods (extended)
+tpl-dino-beginner-b.jpg              publisher    Dinosaur Rescue Mission (extended)
+tpl-dino-advanced-b.jpg              publisher    Dinosaur Rescue Mission (extended)
+tpl-space-standard-b.jpg             publisher    Space Explorer Quest (extended)
+tpl-ocean-beginner-b.jpg             publisher    Treasure Beneath the Waves (extended)
+tpl-ocean-advanced-b.jpg             publisher    Treasure Beneath the Waves (extended)
+tpl-pirate-standard-b.jpg            publisher    Pirate Voyage (extended)
+tpl-magic-beginner-b.jpg             publisher    Magic Academy Challenge (extended)
+tpl-magic-advanced-b.jpg             publisher    Magic Academy Challenge (extended)
+tpl-castle-standard-b.jpg            publisher    The Golden Bell (extended)
+tpl-desert-beginner-b.jpg            publisher    The Hidden Oasis (extended)
+tpl-desert-advanced-b.jpg            publisher    The Hidden Oasis (extended)
+tpl-arctic-standard-b.jpg            publisher    Arctic Adventure (extended)
+tpl-candy-beginner-b.jpg             publisher    Candy Land Quest (extended)
+tpl-candy-advanced-b.jpg             publisher    Candy Land Quest (extended)
+tpl-robot-standard-b.jpg             publisher    Robot Factory Rescue (extended)
+tpl-farm-beginner-b.jpg              publisher    A Day on the Farm (extended)
+tpl-farm-advanced-b.jpg              publisher    A Day on the Farm (extended)
+------------------------------------------------------------------
+Total: 54 templates

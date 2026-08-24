@@ -1,0 +1,46 @@
+WINNER HERO CARDS - ARTWORK FILE NAMES
+==================================================================
+
+Artwork is matched by FILE NAME. Drop a file into this folder using
+one of the names below and it replaces the drawn placeholder.
+No code changes and no clicking upload one item at a time.
+
+Accepted extensions:  .jpg  .jpeg  .png  .webp
+
+Recommended size: 750 x 1050 px (5:7 portrait)
+
+------------------------------------------------------------------
+FILE NAME          PLAN       DESCRIPTION
+------------------------------------------------------------------
+reward-01.jpg      starter    Explorer Badge - Forest
+reward-02.jpg      starter    Gold Courage Cup - Dinosaurs
+reward-03.jpg      starter    Bright Mind Award - Outer space
+reward-04.jpg      starter    Persistence Medal - Ocean
+reward-05.jpg      starter    Creativity Star - Pirates
+reward-06.jpg      starter    Golden Key - Magic
+reward-07.jpg      starter    Wisdom Gem - Castle
+reward-08.jpg      starter    Guardian Shield - Desert
+reward-09.jpg      starter    Little Crown - Arctic
+reward-10.jpg      starter    Treasure Map - Candy land
+reward-11.jpg      pro        Victory Flag - Robots
+reward-12.jpg      pro        Kindness Heart - Farm
+reward-13.jpg      pro        Explorer Badge - Forest
+reward-14.jpg      pro        Gold Courage Cup - Dinosaurs
+reward-15.jpg      pro        Bright Mind Award - Outer space
+reward-16.jpg      pro        Persistence Medal - Ocean
+reward-17.jpg      pro        Creativity Star - Pirates
+reward-18.jpg      pro        Golden Key - Magic
+reward-19.jpg      pro        Wisdom Gem - Castle
+reward-20.jpg      pro        Guardian Shield - Desert
+reward-21.jpg      publisher  Little Crown - Arctic
+reward-22.jpg      publisher  Treasure Map - Candy land
+reward-23.jpg      publisher  Victory Flag - Robots
+reward-24.jpg      publisher  Kindness Heart - Farm
+reward-25.jpg      publisher  Explorer Badge - Forest
+reward-26.jpg      publisher  Gold Courage Cup - Dinosaurs
+reward-27.jpg      publisher  Bright Mind Award - Outer space
+reward-28.jpg      publisher  Persistence Medal - Ocean
+reward-29.jpg      publisher  Creativity Star - Pirates
+reward-30.jpg      publisher  Golden Key - Magic
+------------------------------------------------------------------
+Total: 30 items
