@@ -48,6 +48,11 @@ return [
     // Image formats accepted for upload
     'upload_allowed'  => ['jpg', 'jpeg', 'png', 'webp'],
 
+    // Shows the Discover section - Marketplace and Community - in the sidebar.
+    // Off by default: nothing can be bought or posted there yet, so the pages
+    // only hold sample content. Set to true to bring the menu back.
+    'discover_enabled' => false,
+
     // Secret used to sign cookies and sessions. CHANGE THIS to your own long random string.
     'app_key' => 'replace-this-with-a-long-random-string',
 ];

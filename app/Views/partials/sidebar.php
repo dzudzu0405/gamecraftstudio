@@ -4,6 +4,7 @@
  * The open item gets a pale amber background, matching the reference dashboard.
  */
 use App\Core\Auth;
+use App\Core\Config;
 use App\Core\Helper as H;
 use App\Core\Icon;
 use App\Core\Url;
@@ -45,6 +46,15 @@ $groups = [
         ],
     ],
 ];
+
+// Discover holds Marketplace and Community. Both are still sample content with
+// no way to buy or post, so the group stays hidden unless config.php asks for it.
+if (!Config::get('discover_enabled', false)) {
+    $groups = array_values(array_filter(
+        $groups,
+        static fn (array $group): bool => $group['label'] !== 'Discover'
+    ));
+}
 ?>
 <aside class="sidebar">
 

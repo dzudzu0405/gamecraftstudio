@@ -1,6 +1,7 @@
 <?php
 namespace App\Controllers;
 
+use App\Core\Config;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Core\Request;
@@ -32,10 +33,13 @@ class DashboardController extends Controller
                 'SELECT * FROM game_templates WHERE is_active = 1 ORDER BY uses_count DESC LIMIT 4'
             ),
 
-            // FR-19: community inspiration
-            'community'     => Database::all(
-                'SELECT * FROM community_posts ORDER BY is_featured DESC, likes DESC LIMIT 3'
-            ),
+            // FR-19: community inspiration. Empty while Discover is switched off,
+            // which also hides the card on the dashboard.
+            'community'     => Config::get('discover_enabled', false)
+                ? Database::all(
+                    'SELECT * FROM community_posts ORDER BY is_featured DESC, likes DESC LIMIT 3'
+                )
+                : [],
 
             // Quick library counts for the current plan
             'libraryStats'  => [

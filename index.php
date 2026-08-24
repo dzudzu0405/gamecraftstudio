@@ -105,9 +105,14 @@ $router->get('/library',           'LibraryController@index',   $auth);
 $router->get('/assets',            'AssetController@index',     $auth);
 $router->post('/assets/upload',    'AssetController@upload',    $auth);
 $router->post('/assets/{id}/delete','AssetController@destroy',  $auth);
-$router->get('/marketplace',       'MarketplaceController@index', $auth);
-$router->get('/community',         'CommunityController@index', $auth);
-$router->post('/community/{id}/like', 'CommunityController@like', $auth);
+
+// Discover: not registered at all while Marketplace and Community hold nothing
+// but sample data, so both fall through to the 404 handler below.
+if (App\Core\Config::get('discover_enabled', false)) {
+    $router->get('/marketplace',       'MarketplaceController@index', $auth);
+    $router->get('/community',         'CommunityController@index', $auth);
+    $router->post('/community/{id}/like', 'CommunityController@like', $auth);
+}
 
 // --- Plans and billing (FR-21, FR-22, FR-28, FR-29) ---
 $router->get('/billing',           'BillingController@index',   $auth);

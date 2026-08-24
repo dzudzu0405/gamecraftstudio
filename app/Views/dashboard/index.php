@@ -153,7 +153,8 @@ $steps = [
         </div>
     </div>
 
-    <!-- FR-19, FR-20 -->
+    <!-- FR-19, FR-20. No posts means Discover is off, so the card goes too. -->
+    <?php if ($community): ?>
     <div class="card">
         <div class="card__head">
             <h3>Community Inspiration</h3>
@@ -178,6 +179,7 @@ $steps = [
             <?php endforeach; ?>
         </div>
     </div>
+    <?php endif; ?>
 
     <!-- FR-21, FR-22 -->
     <div class="card">
