@@ -8,6 +8,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
 use App\Core\Validator;
+use App\Services\Mailer;
 use App\Services\Tiers;
 
 /** Sign in, register and sign out */
@@ -93,9 +94,37 @@ class AuthController extends Controller
 
         \App\Core\Database::update('users', ['plan_started_at' => date('Y-m-d H:i:s')], ['id' => $userId]);
 
+        $this->sendWelcomeEmail($request->str('name'), $request->str('email'), $plan);
+
         Auth::login($userId);
         Flash::success('Account created. Time to build your first game!');
         Response::redirect('/');
+    }
+
+    /**
+     * The welcome email is a nicety, not part of signing up. If the mail server
+     * is down or misconfigured the account is still created and the person is
+     * still signed in - the failure only goes to the error log.
+     */
+    private function sendWelcomeEmail(string $name, string $email, string $planKey): void
+    {
+        if (!Mailer::isConfigured()) {
+            return;
+        }
+
+        $plan = Tiers::get($planKey);
+
+        $sent = Mailer::sendTemplate($email, $name, 'welcome', [
+            'subject'    => 'Welcome to GameCraft Studio',
+            'firstName'  => trim(explode(' ', trim($name))[0] ?? '') ?: 'there',
+            'planName'   => $plan['name'],
+            'maps'       => $plan['maps_total'],
+            'characters' => $plan['character_sets'],
+        ]);
+
+        if (!$sent) {
+            error_log('[GameCraft] Welcome email to ' . $email . ' failed: ' . (Mailer::lastError() ?? 'unknown reason'));
+        }
     }
 
     public function logout(Request $request): void

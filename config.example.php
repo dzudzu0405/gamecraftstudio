@@ -57,6 +57,65 @@ return [
     // Billing screen sends buyers straight to it. Leave empty to show no link.
     'purchase_url' => '',
 
+    // -----------------------------------------------------------------
+    //  Email
+    // -----------------------------------------------------------------
+    // Used for the welcome email and for password reset links.
+    //
+    // Create a mailbox first: cPanel > Email Accounts > Create, for example
+    // noreply@yourdomain.com. Open "Connect Devices" on that account to see
+    // the exact host and port, then fill them in below.
+    //
+    // Sending through your own mailbox is what keeps the mail out of spam.
+    'mail' => [
+        // 'smtp' sends for real. 'log' writes the message to
+        // storage/logs/mail.log instead, which is handy for local testing.
+        'driver'     => 'smtp',
+
+        // Set to false to switch email off completely. Password reset then
+        // stops working, so only do this while you are still setting up.
+        'enabled'    => true,
+
+        'host'       => 'mail.yourdomain.com',
+        'port'       => 465,
+
+        // 'ssl' goes with port 465, 'tls' with port 587
+        'encryption' => 'ssl',
+
+        // Normally the full email address
+        'username'   => 'noreply@yourdomain.com',
+        'password'   => '',
+
+        // What recipients see in the From line
+        'from_email' => 'noreply@yourdomain.com',
+        'from_name'  => 'GameCraft Studio',
+
+        // Where replies should go. Leave empty to use from_email.
+        'reply_to'   => '',
+    ],
+
+    // How long a password reset link stays valid, in minutes
+    'password_reset_minutes' => 60,
+
+    // -----------------------------------------------------------------
+    //  Sign in with Google
+    // -----------------------------------------------------------------
+    // Leave both blank to hide the Google button entirely.
+    //
+    // To switch it on:
+    //   1. Go to console.cloud.google.com/apis/credentials
+    //   2. Create Credentials > OAuth client ID > Web application
+    //   3. Under "Authorised redirect URIs" add exactly:
+    //        https://yourdomain.com/auth/google/callback
+    //   4. Copy the Client ID and Client secret in below
+    //
+    // Google will not accept an http:// address, so your site has to be on
+    // HTTPS. cPanel provides free certificates under Security > SSL/TLS Status.
+    'google' => [
+        'client_id'     => '',
+        'client_secret' => '',
+    ],
+
     // Secret used to sign cookies and sessions. CHANGE THIS to your own long random string.
     'app_key' => 'replace-this-with-a-long-random-string',
 ];

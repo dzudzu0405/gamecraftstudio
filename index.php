@@ -60,6 +60,18 @@ $router->get('/register',         'AuthController@showRegister', $guest);
 $router->post('/register',        'AuthController@register',     $guest);
 $router->post('/logout',          'AuthController@logout');
 
+// --- Forgotten password ---
+$router->get('/forgot',           'PasswordController@showForgot', $guest);
+$router->post('/forgot',          'PasswordController@sendLink',   $guest);
+$router->get('/reset/{token}',    'PasswordController@showReset',  $guest);
+$router->post('/reset/{token}',   'PasswordController@saveReset',  $guest);
+
+// --- Sign in with Google (only routed when a client id and secret are set) ---
+if (App\Services\GoogleAuth::isEnabled()) {
+    $router->get('/auth/google',          'GoogleController@start',    $guest);
+    $router->get('/auth/google/callback', 'GoogleController@callback', $guest);
+}
+
 // --- Dashboard (FR-04 to FR-08, FR-19 to FR-22) ---
 $router->get('/',                 'DashboardController@index',   $auth);
 

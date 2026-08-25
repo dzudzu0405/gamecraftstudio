@@ -23,12 +23,28 @@ class Schema
                 'avatar_seed'   => 'varchar:60 null',
                 'locale'        => "varchar:10 notnull default:en",
                 'is_active'     => 'tinyint notnull default:1',
+                // Google's subject id, set when the account signs in with Google
+                'google_id'     => 'varchar:64 null',
+                'avatar_url'    => 'varchar:255 null',
                 'plan_started_at' => 'datetime null',
                 'last_login_at' => 'datetime null',
                 'created_at'    => 'datetime notnull',
                 'updated_at'    => 'datetime notnull',
                 '#unique'       => [['email']],
-                '#index'        => [['plan']],
+                '#index'        => [['plan'], ['google_id']],
+            ],
+
+            // Password reset links. Only a hash of each token is stored, so a
+            // leaked database still cannot be used to take over an account.
+            'password_resets' => [
+                'id'         => 'pk',
+                'user_id'    => 'fk:users',
+                'token_hash' => 'varchar:64 notnull',
+                'expires_at' => 'datetime notnull',
+                'used_at'    => 'datetime null',
+                'request_ip' => 'varchar:45 null',
+                'created_at' => 'datetime notnull',
+                '#index'     => [['token_hash'], ['user_id'], ['expires_at']],
             ],
 
             // The ready-made content library: maps, characters, move cards, hero cards

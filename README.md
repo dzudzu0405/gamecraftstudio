@@ -11,10 +11,11 @@ Built with **plain PHP and MySQL** — no Composer, no Node.js, no SSH. Drag the
 1. [Installing on cPanel](#1-installing-on-cpanel)
 2. [Running it locally](#2-running-it-locally)
 3. [Adding real artwork](#3-adding-real-artwork)
-4. [Folder structure](#4-folder-structure)
-5. [How the product works](#5-how-the-product-works)
-6. [Coverage against the SRS](#6-coverage-against-the-srs)
-7. [Troubleshooting](#7-troubleshooting)
+4. [Email and Google sign-in](#4-email-and-google-sign-in)
+5. [Folder structure](#5-folder-structure)
+6. [How the product works](#6-how-the-product-works)
+7. [Coverage against the SRS](#7-coverage-against-the-srs)
+8. [Troubleshooting](#8-troubleshooting)
 
 ---
 
@@ -174,7 +175,124 @@ The **Asset Library** page tracks progress against the content production target
 
 ---
 
-## 4. Folder structure
+## 4. Email and Google sign-in
+
+Both are optional. The app runs perfectly well with neither, but email is what
+makes **Forgot password** work, so it is worth setting up before real customers
+arrive.
+
+### Setting up email
+
+The app talks SMTP directly, using a mailbox on your own domain. That is what
+keeps the mail out of the spam folder — messages sent through PHP's `mail()`
+have nothing authenticating them and get filtered aggressively.
+
+**Step 1 — create the mailbox**
+
+In cPanel go to **Email Accounts → Create** and make something like
+`noreply@yourdomain.com`. Save the password.
+
+**Step 2 — find the SMTP settings**
+
+On that new account click **Connect Devices**. cPanel shows the exact host and
+ports. They usually look like:
+
+| Setting | Typical value |
+|---|---|
+| Host | `mail.yourdomain.com` |
+| Port | `465` with `ssl`, or `587` with `tls` |
+| Username | the full address, `noreply@yourdomain.com` |
+
+**Step 3 — fill in `config.php`**
+
+```php
+'mail' => [
+    'driver'     => 'smtp',
+    'enabled'    => true,
+    'host'       => 'mail.yourdomain.com',
+    'port'       => 465,
+    'encryption' => 'ssl',
+    'username'   => 'noreply@yourdomain.com',
+    'password'   => 'the mailbox password',
+    'from_email' => 'noreply@yourdomain.com',
+    'from_name'  => 'GameCraft Studio',
+    'reply_to'   => '',
+],
+```
+
+That is it. New accounts get a welcome email, and **Forgot password** starts
+working straight away.
+
+**Testing without a mailbox.** Set `'driver' => 'log'` and nothing is sent —
+every message is written to `storage/logs/mail.log` instead. Useful while you
+are still setting the site up.
+
+### Setting up Google sign-in
+
+Leave the `google` block empty and the button never appears. To switch it on:
+
+**Step 1 — your site must be on HTTPS.** Google refuses plain `http://`
+redirect addresses. In cPanel check **Security → SSL/TLS Status** and run
+AutoSSL if the domain has no certificate yet.
+
+**Step 2 — create the OAuth client**
+
+1. Open [console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
+2. **Create Credentials → OAuth client ID → Web application**
+3. Under **Authorised redirect URIs** add this exactly, with your own domain:
+
+```
+https://yourdomain.com/auth/google/callback
+```
+
+If the app lives in a sub-folder, include it:
+`https://yourdomain.com/gamecraft/auth/google/callback`
+
+4. Copy the **Client ID** and **Client secret**
+
+**Step 3 — fill in `config.php`**
+
+```php
+'google' => [
+    'client_id'     => '1234567890-abcdef.apps.googleusercontent.com',
+    'client_secret' => 'GOCSPX-your-secret-here',
+],
+```
+
+The **Continue with Google** button now appears on the sign-in and registration
+pages.
+
+### How Google accounts are matched
+
+| Situation | What happens |
+|---|---|
+| Signed in with Google before | Signed straight in |
+| Same email already registered with a password | The two are linked; either way works from now on |
+| Nobody with that email | A new account is created on the Starter plan |
+
+Linking by email is only allowed when Google reports the address as verified.
+An unverified Google account is refused, because otherwise anybody could claim
+somebody else's email address and walk into their account.
+
+Google accounts get a random unknown password. If that person later wants a
+password of their own, they use **Forgot password** to set one.
+
+### Upgrading a site that is already installed
+
+These features need one new table and two new columns. Nothing is lost and no
+reinstall is needed:
+
+1. Upload the new files over the old ones
+2. Upload the `install` folder too, if you deleted it
+3. Sign in as your administrator account
+4. Open `https://yourdomain.com/install/upgrade.php`
+5. Delete the `install` folder again
+
+The upgrade only ever adds what is missing, and is safe to run twice.
+
+---
+
+## 5. Folder structure
 
 ```
 gamecraft/
@@ -224,10 +342,12 @@ gamecraft/
 | `Library.php` | Library queries plus real-artwork detection |
 | `Uploader.php` | Safe image uploads |
 | `Art.php` | Draws the SVG placeholder artwork |
+| `Mailer.php` | Sends email over SMTP, written against the protocol directly |
+| `GoogleAuth.php` | The OAuth 2.0 calls behind Sign in with Google |
 
 ---
 
-## 5. How the product works
+## 6. How the product works
 
 The product is an **assembler**.
 
@@ -282,7 +402,7 @@ Random values are drawn for every blank, so 15 templates produce thousands of di
 
 ---
 
-## 6. Coverage against the SRS
+## 7. Coverage against the SRS
 
 ### Implemented
 
@@ -329,7 +449,7 @@ The build reads this as: each design set holds up to 12 artworks, but any single
 
 ---
 
-## 7. Troubleshooting
+## 8. Troubleshooting
 
 **The page is blank**
 
@@ -360,6 +480,20 @@ Also check `storage/logs/error.log`.
 
 In the print dialog, enable **Background graphics** and set **Margins: None**.
 
+**Password reset emails never arrive**
+
+- Check `storage/logs/error.log` — the exact reply from the mail server is recorded there.
+- `535` in the log means the username or password is wrong. The username is normally the full email address.
+- Some hosts block outbound port 465. Try port `587` with `'encryption' => 'tls'`.
+- Look in the recipient's spam folder, and make sure `from_email` is a real mailbox on your own domain.
+- To check the rest of the flow without sending anything, set `'driver' => 'log'` and read `storage/logs/mail.log`.
+
+**Google sign-in returns "redirect_uri_mismatch"**
+
+The address registered with Google has to match what the app sends, character for character.
+Turn on `'debug' => true` briefly and the error message will print the exact URI to paste into
+the Google console. Remember it must be `https://`, and must include any sub-folder.
+
 **Artwork still shows placeholders after uploading**
 
 - Check the file name matches the code in `ARTWORK-FILE-LIST.txt` exactly (Linux hosting is case sensitive).
@@ -378,6 +512,9 @@ In the print dialog, enable **Background graphics** and set **Margins: None**.
 - PHP execution blocked inside `uploads`
 - Direct access blocked to `app`, `storage` and `config.php`
 - Sign-in throttled to 6 failed attempts per minute
+- Password reset links are stored only as a SHA-256 hash, expire after an hour and work once
+- The reset page never reveals whether an email address has an account
+- Google sign-in is guarded by a one-time state value and refuses unverified email addresses
 - Project ownership enforced at the query level — nobody can open another user's project, even knowing its ID
 
 ---

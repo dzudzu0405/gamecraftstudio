@@ -174,6 +174,20 @@ class InstallController extends Controller
                 'value'    => is_dir($storage) ? (is_writable($storage) ? 'Writable' : 'Read only') : 'Missing',
                 'fix'      => 'Set permissions to 755 on the storage folder.',
             ],
+            [
+                'label'    => 'Encrypted email (openssl)',
+                'ok'       => extension_loaded('openssl'),
+                'value'    => extension_loaded('openssl') ? 'Yes' : 'No',
+                'fix'      => 'Needed to send the welcome and password reset emails over SMTP. Enable openssl under cPanel > Select PHP Version > Extensions.',
+                'optional' => true,
+            ],
+            [
+                'label'    => 'Sign in with Google (curl)',
+                'ok'       => extension_loaded('curl'),
+                'value'    => extension_loaded('curl') ? 'Yes' : 'No',
+                'fix'      => 'Only needed if you want the Google sign-in button. Enable curl under cPanel > Select PHP Version > Extensions.',
+                'optional' => true,
+            ],
         ];
     }
 
