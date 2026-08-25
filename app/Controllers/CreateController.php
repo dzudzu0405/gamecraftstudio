@@ -80,8 +80,9 @@ class CreateController extends Controller
         $v->required('title', 'a game title')->max('title', 160, 'the game title')
           ->in('theme', array_keys(Art::THEMES), 'theme')
           ->in('difficulty', array_keys(Difficulty::all()), 'difficulty')
-          ->between('players_min', 1, 8, 'the minimum player count')
-          ->between('players_max', 1, 8, 'the maximum player count');
+          ->max('setting', 120, 'the setting')
+          ->between('players_min', Project::MIN_PLAYERS, Project::MAX_PLAYERS, 'the minimum player count')
+          ->between('players_max', Project::MIN_PLAYERS, Project::MAX_PLAYERS, 'the maximum player count');
 
         $difficulty = $request->str('difficulty', Difficulty::STANDARD);
 
@@ -116,6 +117,7 @@ class CreateController extends Controller
             'theme'       => $request->str('theme', 'forest'),
             'difficulty'  => $difficulty,
             'subjects'    => implode(',', $subjects),
+            'setting'     => mb_substr(trim($request->str('setting')), 0, 120) ?: null,
             'players_min' => $min,
             'players_max' => $max,
         ]);
@@ -162,16 +164,13 @@ class CreateController extends Controller
                 $data['lockedMaps'] = $this->lockedCount(Library::KIND_MAP, $plan, (int) $project['cells']);
                 $data['characters'] = Library::forPlan(Library::KIND_CHARACTER, $plan);
                 $data['moves']      = Library::forPlan(Library::KIND_MOVE, $plan);
-                $data['rewards']    = Library::forPlan(Library::KIND_REWARD, $plan);
                 break;
 
             case 3:
-                $style = $request->str('style', 'storybook');
-                if (!isset(PromptGenerator::STYLES[$style])) {
-                    $style = 'storybook';
-                }
+                // The art style is fixed: every game is a storybook illustration,
+                // so the maps in one buyer's set look like they belong together.
+                $style = PromptGenerator::DEFAULT_STYLE;
                 $data['style']        = $style;
-                $data['styles']       = PromptGenerator::STYLES;
                 $data['prompt']       = PromptGenerator::background($project, $style);
                 $data['instructions'] = PromptGenerator::instructions();
                 $data['background']   = !empty($project['background_id'])
@@ -261,6 +260,8 @@ class CreateController extends Controller
             $update['title'] = mb_substr($title, 0, 160);
         }
 
+        $update['setting'] = mb_substr(trim($request->str('setting')), 0, 120) ?: null;
+
         $theme = $request->str('theme');
         if (isset(Art::THEMES[$theme])) {
             $update['theme'] = $theme;
@@ -276,8 +277,8 @@ class CreateController extends Controller
         if ($min > $max) {
             [$min, $max] = [$max, $min];
         }
-        $update['players_min'] = max(1, min(8, $min));
-        $update['players_max'] = max(1, min(8, $max));
+        $update['players_min'] = max(Project::MIN_PLAYERS, min(Project::MAX_PLAYERS, $min));
+        $update['players_max'] = max(Project::MIN_PLAYERS, min(Project::MAX_PLAYERS, $max));
 
         // Difficulty change
         $difficulty = $request->str('difficulty', (string) $project['difficulty']);
@@ -308,11 +309,12 @@ class CreateController extends Controller
     {
         $update = [];
 
+        // reward_item_id is deliberately absent: step 2 no longer offers a hero
+        // card picker, and a field the form never posts would be nulled below.
         $fields = [
             'map_item_id'       => Library::KIND_MAP,
             'character_item_id' => Library::KIND_CHARACTER,
             'move_item_id'      => Library::KIND_MOVE,
-            'reward_item_id'    => Library::KIND_REWARD,
         ];
 
         foreach ($fields as $column => $kind) {

@@ -38,10 +38,6 @@ $steps = [
             <a class="btn btn--primary btn--lg" href="<?= Url::to('/create') ?>">
                 <?= Icon::get('sparkles', 18) ?> Create New Game
             </a>
-            <!-- FR-06 -->
-            <a class="btn btn--ghost btn--lg" href="<?= Url::to('/import') ?>">
-                <?= Icon::get('folder', 18) ?> Import Game Blueprint
-            </a>
         </div>
 
         <!-- FR-07 -->

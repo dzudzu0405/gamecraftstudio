@@ -92,18 +92,6 @@ $renderPicker = function (string $name, array $items, $currentId, string $emptyM
                 </div>
             </div>
 
-            <!-- Hero card -->
-            <div class="card">
-                <div class="card__head">
-                    <h3>Winner hero card</h3>
-                    <span class="small muted">1 card per game</span>
-                </div>
-                <div class="card__body">
-                    <?php $renderPicker('reward_item_id', $rewards, $project['reward_item_id'],
-                        'No hero card designs are available on your plan.'); ?>
-                </div>
-            </div>
-
         </div>
 
         <aside class="wizard__side">

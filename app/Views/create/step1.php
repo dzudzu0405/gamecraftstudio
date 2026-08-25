@@ -4,6 +4,7 @@ use App\Core\Helper as H;
 use App\Core\Icon;
 use App\Core\Url;
 use App\Core\View;
+use App\Models\Project;
 
 echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
 ?>
@@ -18,16 +19,24 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
                 <div class="card__head"><h3>Game details</h3></div>
                 <div class="card__body">
                     <div class="field">
-                        <label class="label" for="title">Game title</label>
+                        <label class="label" for="title">Who does the game rescue?</label>
                         <input class="input" type="text" id="title" name="title" maxlength="160" required
-                               value="<?= H::e($project['title']) ?>">
+                               value="<?= H::e($project['title']) ?>"
+                               placeholder="Dinosaur, ...">
+                    </div>
+
+                    <div class="field">
+                        <label class="label" for="setting">Where does the adventure take place?</label>
+                        <input class="input" type="text" id="setting" name="setting" maxlength="120"
+                               value="<?= H::e($project['setting'] ?? '') ?>"
+                               placeholder="outer space, desert, city, ...">
                     </div>
 
                     <div class="form-row">
                         <div class="field">
                             <label class="label" for="players_min">Minimum players</label>
                             <select class="select" id="players_min" name="players_min">
-                                <?php for ($i = 1; $i <= 8; $i++): ?>
+                                <?php for ($i = Project::MIN_PLAYERS; $i <= Project::MAX_PLAYERS; $i++): ?>
                                     <option value="<?= $i ?>" <?= (int) $project['players_min'] === $i ? 'selected' : '' ?>><?= $i ?></option>
                                 <?php endfor; ?>
                             </select>
@@ -35,7 +44,7 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
                         <div class="field">
                             <label class="label" for="players_max">Maximum players</label>
                             <select class="select" id="players_max" name="players_max">
-                                <?php for ($i = 1; $i <= 8; $i++): ?>
+                                <?php for ($i = Project::MIN_PLAYERS; $i <= Project::MAX_PLAYERS; $i++): ?>
                                     <option value="<?= $i ?>" <?= (int) $project['players_max'] === $i ? 'selected' : '' ?>><?= $i ?></option>
                                 <?php endfor; ?>
                             </select>
@@ -100,7 +109,10 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
             </div>
 
             <div class="card">
-                <div class="card__head"><h3>Theme</h3></div>
+                <div class="card__head">
+                    <h3>Theme</h3>
+                    <span class="small muted">Pick a ready-made theme and you can skip making a background later</span>
+                </div>
                 <div class="card__body">
                     <div class="pick-grid">
                         <?php foreach ($themes as $key => $label): ?>

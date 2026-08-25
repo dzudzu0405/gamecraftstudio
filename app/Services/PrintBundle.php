@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Core\Database;
+use App\Models\Project;
 
 /**
  * Assembles the print bundle in the EXACT ORDER required by FR-27
@@ -177,7 +178,9 @@ class PrintBundle
     {
         $colors = array_keys(Art::TOKEN_COLORS);
         $out = [];
-        for ($i = 0; $i < max(2, min(8, $count)); $i++) {
+        $count = max(Project::MIN_PLAYERS, min(Project::MAX_PLAYERS, $count));
+
+        for ($i = 0; $i < $count; $i++) {
             $out[] = [
                 'name'       => 'Player ' . ($i + 1),
                 'color'      => $colors[$i % count($colors)],

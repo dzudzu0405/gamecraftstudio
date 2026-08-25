@@ -4,6 +4,7 @@ use App\Core\Csrf;
 use App\Core\Helper as H;
 use App\Core\Icon;
 use App\Core\Url;
+use App\Models\Project;
 use App\Services\Difficulty;
 use App\Services\Library;
 use App\Services\MissionMatcher;
@@ -216,13 +217,13 @@ $diff   = Difficulty::get((string) $project['difficulty']);
         <div class="card" id="players">
             <div class="card__head">
                 <h3>Player tokens</h3>
-                <span class="small muted">Up to 8 players</span>
+                <span class="small muted">Up to <?= Project::MAX_PLAYERS ?> players</span>
             </div>
             <div class="card__body">
                 <form method="post" action="<?= Url::to('/studio/' . $pid . '/players') ?>">
                     <?= Csrf::field() ?>
 
-                    <?php for ($i = 0; $i < 8; $i++): ?>
+                    <?php for ($i = 0; $i < Project::MAX_PLAYERS; $i++): ?>
                         <?php
                         $p = $players[$i] ?? null;
                         $name  = $p['name']  ?? '';

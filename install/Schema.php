@@ -96,6 +96,7 @@ class Schema
                 'difficulty'      => "varchar:20 notnull default:standard",
                 'theme'           => "varchar:30 notnull default:forest",
                 'subjects'        => 'varchar:255 null',   // question subjects, comma separated (FR-23)
+                'setting'         => 'varchar:120 null',   // where the adventure takes place, in the buyer's words
                 'question_count'  => 'int notnull default:90',
                 'cells'           => 'int notnull default:18',
                 'players_min'     => 'int notnull default:2',

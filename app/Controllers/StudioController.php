@@ -218,7 +218,7 @@ class StudioController extends Controller
                     'color'      => $color,
                     'sort_order' => $order++,
                 ]);
-                if ($order >= 8) {
+                if ($order >= Project::MAX_PLAYERS) {
                     break;
                 }
             }

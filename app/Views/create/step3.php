@@ -25,32 +25,10 @@ $pid = (int) $project['id'];
             </span>
         </div>
 
-        <!-- 1. Choose a style -->
-        <div class="card mb-2">
-            <div class="card__head"><h3>1. Choose an art style</h3></div>
-            <div class="card__body">
-                <form method="get" action="<?= Url::to('/create/' . $pid . '/step/3') ?>">
-                    <div class="choice-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
-                        <?php foreach ($styles as $key => $label): ?>
-                            <label class="choice" style="padding:10px 12px">
-                                <input type="radio" name="style" value="<?= H::e($key) ?>"
-                                       <?= $style === $key ? 'checked' : '' ?>
-                                       onchange="this.form.submit()">
-                                <div class="choice__inner">
-                                    <div class="choice__title" style="font-size:13px;margin:0"><?= H::e($label) ?></div>
-                                </div>
-                            </label>
-                        <?php endforeach; ?>
-                    </div>
-                    <noscript><button class="btn btn--ghost btn--sm mt-2" type="submit">Change style</button></noscript>
-                </form>
-            </div>
-        </div>
-
-        <!-- 2. The prompt -->
+        <!-- 1. The prompt -->
         <div class="card mb-2">
             <div class="card__head">
-                <h3>2. Copy the prompt</h3>
+                <h3>1. Copy the prompt</h3>
                 <span class="small muted">Already sized 16:11 with room for <?= (int) $project['cells'] ?> spaces</span>
             </div>
             <div class="card__body">
@@ -77,10 +55,10 @@ $pid = (int) $project['id'];
             </div>
         </div>
 
-        <!-- 3. Upload -->
+        <!-- 2. Upload -->
         <div class="card">
             <div class="card__head">
-                <h3>3. Upload the background</h3>
+                <h3>2. Upload the background</h3>
                 <?php if ($background): ?>
                     <span class="badge badge--ready"><?= Icon::get('check', 11) ?> Uploaded</span>
                 <?php endif; ?>

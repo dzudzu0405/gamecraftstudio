@@ -52,13 +52,6 @@ $id       = (int) $project['id'];
                     </button>
                 </form>
 
-                <form method="post" action="<?= Url::to('/projects/' . $id . '/delete') ?>"
-                      data-confirm="Delete &quot;<?= H::e($project['title']) ?>&quot;? This cannot be undone.">
-                    <?= Csrf::field() ?>
-                    <button type="submit" class="menu__item menu__item--danger" role="menuitem">
-                        <?= Icon::get('trash', 16) ?> Delete project
-                    </button>
-                </form>
             </div>
         </div>
     <?php endif; ?>
@@ -75,6 +68,19 @@ $id       = (int) $project['id'];
 
         <div class="project-card__time">
             <?= H::e($diff['name']) ?> &middot; <?= (int) $project['cells'] ?> spaces &middot; updated <?= H::e(H::timeAgo($project['updated_at'])) ?>
+        </div>
+
+        <div class="project-card__actions">
+            <a class="btn btn--ghost btn--sm" href="<?= Url::to('/studio/' . $id) ?>">
+                <?= Icon::get('edit', 14) ?> Edit
+            </a>
+            <form method="post" action="<?= Url::to('/projects/' . $id . '/delete') ?>"
+                  data-confirm="Delete &quot;<?= H::e($project['title']) ?>&quot;? This cannot be undone.">
+                <?= Csrf::field() ?>
+                <button type="submit" class="btn btn--danger btn--sm">
+                    <?= Icon::get('trash', 14) ?> Delete
+                </button>
+            </form>
         </div>
     </div>
 </div>

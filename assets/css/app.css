@@ -441,6 +441,17 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
 }
 .project-card__time { font-size: 11px; color: var(--text-faint); margin-top: auto; }
 
+/* Edit and Delete sit on the face of the card, not behind the overflow menu */
+.project-card__actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.project-card__actions .btn { flex: 1; justify-content: center; }
+.project-card__actions form { flex: 1; display: flex; }
+
 /* The "Create New Game" tile at the end of the list (FR-15) */
 .project-card--new {
   border: 2px dashed var(--primary-line);
@@ -516,6 +527,9 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
   margin-bottom: 6px;
 }
 .label__hint { font-weight: 500; color: var(--text-muted); font-size: 12px; }
+
+.input::placeholder,
+.textarea::placeholder { font-style: italic; }
 
 .input, .select, .textarea {
   width: 100%;

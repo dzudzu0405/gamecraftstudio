@@ -15,6 +15,13 @@ class Project
 {
     public const STATUSES = ['draft', 'in_progress', 'ready', 'published'];
 
+    /**
+     * How many people can play one game. Referenced by the wizard, the studio's
+     * token list and the printed token sheet, so the three cannot drift apart.
+     */
+    public const MIN_PLAYERS = 2;
+    public const MAX_PLAYERS = 6;
+
     /** Sort options for the dropdown (FR-12) */
     public const SORTS = [
         'recent'  => 'Recently updated',
@@ -106,6 +113,7 @@ class Project
             'difficulty'        => $difficulty,
             'theme'             => $data['theme'] ?? 'forest',
             'subjects'          => $data['subjects'] ?? 'math,nature',
+            'setting'           => $data['setting'] ?? null,
             'question_count'    => (int) ($data['question_count'] ?? $cfg['mission_cards']),
             'cells'             => (int) $cfg['cells'],
             'players_min'       => (int) ($data['players_min'] ?? 2),

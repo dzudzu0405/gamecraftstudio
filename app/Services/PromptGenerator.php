@@ -9,6 +9,9 @@ namespace App\Services;
  */
 class PromptGenerator
 {
+    /** The one style every map is drawn in */
+    public const DEFAULT_STYLE = 'storybook';
+
     /** Art styles - these change the wording of the prompt */
     public const STYLES = [
         'storybook'  => 'Storybook illustration',

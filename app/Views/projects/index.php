@@ -121,6 +121,14 @@ use App\Services\Difficulty;
                     <?= Icon::get('edit', 14) ?> Edit
                 </a>
 
+                <form method="post" action="<?= Url::to('/projects/' . $id . '/delete') ?>"
+                      data-confirm="Delete &quot;<?= H::e($project['title']) ?>&quot;? This cannot be undone.">
+                    <?= Csrf::field() ?>
+                    <button type="submit" class="btn btn--danger btn--sm">
+                        <?= Icon::get('trash', 14) ?> Delete
+                    </button>
+                </form>
+
                 <div class="menu" data-menu>
                     <button type="button" class="menu__trigger" data-menu-trigger
                             aria-haspopup="true" aria-expanded="false" aria-label="Actions">
@@ -137,13 +145,6 @@ use App\Services\Difficulty;
                         <form method="post" action="<?= Url::to('/projects/' . $id . '/duplicate') ?>">
                             <?= Csrf::field() ?>
                             <button type="submit" class="menu__item" role="menuitem"><?= Icon::get('copy', 16) ?> Duplicate</button>
-                        </form>
-                        <form method="post" action="<?= Url::to('/projects/' . $id . '/delete') ?>"
-                              data-confirm="Delete &quot;<?= H::e($project['title']) ?>&quot;?">
-                            <?= Csrf::field() ?>
-                            <button type="submit" class="menu__item menu__item--danger" role="menuitem">
-                                <?= Icon::get('trash', 16) ?> Delete project
-                            </button>
                         </form>
                     </div>
                 </div>
