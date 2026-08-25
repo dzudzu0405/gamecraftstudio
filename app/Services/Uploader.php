@@ -17,7 +17,8 @@ use App\Core\Database;
  *     or Content-Type header.
  *   - Files are renamed randomly; the user's original name is never used on disk.
  *   - Images are re-encoded through GD, which strips any foreign data hidden
- *     inside the file (EXIF, embedded code).
+ *     inside the file (EXIF, embedded code). The EXIF orientation is read
+ *     first and baked into the pixels, so phone photos are not left sideways.
  *   - The uploads/ folder already blocks PHP execution via .htaccess.
  */
 class Uploader
@@ -137,6 +138,17 @@ class Uploader
             return null;
         }
 
+        // Straighten the picture before anything measures it
+        $orientation = self::readOrientation($tmp, $type);
+        if ($orientation > 1) {
+            $src = self::applyOrientation($src, $orientation);
+
+            // A quarter turn swaps the sides, so re-read them rather than trusting
+            // the numbers getimagesize() reported for the file on disk
+            $srcW = imagesx($src);
+            $srcH = imagesy($src);
+        }
+
         // Shrink while keeping the aspect ratio
         $scale = min(1.0, self::MAX_WIDTH / $srcW, self::MAX_HEIGHT / $srcH);
         $outW  = max(1, (int) round($srcW * $scale));
@@ -159,6 +171,155 @@ class Uploader
         return [$outW, $outH];
     }
 
+    /**
+     * Re-drawing through GD throws EXIF away, and the orientation tag with it.
+     * A phone photo is usually stored sideways with a tag saying which way is up,
+     * so without this the picture arrives rotated or mirrored.
+     *
+     * The rotation is baked into the pixels here, while the tag is still readable.
+     */
+    private static function applyOrientation($img, int $orientation)
+    {
+        // 3 = 180 degrees, 6 = 90 clockwise, 8 = 90 anticlockwise.
+        // 2, 4, 5 and 7 are the mirrored versions of the same four.
+        $rotate = match ($orientation) {
+            3, 4 => 180,
+            5, 6 => -90,
+            7, 8 => 90,
+            default => 0,
+        };
+
+        if ($rotate !== 0) {
+            $rotated = @imagerotate($img, $rotate, 0);
+            if ($rotated !== false) {
+                imagedestroy($img);
+                $img = $rotated;
+            }
+        }
+
+        if (in_array($orientation, [2, 4, 5, 7], true) && function_exists('imageflip')) {
+            imageflip($img, IMG_FLIP_HORIZONTAL);
+        }
+
+        return $img;
+    }
+
+    /**
+     * Reads the EXIF orientation of a JPEG, 1 when there is nothing to do.
+     *
+     * Uses the exif extension when the host has it. Plenty of cPanel accounts do
+     * not, so the fallback walks the JPEG markers to the APP1 segment and reads
+     * tag 0x0112 out of the IFD0 directory by hand.
+     */
+    private static function readOrientation(string $file, int $type): int
+    {
+        if ($type !== IMAGETYPE_JPEG) {
+            return 1;   // PNG and WEBP carry no orientation tag
+        }
+
+        if (function_exists('exif_read_data')) {
+            $exif = @exif_read_data($file);
+            $o    = (int) ($exif['Orientation'] ?? 1);
+            return ($o >= 1 && $o <= 8) ? $o : 1;
+        }
+
+        return self::readOrientationRaw($file);
+    }
+
+    /** The hand-rolled reader used when the exif extension is missing */
+    private static function readOrientationRaw(string $file): int
+    {
+        $fh = @fopen($file, 'rb');
+        if (!$fh) {
+            return 1;
+        }
+
+        try {
+            if (fread($fh, 2) !== "\xFF\xD8") {
+                return 1;   // not a JPEG
+            }
+
+            // Walk the marker segments looking for APP1 (0xFFE1)
+            while (!feof($fh)) {
+                $marker = fread($fh, 2);
+                if (strlen($marker) < 2 || $marker[0] !== "\xFF") {
+                    return 1;
+                }
+
+                $id = ord($marker[1]);
+                if ($id === 0xDA || $id === 0xD9) {
+                    return 1;   // image data starts here; no APP1 found
+                }
+
+                $sizeBytes = fread($fh, 2);
+                if (strlen($sizeBytes) < 2) {
+                    return 1;
+                }
+                $size = unpack('n', $sizeBytes)[1] - 2;
+                if ($size < 0) {
+                    return 1;
+                }
+
+                if ($id !== 0xE1) {
+                    fseek($fh, $size, SEEK_CUR);
+                    continue;
+                }
+
+                $app1 = fread($fh, $size);
+                if (!str_starts_with($app1, "Exif\x00\x00")) {
+                    return 1;
+                }
+
+                return self::orientationFromTiff(substr($app1, 6));
+            }
+        } finally {
+            fclose($fh);
+        }
+
+        return 1;
+    }
+
+    /** Pulls tag 0x0112 out of IFD0 of a TIFF header */
+    private static function orientationFromTiff(string $tiff): int
+    {
+        if (strlen($tiff) < 8) {
+            return 1;
+        }
+
+        // Byte order: 'II' little-endian (Intel), 'MM' big-endian (Motorola)
+        $little = str_starts_with($tiff, 'II');
+        if (!$little && !str_starts_with($tiff, 'MM')) {
+            return 1;
+        }
+
+        $short = static fn (int $at): int => strlen($tiff) >= $at + 2
+            ? unpack($little ? 'v' : 'n', substr($tiff, $at, 2))[1]
+            : 0;
+        $long  = static fn (int $at): int => strlen($tiff) >= $at + 4
+            ? unpack($little ? 'V' : 'N', substr($tiff, $at, 4))[1]
+            : 0;
+
+        $ifd = $long(4);
+        if ($ifd < 8 || $ifd + 2 > strlen($tiff)) {
+            return 1;
+        }
+
+        $count = $short($ifd);
+        for ($i = 0; $i < $count; $i++) {
+            $entry = $ifd + 2 + ($i * 12);
+            if ($entry + 12 > strlen($tiff)) {
+                break;
+            }
+            if ($short($entry) !== 0x0112) {
+                continue;
+            }
+            // A SHORT value sits in the first 2 bytes of the 4-byte value field
+            $o = $short($entry + 8);
+            return ($o >= 1 && $o <= 8) ? $o : 1;
+        }
+
+        return 1;
+    }
     private static function resample($src, int $sw, int $sh, int $dw, int $dh, int $type)
     {
         $dst = imagecreatetruecolor($dw, $dh);
