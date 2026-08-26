@@ -118,7 +118,7 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
                         <?php foreach ($themes as $key => $label): ?>
                             <label class="pick">
                                 <input type="radio" name="theme" value="<?= H::e($key) ?>"
-                                       <?= $project['theme'] === $key ? 'checked' : '' ?>>
+                                       <?= Project::usesThemeBackground($project) && $project['theme'] === $key ? 'checked' : '' ?>>
                                 <div class="pick__art">
                                     <img src="<?= Url::to('art/scene/' . rawurlencode($key) . '/theme-' . rawurlencode($key) . '.svg?w=300&h=225') ?>"
                                          alt="" loading="lazy" width="300" height="225">
@@ -126,6 +126,16 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
                                 <div class="pick__label"><?= H::e($label) ?></div>
                             </label>
                         <?php endforeach; ?>
+
+                        <?php /* No ready-made scene: this is what brings the background step back */ ?>
+                        <label class="pick pick--custom">
+                            <input type="radio" name="theme" value="<?= H::e(Project::THEME_CUSTOM) ?>"
+                                   <?= !Project::usesThemeBackground($project) ? 'checked' : '' ?>>
+                            <div class="pick__art pick__art--custom">
+                                <?= Icon::get('wand', 26) ?>
+                            </div>
+                            <div class="pick__label">My own background</div>
+                        </label>
                     </div>
                 </div>
             </div>

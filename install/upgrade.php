@@ -110,6 +110,29 @@ try {
         }
     }
 
+    // ---------------------------------------------------------------
+    //  3. Data the new columns cannot express on their own
+    // ---------------------------------------------------------------
+
+    // background_mode arrived defaulting to 'theme', which tells the app to use
+    // the theme's own scene and ignore any upload. Projects that already have an
+    // uploaded background were plainly made the custom way, so say so - otherwise
+    // the upgrade would quietly hide artwork somebody made.
+    if (Database::tableExists('projects')
+        && in_array('background_mode', existingColumns($pdo, $driver, 'projects'), true)) {
+
+        $stale = Database::count(
+            "SELECT COUNT(*) FROM projects WHERE background_id IS NOT NULL AND background_mode = 'theme'"
+        );
+
+        if ($stale > 0) {
+            Database::run(
+                "UPDATE projects SET background_mode = 'custom' WHERE background_id IS NOT NULL AND background_mode = 'theme'"
+            );
+            step('Kept the uploaded background on ' . $stale . ' existing project' . ($stale === 1 ? '' : 's'));
+        }
+    }
+
     if (!$log) {
         step('Everything is already up to date. Nothing needed changing.');
     }

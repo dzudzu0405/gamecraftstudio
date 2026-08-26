@@ -22,6 +22,24 @@ class Project
     public const MIN_PLAYERS = 2;
     public const MAX_PLAYERS = 6;
 
+    /**
+     * Where the map background comes from.
+     *
+     * A ready-made theme brings its own artwork, so the wizard skips the whole
+     * background step. THEME_CUSTOM is the extra tile on the theme grid meaning
+     * "I will make my own" - it is a background choice, not a real theme, and
+     * never reaches the theme column.
+     */
+    public const BACKGROUND_THEME  = 'theme';
+    public const BACKGROUND_CUSTOM = 'custom';
+    public const THEME_CUSTOM      = 'custom';
+
+    /** True when the map background comes from the chosen theme */
+    public static function usesThemeBackground(array $project): bool
+    {
+        return ($project['background_mode'] ?? self::BACKGROUND_THEME) !== self::BACKGROUND_CUSTOM;
+    }
+
     /** Sort options for the dropdown (FR-12) */
     public const SORTS = [
         'recent'  => 'Recently updated',
@@ -114,6 +132,7 @@ class Project
             'theme'             => $data['theme'] ?? 'forest',
             'subjects'          => $data['subjects'] ?? 'math,nature',
             'setting'           => $data['setting'] ?? null,
+            'background_mode'   => $data['background_mode'] ?? self::BACKGROUND_THEME,
             'question_count'    => (int) ($data['question_count'] ?? $cfg['mission_cards']),
             'cells'             => (int) $cfg['cells'],
             'players_min'       => (int) ($data['players_min'] ?? 2),
@@ -251,7 +270,7 @@ class Project
 
         if (trim((string) ($project['title'] ?? '')) !== '')  { $done++; }
         if (!empty($project['map_item_id']))                  { $done++; }
-        if (!empty($project['background_id']))                { $done++; }
+        if (self::usesThemeBackground($project) || !empty($project['background_id'])) { $done++; }
 
         $expected = Difficulty::missionCount((string) ($project['difficulty'] ?? 'standard'));
         if (MissionMatcher::countForProject((int) $project['id']) >= $expected) { $done++; }

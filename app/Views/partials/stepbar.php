@@ -1,5 +1,10 @@
 <?php
-/** Five-step progress bar. Expects: $project, $step, $labels */
+/**
+ * Wizard progress bar. Expects: $project, $step, $labels
+ *
+ * $labels is keyed by the real step number, and a themed game has no step 3,
+ * so the numbers shown are counted off separately from the keys.
+ */
 use App\Core\Helper as H;
 use App\Core\Icon;
 use App\Core\Url;
@@ -15,8 +20,10 @@ $reached = (int) ($project['wizard_step'] ?? 1);
 </div>
 
 <nav class="stepbar" aria-label="Game creation steps">
+    <?php $shown = 0; ?>
     <?php foreach ($labels as $n => $label): ?>
         <?php
+        $shown++;
         $isActive = $n === $step;
         $isDone   = $n < $step || ($n < $reached && !$isActive);
         $cls = $isActive ? 'stepbar__item--active' : ($isDone ? 'stepbar__item--done' : '');
@@ -24,12 +31,12 @@ $reached = (int) ($project['wizard_step'] ?? 1);
         ?>
         <?php if ($canGo && !$isActive): ?>
             <a class="stepbar__item <?= $cls ?>" href="<?= Url::to('/create/' . (int) $project['id'] . '/step/' . $n) ?>">
-                <span class="n"><?= $isDone ? '&#10003;' : $n ?></span>
+                <span class="n"><?= $isDone ? '&#10003;' : $shown ?></span>
                 <span><?= H::e($label) ?></span>
             </a>
         <?php else: ?>
             <span class="stepbar__item <?= $cls ?>" <?= $isActive ? 'aria-current="step"' : '' ?>>
-                <span class="n"><?= $isDone ? '&#10003;' : $n ?></span>
+                <span class="n"><?= $isDone ? '&#10003;' : $shown ?></span>
                 <span><?= H::e($label) ?></span>
             </span>
         <?php endif; ?>

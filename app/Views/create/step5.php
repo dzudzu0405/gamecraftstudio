@@ -5,6 +5,7 @@ use App\Core\Helper as H;
 use App\Core\Icon;
 use App\Core\Url;
 use App\Core\View;
+use App\Models\Project;
 use App\Services\Difficulty;
 
 echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
@@ -16,7 +17,10 @@ $checklist = [
     ['Game title',        trim((string) $project['title']) !== '', (string) $project['title']],
     ['Map frame',         !empty($project['map_item_id']),         $items['map']['name'] ?? 'Not chosen'],
     ['Character set',     !empty($project['character_item_id']),   $items['character']['name'] ?? 'Not chosen'],
-    ['Your background',   !empty($project['background_id']),       !empty($project['background_id']) ? 'Uploaded' : 'Using a placeholder'],
+    ['Map background',    Project::usesThemeBackground($project) || !empty($project['background_id']),
+                          Project::usesThemeBackground($project)
+                              ? 'From the chosen theme'
+                              : (!empty($project['background_id']) ? 'Uploaded' : 'Using a placeholder')],
     ['Mission cards',     $missionCount >= $expected,              $missionCount . ' of ' . $expected],
     ['Story',             trim((string) $project['story']) !== '', trim((string) $project['story']) !== '' ? 'Written' : 'Not written'],
 ];

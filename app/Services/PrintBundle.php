@@ -190,10 +190,16 @@ class PrintBundle
         return $out;
     }
 
-    /** Map background: prefers the image the user uploaded (FR-31) */
+    /**
+     * Map background: the uploaded image when the buyer made their own,
+     * otherwise the scene that belongs to the chosen theme (FR-31).
+     */
     public static function backgroundUrl(array $project): ?string
     {
-        $bgId = (int) ($project['background_id'] ?? 0);
+        $bgId = Project::usesThemeBackground($project)
+            ? 0                                       // a themed game ignores any leftover upload
+            : (int) ($project['background_id'] ?? 0);
+
         if ($bgId > 0) {
             $asset = Database::first('SELECT * FROM user_assets WHERE id = ? LIMIT 1', [$bgId]);
             if ($asset && !empty($asset['path'])) {

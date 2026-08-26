@@ -135,7 +135,7 @@ if (!is_array($oldSubjects)) {
             <div class="card">
                 <div class="card__head">
                     <h3>Theme</h3>
-                    <span class="small muted">Pick a ready-made theme and you can skip making a background later</span>
+                    <span class="small muted">Pick a ready-made theme and there is no background to make later</span>
                 </div>
                 <div class="card__body">
                     <div class="pick-grid">
@@ -150,6 +150,16 @@ if (!is_array($oldSubjects)) {
                                 <div class="pick__label"><?= H::e($label) ?></div>
                             </label>
                         <?php endforeach; ?>
+
+                        <?php /* No ready-made scene: this is what brings the background step back */ ?>
+                        <label class="pick pick--custom">
+                            <input type="radio" name="theme" value="<?= H::e(Project::THEME_CUSTOM) ?>"
+                                   <?= Flash::old('theme') === Project::THEME_CUSTOM ? 'checked' : '' ?>>
+                            <div class="pick__art pick__art--custom">
+                                <?= Icon::get('wand', 26) ?>
+                            </div>
+                            <div class="pick__label">My own background</div>
+                        </label>
                     </div>
                 </div>
             </div>

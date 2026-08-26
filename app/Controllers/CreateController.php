@@ -32,6 +32,9 @@ class CreateController extends Controller
 {
     private const LAST_STEP = 5;
 
+    /** The step a ready-made theme lets you skip */
+    private const BACKGROUND_STEP = 3;
+
     private const STEP_LABELS = [
         1 => 'Basics',
         2 => 'Library picks',
@@ -78,7 +81,7 @@ class CreateController extends Controller
 
         $v = new Validator($request->body);
         $v->required('title', 'a game title')->max('title', 160, 'the game title')
-          ->in('theme', array_keys(Art::THEMES), 'theme')
+          ->in('theme', array_merge(array_keys(Art::THEMES), [Project::THEME_CUSTOM]), 'theme')
           ->in('difficulty', array_keys(Difficulty::all()), 'difficulty')
           ->max('setting', 120, 'the setting')
           ->between('players_min', Project::MIN_PLAYERS, Project::MAX_PLAYERS, 'the minimum player count')
@@ -112,9 +115,12 @@ class CreateController extends Controller
             [$min, $max] = [$max, $min];
         }
 
+        $choice = $this->readThemeChoice($request);
+
         $projectId = Project::create($this->userId(), [
             'title'       => $request->str('title'),
-            'theme'       => $request->str('theme', 'forest'),
+            'theme'       => $choice['theme'] ?? 'forest',
+            'background_mode' => $choice['background_mode'] ?? Project::BACKGROUND_THEME,
             'difficulty'  => $difficulty,
             'subjects'    => implode(',', $subjects),
             'setting'     => mb_substr(trim($request->str('setting')), 0, 120) ?: null,
@@ -136,12 +142,19 @@ class CreateController extends Controller
         $step    = $this->clampStep((int) ($params['step'] ?? 1));
         $plan    = Auth::plan();
 
+        // A themed game has no background step; send anyone who lands there onward
+        $stepsAvailable = $this->stepsFor($project);
+        if (!in_array($step, $stepsAvailable, true)) {
+            Response::redirect('/create/' . (int) $project['id'] . '/step/' . $this->nextStep($project, $step));
+            return;
+        }
+
         $data = [
             'pageTitle' => self::STEP_LABELS[$step] . ' · ' . $project['title'],
             'project'   => $project,
             'step'      => $step,
-            'lastStep'  => self::LAST_STEP,
-            'labels'    => self::STEP_LABELS,
+            'lastStep'  => (int) end($stepsAvailable),
+            'labels'    => $this->stepLabelsFor($project),
             'plan'      => Tiers::get($plan),
             'planKey'   => $plan,
         ];
@@ -238,7 +251,10 @@ class CreateController extends Controller
                 return;
         }
 
-        $next = min(self::LAST_STEP, $step + 1);
+        // saveBasics may have just switched the branch, so re-read the project
+        $project = Project::find($id, $this->userId()) ?? $project;
+
+        $next = $this->nextStep($project, $step);
         Project::touch($id, ['wizard_step' => max((int) $project['wizard_step'], $next)]);
         Response::redirect('/create/' . $id . '/step/' . $next);
     }
@@ -262,9 +278,12 @@ class CreateController extends Controller
 
         $update['setting'] = mb_substr(trim($request->str('setting')), 0, 120) ?: null;
 
-        $theme = $request->str('theme');
-        if (isset(Art::THEMES[$theme])) {
-            $update['theme'] = $theme;
+        $choice = $this->readThemeChoice($request);
+        if ($choice['theme'] !== null) {
+            $update['theme'] = $choice['theme'];
+        }
+        if ($choice['background_mode'] !== null) {
+            $update['background_mode'] = $choice['background_mode'];
         }
 
         $subjects = array_values(array_intersect($request->arr('subjects'), MissionMatcher::subjectKeys()));
@@ -521,6 +540,66 @@ class CreateController extends Controller
     //  Helpers
     // -----------------------------------------------------------------
 
+    /**
+     * The steps this project actually walks through.
+     *
+     * Picking a ready-made theme means the background is already drawn, so step 3
+     * drops out of the wizard: no prompt to copy, nothing to upload.
+     */
+    private function stepsFor(array $project): array
+    {
+        $steps = array_keys(self::STEP_LABELS);
+
+        if (Project::usesThemeBackground($project)) {
+            $steps = array_values(array_diff($steps, [self::BACKGROUND_STEP]));
+        }
+
+        return $steps;
+    }
+
+    /** The same list as labels, ready for the progress bar */
+    private function stepLabelsFor(array $project): array
+    {
+        $out = [];
+        foreach ($this->stepsFor($project) as $n) {
+            $out[$n] = self::STEP_LABELS[$n];
+        }
+        return $out;
+    }
+
+    /** The step after $step, or the last one when there is nothing further */
+    private function nextStep(array $project, int $step): int
+    {
+        $steps = $this->stepsFor($project);
+        foreach ($steps as $n) {
+            if ($n > $step) {
+                return $n;
+            }
+        }
+        return (int) end($steps);
+    }
+
+    /**
+     * Reads the theme radio, which doubles as the background choice.
+     *
+     * The extra tile posts 'custom', meaning the buyer makes their own background.
+     * That is not a theme, so the theme column keeps whatever it had - step 2's map
+     * frame is what sets it from then on.
+     */
+    private function readThemeChoice(Request $request): array
+    {
+        $choice = $request->str('theme');
+
+        if ($choice === Project::THEME_CUSTOM) {
+            return ['theme' => null, 'background_mode' => Project::BACKGROUND_CUSTOM];
+        }
+
+        if (isset(Art::THEMES[$choice])) {
+            return ['theme' => $choice, 'background_mode' => Project::BACKGROUND_THEME];
+        }
+
+        return ['theme' => null, 'background_mode' => null];
+    }
     private function clampStep(int $step): int
     {
         return max(1, min(self::LAST_STEP, $step));
