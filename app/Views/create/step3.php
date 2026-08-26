@@ -9,6 +9,7 @@ use App\Core\Helper as H;
 use App\Core\Icon;
 use App\Core\Url;
 use App\Core\View;
+use App\Services\Uploader;
 
 echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
 $pid = (int) $project['id'];
@@ -85,7 +86,7 @@ $pid = (int) $project['id'];
                             <?= $background ? 'Replace with a different image' : 'Drag an image here' ?>
                         </div>
                         <div class="dropzone__hint" data-dropzone-label>
-                            or click to browse &middot; JPG, PNG, WEBP &middot; up to 12 MB
+                            or click to browse &middot; JPG, PNG, WEBP &middot; up to <?= H::e(Uploader::maxUploadLabel()) ?>
                         </div>
                         <input type="file" name="background" accept="image/jpeg,image/png,image/webp">
                     </label>

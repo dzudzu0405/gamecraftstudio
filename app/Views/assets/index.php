@@ -46,7 +46,7 @@ $folders = [
                     <div class="dropzone__icon"><?= Icon::get('upload', 30) ?></div>
                     <div class="dropzone__title">Upload a background image</div>
                     <div class="dropzone__hint" data-dropzone-label>
-                        JPG, PNG, WEBP &middot; up to 12 MB &middot; resized to 2400px at most
+                        JPG, PNG, WEBP &middot; up to <?= H::e(Uploader::maxUploadLabel()) ?> &middot; resized to 2400px at most
                     </div>
                     <input type="file" name="image" accept="image/jpeg,image/png,image/webp">
                 </label>

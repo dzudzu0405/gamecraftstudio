@@ -10,6 +10,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\Validator;
 use App\Services\Tiers;
+use App\Services\Uploader;
 use Install\Schema;
 use Install\Seeder;
 
@@ -161,6 +162,14 @@ class InstallController extends Controller
                 'ok'       => extension_loaded('mbstring'),
                 'value'    => extension_loaded('mbstring') ? 'Yes' : 'No',
                 'fix'      => 'Enable mbstring under cPanel > Select PHP Version > Extensions.',
+            ],
+            [
+                'label'    => 'Upload size limit',
+                'ok'       => Uploader::maxUploadSize() >= 4 * 1024 * 1024,
+                'value'    => Uploader::maxUploadLabel(),
+                'fix'      => 'Pictures from an AI image tool are often 2-5 MB. Raise upload_max_filesize '
+                            . 'and post_max_size under cPanel > Select PHP Version > Options.',
+                'optional' => true,
             ],
             [
                 'label'    => 'uploads/ folder is writable',

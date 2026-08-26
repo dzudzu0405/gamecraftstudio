@@ -48,9 +48,9 @@ class Uploader
             return ['ok' => false, 'message' => $err];
         }
 
-        $maxSize = (int) Config::get('upload_max_size', 12 * 1024 * 1024);
+        $maxSize = self::maxUploadSize();
         if (($file['size'] ?? 0) > $maxSize) {
-            return ['ok' => false, 'message' => 'That image is larger than ' . self::human($maxSize) . '. Please shrink it and try again.'];
+            return ['ok' => false, 'message' => 'That image is larger than ' . self::formatBytes($maxSize) . '. Please shrink it and try again.'];
         }
 
         $tmp = $file['tmp_name'] ?? '';
@@ -360,7 +360,8 @@ class Uploader
         return match ($code) {
             UPLOAD_ERR_OK        => null,
             UPLOAD_ERR_INI_SIZE,
-            UPLOAD_ERR_FORM_SIZE => 'That image exceeds the server upload limit. Please choose a smaller file.',
+            UPLOAD_ERR_FORM_SIZE => 'That image is over the ' . self::maxUploadLabel()
+                . ' limit this server allows. Shrink the picture, or ask your host to raise upload_max_filesize and post_max_size in PHP.',
             UPLOAD_ERR_PARTIAL   => 'The upload was interrupted. Please try again.',
             UPLOAD_ERR_NO_FILE   => 'No file was selected.',
             UPLOAD_ERR_NO_TMP_DIR=> 'The server is missing its temporary folder. Please contact your host.',
@@ -385,6 +386,53 @@ class Uploader
         return date('Ymd') . '_' . bin2hex(random_bytes(8));
     }
 
+    /**
+     * The largest upload that will actually get through, in bytes.
+     *
+     * config.php can ask for 12 MB all it likes: PHP rejects the request before
+     * any of this code runs if the file is over upload_max_filesize, and the whole
+     * POST if it is over post_max_size. Shared hosts often ship 2 MB. Promising a
+     * number the server will not honour is how you get "exceeds the server upload
+     * limit" on a picture the app said was fine, so take the smallest of the three.
+     */
+    public static function maxUploadSize(): int
+    {
+        $limits = [(int) Config::get('upload_max_size', 12 * 1024 * 1024)];
+
+        foreach (['upload_max_filesize', 'post_max_size'] as $key) {
+            $bytes = self::iniBytes((string) ini_get($key));
+            if ($bytes > 0) {
+                $limits[] = $bytes;
+            }
+        }
+
+        return max(1, min($limits));
+    }
+
+    /** Turns an ini shorthand such as "2M" or "512K" into bytes */
+    private static function iniBytes(string $value): int
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return 0;
+        }
+
+        $number = (int) $value;
+        $unit   = strtolower(substr($value, -1));
+
+        return match ($unit) {
+            'g'     => $number * 1024 * 1024 * 1024,
+            'm'     => $number * 1024 * 1024,
+            'k'     => $number * 1024,
+            default => $number,
+        };
+    }
+
+    /** The same limit, written for people: "2 MB" */
+    public static function maxUploadLabel(): string
+    {
+        return self::formatBytes(self::maxUploadSize());
+    }
     private static function human(int $bytes): string
     {
         if ($bytes >= 1048576) {
