@@ -98,8 +98,9 @@ $poseNo    = 0;
             <?php $head('1', 'Game map', (int) $project['cells'] . ' mission spaces'); ?>
             <div class="sheet__body map-wrap">
                 <?= MapComposer::render($project, $d['background'], [
-                    'width'  => MapComposer::WIDTH,
-                    'height' => MapComposer::HEIGHT,
+                    'width'    => MapComposer::WIDTH,
+                    'height'   => MapComposer::HEIGHT,
+                    'frameUrl' => PrintBundle::mapFrameUrl($project),
                 ]) ?>
             </div>
             <?php $foot(); ?>

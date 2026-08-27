@@ -350,6 +350,33 @@ class PrintBundle
         return 'data:image/png;base64,' . base64_encode($bytes);
     }
     /**
+     * The chosen map frame's own artwork, embedded so a print file stands alone.
+     *
+     * Null when the frame is still a drawn placeholder, which is the signal to
+     * MapComposer to draw its own trail instead.
+     */
+    public static function mapFrameUrl(array $project): ?string
+    {
+        $itemId = (int) ($project['map_item_id'] ?? 0);
+        if ($itemId <= 0) {
+            return null;
+        }
+
+        $item = Library::find($itemId);
+        if (!$item) {
+            return null;
+        }
+
+        $rel = Library::realImagePath($item, 1);
+        if ($rel === null) {
+            return null;
+        }
+
+        $full = dirname(__DIR__, 2) . '/uploads/' . $rel;
+
+        return is_file($full) ? self::fileToDataUri($full) : null;
+    }
+    /**
      * The card frames this project prints on, as data URIs ready for CSS.
      *
      * Embedded once in a stylesheet rather than per card - ninety mission cards

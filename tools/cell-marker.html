@@ -1,0 +1,310 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Cell marker - GameCraft Studio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!--
+  Marks the mission spaces on a board picture.
+
+  Open the file, choose the board pictures, then click each space in playing
+  order - START end first. The numbers appear as you go. Export writes one JSON
+  file holding every board you marked, with each space as a fraction of the
+  picture's width and height, so the numbers still land correctly whatever size
+  the board is printed at.
+
+  Nothing is uploaded. It all happens in the browser.
+-->
+
+<style>
+  :root {
+    --ink: #2B2438;
+    --muted: #6B6478;
+    --line: #E4DFEC;
+    --primary: #6C4BD6;
+    --primary-soft: #F1ECFB;
+    --ok: #2F8F5B;
+    --paper: #FBF8F4;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 14px 20px;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+
+  h1 { font-size: 17px; margin: 0 12px 0 0; }
+
+  button, .filebtn {
+    font: inherit;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  button:hover, .filebtn:hover { background: var(--primary-soft); }
+  button.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  button.primary:hover { filter: brightness(1.08); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  input[type=file] { display: none; }
+
+  .spacer { flex: 1; }
+  .count { font-variant-numeric: tabular-nums; color: var(--muted); }
+  .count b { color: var(--ink); font-size: 17px; }
+
+  main { display: flex; gap: 18px; padding: 18px 20px; align-items: flex-start; }
+
+  #stage {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    line-height: 0;
+  }
+  #stage img { width: 100%; display: block; cursor: crosshair; }
+  #stage.empty { padding: 60px 20px; text-align: center; line-height: 1.6; color: var(--muted); }
+
+  .dot {
+    position: absolute;
+    width: 30px; height: 30px;
+    margin: -15px 0 0 -15px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font: 700 13px/30px system-ui, sans-serif;
+    text-align: center;
+    box-shadow: 0 0 0 3px rgba(255,255,255,.9);
+    pointer-events: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .dot.first { background: var(--ok); }
+
+  aside {
+    width: 250px;
+    flex: 0 0 auto;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px;
+    max-height: 78vh;
+    overflow: auto;
+  }
+  aside h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
+
+  .file {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 9px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+  }
+  .file:hover { background: var(--primary-soft); }
+  .file.on { background: var(--primary-soft); font-weight: 700; }
+  .file span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .file.done span:last-child { color: var(--ok); font-weight: 700; }
+
+  .hint { padding: 0 20px 24px; color: var(--muted); font-size: 13.5px; max-width: 760px; }
+  kbd {
+    font: 600 12px system-ui, sans-serif;
+    border: 1px solid var(--line);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    padding: 1px 6px;
+    background: #fff;
+  }
+</style>
+
+<header>
+  <h1>Cell marker</h1>
+
+  <label class="filebtn">
+    Choose boards<input id="files" type="file" accept="image/*" multiple>
+  </label>
+
+  <button id="prev">&larr; Prev</button>
+  <button id="next">Next &rarr;</button>
+  <button id="undo">Undo</button>
+  <button id="clear">Clear board</button>
+
+  <span class="spacer"></span>
+  <span class="count"><b id="marked">0</b> spaces on this board</span>
+  <button id="export" class="primary">Export JSON</button>
+</header>
+
+<main>
+  <div id="stage" class="empty">Choose the board pictures to begin.</div>
+  <aside>
+    <h2>Boards</h2>
+    <div id="list"></div>
+  </aside>
+</main>
+
+<p class="hint">
+  Click each space in playing order, starting at the END NEAREST START - the first
+  one is marked green. <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes, <kbd>&larr;</kbd> and
+  <kbd>&rarr;</kbd> move between boards. Positions are saved as fractions of the
+  picture, so they hold at any print size. Your work stays in this browser until
+  you press Export.
+</p>
+
+<script>
+(function () {
+  var boards = [];      // { name, url, cells: [{x, y}] }
+  var at = -1;
+
+  var stage  = document.getElementById('stage');
+  var list   = document.getElementById('list');
+  var marked = document.getElementById('marked');
+
+  function current() { return at >= 0 ? boards[at] : null; }
+
+  var shown = null;   // the board the <img> is currently holding
+
+  function draw() {
+    var b = current();
+
+    if (!b) {
+      stage.className = 'empty';
+      stage.textContent = 'Choose the board pictures to begin.';
+      marked.textContent = '0';
+      shown = null;
+      return;
+    }
+
+    // Rebuild the picture only when the board changes. Replacing it on every
+    // click would reload the file and throw away the click target mid-gesture.
+    if (shown !== b) {
+      stage.className = '';
+      stage.innerHTML = '';
+
+      var img = new Image();
+      img.src = b.url;
+      img.alt = b.name;
+      stage.appendChild(img);
+      shown = b;
+    } else {
+      [].slice.call(stage.querySelectorAll('.dot')).forEach(function (d) { d.remove(); });
+    }
+
+    b.cells.forEach(function (c, i) {
+      var dot = document.createElement('div');
+      dot.className = 'dot' + (i === 0 ? ' first' : '');
+      dot.style.left = (c.x * 100) + '%';
+      dot.style.top  = (c.y * 100) + '%';
+      dot.textContent = i + 1;
+      stage.appendChild(dot);
+    });
+
+    marked.textContent = b.cells.length;
+    paintList();
+  }
+
+  function paintList() {
+    list.innerHTML = '';
+
+    boards.forEach(function (b, i) {
+      var row = document.createElement('div');
+      row.className = 'file' + (i === at ? ' on' : '') + (b.cells.length ? ' done' : '');
+      row.innerHTML = '<span>' + b.name + '</span><span>' + (b.cells.length || '-') + '</span>';
+      row.onclick = function () { at = i; draw(); };
+      list.appendChild(row);
+    });
+  }
+
+  stage.addEventListener('click', function (e) {
+    var b = current();
+    if (!b || e.target.tagName !== 'IMG') return;
+
+    var r = e.target.getBoundingClientRect();
+    b.cells.push({
+      x: +((e.clientX - r.left) / r.width).toFixed(4),
+      y: +((e.clientY - r.top) / r.height).toFixed(4)
+    });
+    draw();
+  });
+
+  document.getElementById('files').addEventListener('change', function (e) {
+    boards = [].slice.call(e.target.files)
+      .sort(function (a, b) {
+        // 2.png before 10.png
+        var na = parseInt(a.name, 10), nb = parseInt(b.name, 10);
+        if (!isNaN(na) && !isNaN(nb) && na !== nb) return na - nb;
+        return a.name.localeCompare(b.name);
+      })
+      .map(function (f) {
+        return { name: f.name, url: URL.createObjectURL(f), cells: [] };
+      });
+
+    at = boards.length ? 0 : -1;
+    draw();
+  });
+
+  document.getElementById('undo').onclick = function () {
+    var b = current();
+    if (b && b.cells.length) { b.cells.pop(); draw(); }
+  };
+
+  document.getElementById('clear').onclick = function () {
+    var b = current();
+    if (b && b.cells.length && confirm('Clear all ' + b.cells.length + ' marks on ' + b.name + '?')) {
+      b.cells = [];
+      draw();
+    }
+  };
+
+  document.getElementById('prev').onclick = function () {
+    if (at > 0) { at--; draw(); }
+  };
+  document.getElementById('next').onclick = function () {
+    if (at >= 0 && at < boards.length - 1) { at++; draw(); }
+  };
+
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey && e.key.toLowerCase() === 'z') { e.preventDefault(); document.getElementById('undo').click(); }
+    else if (e.key === 'ArrowLeft')  { document.getElementById('prev').click(); }
+    else if (e.key === 'ArrowRight') { document.getElementById('next').click(); }
+  });
+
+  document.getElementById('export').onclick = function () {
+    var done = boards.filter(function (b) { return b.cells.length; });
+
+    if (!done.length) {
+      alert('Nothing marked yet.');
+      return;
+    }
+
+    var out = {};
+    done.forEach(function (b) { out[b.name] = b.cells; });
+
+    var blob = new Blob([JSON.stringify(out, null, 1)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'board-cells.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+})();
+</script>

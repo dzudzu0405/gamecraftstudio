@@ -17,6 +17,8 @@ namespace App\Services;
  *   - It needs no external graphics library, so it runs on any cPanel host.
  *   - It stays small and can be adjusted at any time.
  */
+use App\Core\Url;
+
 class MapComposer
 {
     /** Standard map size - landscape, sized for A3/A4 in landscape */
@@ -47,6 +49,9 @@ class MapComposer
         $showNumbers = $options['showNumbers'] ?? true;
         $showPath    = $options['showPath']    ?? true;
         $showTitle   = $options['showTitle']   ?? true;
+
+        // A frame with real artwork brings its own path and spaces
+        $frameUrl = self::frameArtwork($project, $options);
 
         $palette = Art::palette($theme);
         $points  = self::cellPositions($cells, $w, $h);
@@ -80,13 +85,22 @@ class MapComposer
 
         $svg .= '<rect width="' . $w . '" height="' . $h . '" fill="url(#veil' . $id . ')"/>';
 
-        // --- Layer 2: the trail joining the spaces ---
-        if ($showPath) {
-            $svg .= self::pathLayer($points, $palette);
-        }
+        if ($frameUrl !== null) {
+            // --- Layers 2 and 3, supplied: the board as it was drawn ---
+            //
+            // "meet" rather than "slice": the whole board has to be on the page,
+            // and cropping one would cut spaces off the end of the path.
+            $svg .= '<image href="' . self::esc($frameUrl) . '" xlink:href="' . self::esc($frameUrl) . '"';
+            $svg .= ' x="0" y="0" width="' . $w . '" height="' . $h . '" preserveAspectRatio="xMidYMid meet"/>';
+        } else {
+            // --- Layer 2: the trail joining the spaces ---
+            if ($showPath) {
+                $svg .= self::pathLayer($points, $palette);
+            }
 
-        // --- Layer 3: the mission spaces ---
-        $svg .= self::cellsLayer($points, $palette, $showNumbers);
+            // --- Layer 3: the mission spaces ---
+            $svg .= self::cellsLayer($points, $palette, $showNumbers);
+        }
 
         // --- Layer 4: the game title ---
         if ($showTitle) {
@@ -186,6 +200,38 @@ class MapComposer
      * right to left). This keeps the trail continuous and never crossing itself,
      * exactly like a real board game.
      */
+    /**
+     * The board drawn on the frame's own artwork, when it has any.
+     *
+     * These files are transparent PNGs of a path with its spaces already drawn,
+     * so they sit over the background rather than replacing it, and the trail
+     * this class would otherwise draw stands down - two boards on one page
+     * would be unplayable.
+     *
+     * Pass frameUrl in $options to embed a copy (the print file has to stand
+     * alone); leave it out and the picture is linked by URL.
+     */
+    private static function frameArtwork(array $project, array $options): ?string
+    {
+        if (array_key_exists('frameUrl', $options)) {
+            return $options['frameUrl'] !== '' ? (string) $options['frameUrl'] : null;
+        }
+
+        $itemId = (int) ($project['map_item_id'] ?? 0);
+        if ($itemId <= 0) {
+            return null;
+        }
+
+        $item = Library::find($itemId);
+        if (!$item) {
+            return null;
+        }
+
+        $rel = Library::realImagePath($item, 1);
+
+        return $rel !== null ? Url::upload($rel) : null;
+    }
+
     public static function cellPositions(int $cells, int $w = self::WIDTH, int $h = self::HEIGHT): array
     {
         $cells = self::normalizeCells($cells);
