@@ -16,11 +16,24 @@ $frames = PrintBundle::cardFrames($project);
 <?php if ($frames['mission'] || $frames['move']): ?>
     <?php /* One copy of each picture for the page, not one per card */ ?>
     <style>
+        :root {
+            --mission-top: <?= $frames['zone']['mission'][0] ?>%;
+            --mission-bottom: <?= $frames['zone']['mission'][1] ?>%;
+            --move-top: <?= $frames['zone']['move'][0] ?>%;
+            --move-bottom: <?= $frames['zone']['move'][1] ?>%;
+            <?php if ($frames['window']): ?>
+            --hero-top: <?= $frames['window']['top'] ?>%;
+            --hero-height: <?= $frames['window']['height'] ?>%;
+            <?php endif; ?>
+        }
         <?php if ($frames['mission']): ?>
         .pcard--mission { background-image: url('<?= $frames['mission'] ?>'); }
         <?php endif; ?>
         <?php if ($frames['move']): ?>
         .pcard--move { background-image: url('<?= $frames['move'] ?>'); }
+        <?php endif; ?>
+        <?php if ($frames['hero']): ?>
+        .pcard__window, .pcard__hero { background-image: url('<?= $frames['hero'] ?>'); }
         <?php endif; ?>
     </style>
 <?php endif; ?>
@@ -145,14 +158,16 @@ $frames = PrintBundle::cardFrames($project);
                     <?php foreach ($moveCards as $c): ?>
                         <div class="card pcard<?= $frames['move'] ? ' pcard--framed pcard--move' : '' ?>"
                              style="text-align:center;box-shadow:none">
-                            <?php if (!$frames['move']): ?>
-                                <img src="<?= Url::to('art/sticker/' . rawurlencode($c['sticker']) . '.svg?size=22') ?>"
-                                     alt="" width="22" height="22">
-                            <?php endif; ?>
-                            <div style="font-size:26px;font-weight:800;color:<?= $c['steps'] < 0 ? 'var(--red)' : 'var(--primary)' ?>">
-                                <?= $c['steps'] < 0 ? '&minus;' . abs($c['steps']) : '+' . $c['steps'] ?>
+                            <div class="pcard__inner">
+                                <?php if (!$frames['move']): ?>
+                                    <img src="<?= Url::to('art/sticker/' . rawurlencode($c['sticker']) . '.svg?size=22') ?>"
+                                         alt="" width="22" height="22">
+                                <?php endif; ?>
+                                <div style="font-size:26px;font-weight:800;color:<?= $c['steps'] < 0 ? 'var(--red)' : 'var(--primary)' ?>">
+                                    <?= $c['steps'] < 0 ? '&minus;' . abs($c['steps']) : '+' . $c['steps'] ?>
+                                </div>
+                                <div class="small bold"><?= H::e($c['label']) ?></div>
                             </div>
-                            <div class="small bold"><?= H::e($c['label']) ?></div>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -175,19 +190,29 @@ $frames = PrintBundle::cardFrames($project);
                     <p class="small muted mb-2">Showing the first 9. Every card is included in the print file.</p>
                     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">
                         <?php foreach ($missions as $m): ?>
-                            <div class="card pcard<?= $frames['mission'] ? ' pcard--framed pcard--mission' : '' ?>"
-                                 style="box-shadow:none;display:flex;flex-direction:column">
-                                <div class="flex items-center gap-1 mb-1">
-                                    <span class="mission-row__sticker" style="width:26px;height:26px">
-                                        <img src="<?= Url::to('art/sticker/' . rawurlencode($m['sticker']) . '.svg?size=15') ?>"
-                                             alt="" width="15" height="15">
-                                    </span>
-                                    <span class="small faint">Space <?= (int) $m['cell_no'] ?></span>
-                                </div>
-                                <div class="small bold" style="flex:1;line-height:1.45"><?= H::e($m['question']) ?></div>
-                                <?php if (trim((string) $m['answer']) !== ''): ?>
-                                    <div class="small faint mt-1">Answer: <?= H::e($m['answer']) ?></div>
+                            <div class="card pcard<?= $frames['mission'] ? ' pcard--framed pcard--mission' : '' ?><?= $frames['window'] ? ' pcard--tight' : '' ?>"
+                                 style="box-shadow:none">
+                                <?php if ($frames['hero'] && $frames['window']): ?>
+                                    <div class="pcard__window"></div>
                                 <?php endif; ?>
+
+                                <div class="pcard__inner">
+                                    <?php if ($frames['hero'] && !$frames['window']): ?>
+                                        <div class="pcard__hero"></div>
+                                    <?php endif; ?>
+
+                                    <div class="flex items-center gap-1 mb-1">
+                                        <span class="mission-row__sticker" style="width:26px;height:26px">
+                                            <img src="<?= Url::to('art/sticker/' . rawurlencode($m['sticker']) . '.svg?size=15') ?>"
+                                                 alt="" width="15" height="15">
+                                        </span>
+                                        <span class="small faint">Space <?= (int) $m['cell_no'] ?></span>
+                                    </div>
+                                    <div class="small bold" style="flex:1;line-height:1.45"><?= H::e($m['question']) ?></div>
+                                    <?php if (trim((string) $m['answer']) !== ''): ?>
+                                        <div class="small faint mt-1">Answer: <?= H::e($m['answer']) ?></div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     </div>

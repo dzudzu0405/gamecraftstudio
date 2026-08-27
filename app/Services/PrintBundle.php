@@ -191,6 +191,74 @@ class PrintBundle
     }
 
     /**
+     * Where text may sit on each card style, as [top inset, bottom inset] in
+     * percent of the card height.
+     *
+     * Measured off the artwork itself: each frame keeps its decoration near the
+     * edges - a title, a ring of stars, a picture window - and leaves a clear
+     * band for the words. One guessed figure for the whole set put the answer
+     * line on top of the stars, which is what these replace.
+     *
+     * Adjust a row here if a frame reads badly; nothing else needs touching.
+     */
+    public const SAFE_ZONES = [
+        1  => ['mission' => [17.8, 21.9], 'move' => [22.8, 23.1]],
+        2  => ['mission' => [19.1, 11.2], 'move' => [24.4, 24.4]],
+        3  => ['mission' => [28.4, 14.7], 'move' => [25.9, 25.6]],
+        4  => ['mission' => [20.0, 10.6], 'move' => [25.9, 25.9]],
+        5  => ['mission' => [22.0, 20.0], 'move' => [23.4, 23.1]],
+        6  => ['mission' => [22.0, 20.0], 'move' => [22.8, 22.8]],
+        7  => ['mission' => [64.0, 10.0], 'move' => [24.4, 24.7]],
+        8  => ['mission' => [24.7, 10.0], 'move' => [23.4, 23.4]],
+        9  => ['mission' => [24.1, 20.0], 'move' => [26.6, 22.0]],
+        10 => ['mission' => [20.9, 20.0], 'move' => [26.6, 26.6]],
+        11 => ['mission' => [20.9, 20.0], 'move' => [26.6, 26.6]],
+        12 => ['mission' => [62.0, 10.0], 'move' => [21.9, 22.2]],
+        13 => ['mission' => [17.8, 20.0], 'move' => [21.9, 21.6]],
+        14 => ['mission' => [18.1, 20.0], 'move' => [23.8, 23.8]],
+        15 => ['mission' => [62.0, 10.0], 'move' => [23.4, 23.8]],
+    ];
+
+    /** A band narrower than this cannot hold a question, so it is opened out */
+    private const MIN_BAND = 30.0;
+
+    /**
+     * The clear band for one card, as [top, bottom] insets in percent.
+     *
+     * @return array{0: float, 1: float}
+     */
+    public static function safeZone(int $style, string $kind): array
+    {
+        [$top, $bottom] = self::SAFE_ZONES[$style][$kind] ?? [22.0, 20.0];
+
+        $band = 100 - $top - $bottom;
+        if ($band < self::MIN_BAND) {
+            // Open it out around its own middle rather than from one side
+            $grow   = (self::MIN_BAND - $band) / 2;
+            $top    = max(4.0, $top - $grow);
+            $bottom = max(4.0, $bottom - $grow);
+        }
+
+        return [round($top, 1), round($bottom, 1)];
+    }
+
+    /**
+     * Frames with a picture window put it above the words, so the hero belongs
+     * in the space over the clear band rather than inside it.
+     */
+    public static function heroWindow(int $style, string $kind = 'mission'): ?array
+    {
+        [$top] = self::safeZone($style, $kind);
+
+        // Not enough room over the band for a picture worth printing
+        if ($top < 30.0) {
+            return null;
+        }
+
+        return ['top' => 8.0, 'height' => round($top - 12.0, 1)];
+    }
+
+    /**
      * The card frames this project prints on, as data URIs ready for CSS.
      *
      * Embedded once in a stylesheet rather than per card - ninety mission cards
@@ -202,7 +270,23 @@ class PrintBundle
     public static function cardFrames(array $project): array
     {
         $style = self::cardStyle($project);
-        $out   = ['mission' => null, 'move' => null, 'style' => $style];
+        $out   = [
+            'mission' => null,
+            'move'    => null,
+            'style'   => $style,
+            'hero'    => null,
+            'window'  => self::heroWindow($style),
+            'zone'    => [
+                'mission' => self::safeZone($style, 'mission'),
+                'move'    => self::safeZone($style, 'move'),
+            ],
+        ];
+
+        // Every mission card shows the hero. Frames that drew a window get a big
+        // one inside it; the rest get a small one at the top of their text band.
+        if (!empty($project['character_item_id'])) {
+            $out['hero'] = self::characterUrl($project);
+        }
 
         foreach (['mission' => 'missions', 'move' => 'moves'] as $key => $folder) {
             $rel = Library::framePath($folder, $style);

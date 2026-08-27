@@ -40,11 +40,24 @@ $frames = PrintBundle::cardFrames($project);
 <?php if ($frames['mission'] || $frames['move']): ?>
     <?php /* One copy of each picture for the whole document, not one per card */ ?>
     <style>
+        :root {
+            --mission-top: <?= $frames['zone']['mission'][0] ?>%;
+            --mission-bottom: <?= $frames['zone']['mission'][1] ?>%;
+            --move-top: <?= $frames['zone']['move'][0] ?>%;
+            --move-bottom: <?= $frames['zone']['move'][1] ?>%;
+            <?php if ($frames['window']): ?>
+            --hero-top: <?= $frames['window']['top'] ?>%;
+            --hero-height: <?= $frames['window']['height'] ?>%;
+            <?php endif; ?>
+        }
         <?php if ($frames['mission']): ?>
         .card-cut--art { background-image: url('<?= $frames['mission'] ?>'); }
         <?php endif; ?>
         <?php if ($frames['move']): ?>
         .card-move--art { background-image: url('<?= $frames['move'] ?>'); }
+        <?php endif; ?>
+        <?php if ($frames['hero']): ?>
+        .card-cut__window, .card-cut__hero { background-image: url('<?= $frames['hero'] ?>'); }
         <?php endif; ?>
     </style>
 <?php endif; ?>
@@ -149,13 +162,15 @@ $frames = PrintBundle::cardFrames($project);
                     <div class="cards">
                         <?php foreach ($chunk as $c): ?>
                             <div class="card-cut card-move<?= $frames['move'] ? ' card-cut--framed card-move--art' : '' ?>">
-                                <div class="card-move__icon">
-                                    <img src="<?= H::e(Art::dataUri(Art::sticker($c['sticker'], '#6C4BD6', 26))) ?>" alt="">
+                                <div class="card-cut__inner">
+                                    <div class="card-move__icon">
+                                        <img src="<?= H::e(Art::dataUri(Art::sticker($c['sticker'], '#6C4BD6', 26))) ?>" alt="">
+                                    </div>
+                                    <div class="card-move__steps <?= $c['steps'] < 0 ? 'is-back' : '' ?>">
+                                        <?= $c['steps'] < 0 ? '&minus;' . abs($c['steps']) : '+' . $c['steps'] ?>
+                                    </div>
+                                    <div class="card-move__label"><?= H::e($c['label']) ?></div>
                                 </div>
-                                <div class="card-move__steps <?= $c['steps'] < 0 ? 'is-back' : '' ?>">
-                                    <?= $c['steps'] < 0 ? '&minus;' . abs($c['steps']) : '+' . $c['steps'] ?>
-                                </div>
-                                <div class="card-move__label"><?= H::e($c['label']) ?></div>
                                 <div class="card-cut__brand">GameCraft</div>
                             </div>
                         <?php endforeach; ?>
@@ -189,24 +204,35 @@ $frames = PrintBundle::cardFrames($project);
                     <div class="sheet__body">
                         <div class="cards">
                             <?php foreach ($chunk as $m): ?>
-                                <div class="card-cut<?= $frames['mission'] ? ' card-cut--framed card-cut--art' : '' ?>">
-                                    <div class="card-cut__top">
-                                        <span class="card-cut__sticker">
-                                            <img src="<?= H::e(Art::dataUri(Art::sticker((string) $m['sticker'], '#6C4BD6', 16))) ?>" alt="">
-                                        </span>
-                                        <span class="card-cut__tag">
-                                            Space <?= (int) $m['cell_no'] ?>
-                                            <?php if (!empty($m['subject'])): ?>
-                                                &middot; <?= H::e(MissionMatcher::subjectLabel((string) $m['subject'])) ?>
-                                            <?php endif; ?>
-                                        </span>
-                                    </div>
-
-                                    <div class="card-cut__q"><?= H::e($m['question']) ?></div>
-
-                                    <?php if (trim((string) $m['answer']) !== ''): ?>
-                                        <div class="card-cut__a">Answer: <?= H::e($m['answer']) ?></div>
+                                <div class="card-cut<?= $frames['mission'] ? ' card-cut--framed card-cut--art' : '' ?><?= $frames['window'] ? ' card-cut--tight' : '' ?>">
+                                    <?php if ($frames['hero'] && $frames['window']): ?>
+                                        <?php /* The frame drew a window for a picture - fill it */ ?>
+                                        <div class="card-cut__window"></div>
                                     <?php endif; ?>
+
+                                    <div class="card-cut__inner">
+                                        <?php if ($frames['hero'] && !$frames['window']): ?>
+                                            <div class="card-cut__hero"></div>
+                                        <?php endif; ?>
+
+                                        <div class="card-cut__top">
+                                            <span class="card-cut__sticker">
+                                                <img src="<?= H::e(Art::dataUri(Art::sticker((string) $m['sticker'], '#6C4BD6', 16))) ?>" alt="">
+                                            </span>
+                                            <span class="card-cut__tag">
+                                                Space <?= (int) $m['cell_no'] ?>
+                                                <?php if (!empty($m['subject'])): ?>
+                                                    &middot; <?= H::e(MissionMatcher::subjectLabel((string) $m['subject'])) ?>
+                                                <?php endif; ?>
+                                            </span>
+                                        </div>
+
+                                        <div class="card-cut__q"><?= H::e($m['question']) ?></div>
+
+                                        <?php if (trim((string) $m['answer']) !== ''): ?>
+                                            <div class="card-cut__a">Answer: <?= H::e($m['answer']) ?></div>
+                                        <?php endif; ?>
+                                    </div>
 
                                     <div class="card-cut__brand">GameCraft</div>
                                 </div>

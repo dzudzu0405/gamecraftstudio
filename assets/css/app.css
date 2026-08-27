@@ -615,30 +615,74 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
 .pick__label { padding: 7px 9px; font-size: 12px; font-weight: 600; }
 
 /*
- * Preview cards printed on supplied frame artwork. The proportions match the
- * files (709 x 945), so the frame is never stretched, and the text is held to
- * the same clear middle band the print sheet uses.
+ * Preview cards on supplied frame artwork - the same geometry the print sheet
+ * uses, so what is on the screen is what comes out of the printer.
+ *
+ * The content sits in an absolutely positioned box because top and bottom
+ * percentages resolve against the HEIGHT; padding percentages would resolve
+ * against the width and put the text back over the frame's decoration.
  */
 .pcard { padding: 12px; min-height: 120px; }
 .pcard--framed {
   aspect-ratio: 709 / 945;
   min-height: 0;
   border: 0;
-  /* Percentage padding resolves against the WIDTH, so these are the width
-     equivalents of 30% and 18% of the card's height (ratio 709:945). */
-  padding: 40% 11% 24%;
+  padding: 0;
+  position: relative;
   background-repeat: no-repeat;
   background-position: center;
   background-size: 100% 100%;
   overflow: hidden;
 }
+
+.pcard__inner {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.pcard--mission .pcard__inner {
+  top: var(--mission-top, 22%);
+  bottom: var(--mission-bottom, 20%);
+}
+.pcard--move .pcard__inner {
+  top: var(--move-top, 24%);
+  bottom: var(--move-bottom, 24%);
+  align-items: center;
+  justify-content: center;
+}
+
+/* The picture window some frames draw, and the small hero for those that do not */
+.pcard__window {
+  position: absolute;
+  left: 16%;
+  right: 16%;
+  top: var(--hero-top, 8%);
+  height: var(--hero-height, 44%);
+}
+.pcard__hero {
+  flex: 0 0 auto;
+  height: 26%;
+  margin-bottom: 4px;
+}
+.pcard__window,
+.pcard__hero {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
 .pcard--framed .small,
 .pcard--framed .bold { text-shadow: 0 1px 0 rgba(255, 255, 255, .65); }
-.pcard--move { justify-content: center; }
 
-/* The safe zone is small, so the type inside a framed preview card is too */
+/* The band is shallow, so the type inside a framed preview card comes down */
 .pcard--framed .small { font-size: 11px; line-height: 1.35; }
 .pcard--framed .small.faint { font-size: 10px; }
+.pcard--tight .flex { display: none; }
+.pcard--tight .small { font-size: 10px; line-height: 1.3; }
+.pcard--tight .small.faint { font-size: 9px; }
 
 /* The tile that means "no ready-made scene" - drawn, not photographed */
 .pick__art--custom {
