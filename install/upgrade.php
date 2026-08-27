@@ -133,6 +133,54 @@ try {
         }
     }
 
+    // Library names that described artwork nobody had. The move card designs were
+    // named off a wheel of twelve themes, which repeated once it went round twice
+    // and matched nothing on the card; the first three character sets were named
+    // before their artwork existed. An installed site cannot re-run the seeder, so
+    // the names are corrected here.
+    $renames = [
+        'move' => [
+            'move-01' => 'Peach',    'move-02' => 'Cocoa',  'move-03' => 'Lime',
+            'move-04' => 'Sky',      'move-05' => 'Vanilla', 'move-06' => 'Butter',
+            'move-07' => 'Ice',      'move-08' => 'Lavender', 'move-09' => 'Rose',
+            'move-10' => 'Honey',    'move-11' => 'Snow',   'move-12' => 'Sage',
+            'move-13' => 'Mist',     'move-14' => 'Lilac',  'move-15' => 'Meadow',
+            'move-16' => 'Card style 16', 'move-17' => 'Card style 17',
+            'move-18' => 'Card style 18', 'move-19' => 'Card style 19',
+            'move-20' => 'Card style 20',
+        ],
+        'character' => [
+            'char-01' => 'Junior Hero - Bunny',
+            'char-02' => 'Junior Hero - Kitten',
+            'char-03' => 'Junior Hero - Puppy',
+        ],
+    ];
+
+    if (Database::tableExists('library_items')) {
+        $renamed = 0;
+
+        foreach ($renames as $kind => $rows) {
+            foreach ($rows as $code => $name) {
+                $current = Database::first(
+                    'SELECT name FROM library_items WHERE kind = ? AND code = ? LIMIT 1',
+                    [$kind, $code]
+                );
+
+                if ($current && $current['name'] !== $name) {
+                    Database::run(
+                        'UPDATE library_items SET name = ? WHERE kind = ? AND code = ?',
+                        [$name, $kind, $code]
+                    );
+                    $renamed++;
+                }
+            }
+        }
+
+        if ($renamed > 0) {
+            step('Renamed ' . $renamed . ' library item' . ($renamed === 1 ? '' : 's') . ' to match their artwork');
+        }
+    }
+
     if (!$log) {
         step('Everything is already up to date. Nothing needed changing.');
     }
