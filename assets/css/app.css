@@ -614,6 +614,32 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
 .pick__art img, .pick__art svg { width: 100%; height: 100%; object-fit: cover; display: block; }
 .pick__label { padding: 7px 9px; font-size: 12px; font-weight: 600; }
 
+/*
+ * Preview cards printed on supplied frame artwork. The proportions match the
+ * files (709 x 945), so the frame is never stretched, and the text is held to
+ * the same clear middle band the print sheet uses.
+ */
+.pcard { padding: 12px; min-height: 120px; }
+.pcard--framed {
+  aspect-ratio: 709 / 945;
+  min-height: 0;
+  border: 0;
+  /* Percentage padding resolves against the WIDTH, so these are the width
+     equivalents of 30% and 18% of the card's height (ratio 709:945). */
+  padding: 40% 11% 24%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  overflow: hidden;
+}
+.pcard--framed .small,
+.pcard--framed .bold { text-shadow: 0 1px 0 rgba(255, 255, 255, .65); }
+.pcard--move { justify-content: center; }
+
+/* The safe zone is small, so the type inside a framed preview card is too */
+.pcard--framed .small { font-size: 11px; line-height: 1.35; }
+.pcard--framed .small.faint { font-size: 10px; }
+
 /* The tile that means "no ready-made scene" - drawn, not photographed */
 .pick__art--custom {
   display: flex;

@@ -5,9 +5,25 @@ use App\Core\Helper as H;
 use App\Core\Icon;
 use App\Core\Url;
 use App\Services\Difficulty;
+use App\Services\PrintBundle;
 
 $pid = (int) $project['id'];
+
+// The same frames the print file uses, so the preview is not a different product
+$frames = PrintBundle::cardFrames($project);
 ?>
+
+<?php if ($frames['mission'] || $frames['move']): ?>
+    <?php /* One copy of each picture for the page, not one per card */ ?>
+    <style>
+        <?php if ($frames['mission']): ?>
+        .pcard--mission { background-image: url('<?= $frames['mission'] ?>'); }
+        <?php endif; ?>
+        <?php if ($frames['move']): ?>
+        .pcard--move { background-image: url('<?= $frames['move'] ?>'); }
+        <?php endif; ?>
+    </style>
+<?php endif; ?>
 
 <div class="section__head">
     <a class="btn btn--ghost btn--sm" href="<?= Url::to('/studio/' . $pid) ?>">
@@ -127,9 +143,12 @@ $pid = (int) $project['id'];
             <div class="card__body">
                 <div class="grid grid--cards">
                     <?php foreach ($moveCards as $c): ?>
-                        <div class="card" style="text-align:center;padding:14px 8px;box-shadow:none">
-                            <img src="<?= Url::to('art/sticker/' . rawurlencode($c['sticker']) . '.svg?size=22') ?>"
-                                 alt="" width="22" height="22">
+                        <div class="card pcard<?= $frames['move'] ? ' pcard--framed pcard--move' : '' ?>"
+                             style="text-align:center;box-shadow:none">
+                            <?php if (!$frames['move']): ?>
+                                <img src="<?= Url::to('art/sticker/' . rawurlencode($c['sticker']) . '.svg?size=22') ?>"
+                                     alt="" width="22" height="22">
+                            <?php endif; ?>
                             <div style="font-size:26px;font-weight:800;color:<?= $c['steps'] < 0 ? 'var(--red)' : 'var(--primary)' ?>">
                                 <?= $c['steps'] < 0 ? '&minus;' . abs($c['steps']) : '+' . $c['steps'] ?>
                             </div>
@@ -154,9 +173,10 @@ $pid = (int) $project['id'];
                     </div>
                 <?php else: ?>
                     <p class="small muted mb-2">Showing the first 9. Every card is included in the print file.</p>
-                    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr))">
+                    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">
                         <?php foreach ($missions as $m): ?>
-                            <div class="card" style="padding:12px;box-shadow:none;min-height:120px;display:flex;flex-direction:column">
+                            <div class="card pcard<?= $frames['mission'] ? ' pcard--framed pcard--mission' : '' ?>"
+                                 style="box-shadow:none;display:flex;flex-direction:column">
                                 <div class="flex items-center gap-1 mb-1">
                                     <span class="mission-row__sticker" style="width:26px;height:26px">
                                         <img src="<?= Url::to('art/sticker/' . rawurlencode($m['sticker']) . '.svg?size=15') ?>"
