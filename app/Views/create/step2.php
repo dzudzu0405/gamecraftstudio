@@ -9,8 +9,15 @@ use App\Services\Library;
 
 echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
 
-/** Renders one group of picture choices */
-$renderPicker = function (string $name, array $items, $currentId, string $emptyMsg, int $variant = 1) {
+/**
+ * Renders one group of picture choices.
+ *
+ * $companion lets a group show a second picture per tile. A card style is two
+ * designs - the move card and the mission card - and showing only the move
+ * card left half the choice invisible.
+ */
+$renderPicker = function (string $name, array $items, $currentId, string $emptyMsg,
+                          int $variant = 1, ?callable $companion = null) {
     if (!$items) {
         echo '<div class="notice notice--warning">' . Icon::get('alert', 17) . '<span>' . H::e($emptyMsg) . '</span></div>';
         return;
@@ -19,9 +26,16 @@ $renderPicker = function (string $name, array $items, $currentId, string $emptyM
     foreach ($items as $item) {
         $checked = (int) $currentId === (int) $item['id'];
         $hasArt  = Library::hasRealImage($item, $variant);
+        $second  = $companion ? $companion($item) : null;
+
         echo '<label class="pick">';
         echo '<input type="radio" name="' . H::e($name) . '" value="' . (int) $item['id'] . '"' . ($checked ? ' checked' : '') . '>';
-        echo '<div class="pick__art"><img src="' . H::e(Library::imageFor($item, $variant)) . '" alt="" loading="lazy"></div>';
+        echo '<div class="pick__art' . ($second ? ' pick__art--pair' : '') . '">';
+        echo '<img src="' . H::e(Library::imageFor($item, $variant)) . '" alt="" loading="lazy">';
+        if ($second) {
+            echo '<img src="' . H::e($second) . '" alt="" loading="lazy">';
+        }
+        echo '</div>';
         echo '<div class="pick__label">' . H::e(H::truncate($item['name'], 34));
         if (!$hasArt) {
             echo ' <span class="badge badge--tier" style="font-size:9px">placeholder</span>';
@@ -29,6 +43,16 @@ $renderPicker = function (string $name, array $items, $currentId, string $emptyM
         echo '</div></label>';
     }
     echo '</div>';
+};
+
+/** The mission card that belongs to the same set as this move card */
+$missionFrame = function (array $item): ?string {
+    if (!preg_match('/(\d+)$/', (string) $item['code'], $m)) {
+        return null;
+    }
+    $rel = Library::framePath('missions', (int) $m[1]);
+
+    return $rel !== null ? Url::upload($rel) : null;
 };
 ?>
 
@@ -84,11 +108,11 @@ $renderPicker = function (string $name, array $items, $currentId, string $emptyM
             <div class="card mb-2">
                 <div class="card__head">
                     <h3>Card style</h3>
-                    <span class="small muted">Used for the move cards and the mission cards</span>
+                    <span class="small muted">Move card on the left, mission card on the right</span>
                 </div>
                 <div class="card__body">
                     <?php $renderPicker('move_item_id', $moves, $project['move_item_id'],
-                        'No move card designs are available on your plan.'); ?>
+                        'No move card designs are available on your plan.', 1, $missionFrame); ?>
                 </div>
             </div>
 
