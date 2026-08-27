@@ -101,7 +101,7 @@ class Seeder
 
         // --- 30 character sets: pose count rises with the tier (3 / 5 / 8) ---
         $charNames = [
-            'Maya the Explorer',  'Brave Ben',        'Clever Chloe',    'Quick Kai',
+            'Junior Hero - Bunny', 'Junior Hero - Kitten', 'Junior Hero - Puppy', 'Quick Kai',
             'Curious Cora',       'Cheerful Theo',    'Steady Sana',     'Mighty Milo',
             'Bright Bella',       'Patient Pedro',    'Gentle Gia',      'Playful Pax',
             'Creative Cleo',      'Fearless Finn',    'Graceful Grace',  'Solid Sam',
