@@ -29,13 +29,9 @@ uploads/covers/**
 # ---------------------------------------------------------------------
 #  Artwork
 # ---------------------------------------------------------------------
-# Library artwork can be large. Keep the folder structure and the file-name
-# manifests in git, but not the images themselves.
-# Delete these four lines if you would rather version the artwork too.
-uploads/library/**/*.jpg
-uploads/library/**/*.jpeg
-uploads/library/**/*.png
-uploads/library/**/*.webp
+# Library artwork IS versioned. It is what makes a fresh clone look like the
+# product rather than a wireframe, and at ~20 MB that is worth the weight.
+# Uploads made by users are still kept out - see the section above.
 
 
 # ---------------------------------------------------------------------
