@@ -83,8 +83,8 @@ $renderPicker = function (string $name, array $items, $currentId, string $emptyM
             <!-- Move cards -->
             <div class="card mb-2">
                 <div class="card__head">
-                    <h3>Move card style</h3>
-                    <span class="small muted">8 cards per game</span>
+                    <h3>Card style</h3>
+                    <span class="small muted">Used for the move cards and the mission cards</span>
                 </div>
                 <div class="card__body">
                     <?php $renderPicker('move_item_id', $moves, $project['move_item_id'],

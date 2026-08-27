@@ -222,6 +222,10 @@ class PrintBundle
     /** A band narrower than this cannot hold a question, so it is opened out */
     private const MIN_BAND = 30.0;
 
+    /** Poses to look for, and how wide a hero is worth printing */
+    private const MAX_POSES = 8;
+    private const HERO_PRINT_WIDTH = 420;
+
     /**
      * The clear band for one card, as [top, bottom] insets in percent.
      *
@@ -259,6 +263,93 @@ class PrintBundle
     }
 
     /**
+     * A character set is drawn in several poses, and a deck of sixty mission
+     * cards showing the same picture sixty times wastes them. This returns every
+     * pose the set actually has, ready for the cards to cycle through.
+     *
+     * Each one is shrunk on the way out. The window it prints into is around
+     * 40mm wide, so 420px is past what the paper can show, while the originals
+     * are 591px of PNG that base64 turns into half a megabyte apiece.
+     *
+     * @return string[] data URIs, in pose order
+     */
+    public static function heroPoses(array $project): array
+    {
+        $itemId = (int) ($project['character_item_id'] ?? 0);
+        if ($itemId <= 0) {
+            return [];
+        }
+
+        $item = Library::find($itemId);
+        if (!$item) {
+            return [];
+        }
+
+        $seen  = [];
+        $poses = [];
+
+        for ($variant = 1; $variant <= self::MAX_POSES; $variant++) {
+            $rel = Library::realImagePath($item, $variant);
+
+            // A set with three poses answers every variant with the same file
+            if ($rel === null || isset($seen[$rel])) {
+                continue;
+            }
+            $seen[$rel] = true;
+
+            $full = dirname(__DIR__, 2) . '/uploads/' . $rel;
+            if (is_file($full)) {
+                $poses[] = self::scaledDataUri($full, self::HERO_PRINT_WIDTH);
+            }
+        }
+
+        // No artwork at all - fall back to the drawn character
+        if (!$poses) {
+            $poses[] = Art::dataUri(Art::character((string) $item['art_seed'], 1, 400));
+        }
+
+        return $poses;
+    }
+
+    /** The same picture, no wider than $width, as a data URI */
+    private static function scaledDataUri(string $path, int $width): string
+    {
+        $info = @getimagesize($path);
+
+        if ($info === false || (int) $info[0] <= $width || !function_exists('imagecreatetruecolor')) {
+            return self::fileToDataUri($path);
+        }
+
+        $src = match ($info[2]) {
+            IMAGETYPE_JPEG => @imagecreatefromjpeg($path),
+            IMAGETYPE_PNG  => @imagecreatefrompng($path),
+            IMAGETYPE_WEBP => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($path) : false,
+            default        => false,
+        };
+
+        if (!$src) {
+            return self::fileToDataUri($path);
+        }
+
+        $h   = max(1, (int) round($info[1] * $width / $info[0]));
+        $dst = imagecreatetruecolor($width, $h);
+
+        // Characters are cut out, so the transparency has to survive the resize
+        imagealphablending($dst, false);
+        imagesavealpha($dst, true);
+        imagefilledrectangle($dst, 0, 0, $width, $h, imagecolorallocatealpha($dst, 0, 0, 0, 127));
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $width, $h, (int) $info[0], (int) $info[1]);
+
+        ob_start();
+        imagepng($dst, null, 6);
+        $bytes = (string) ob_get_clean();
+
+        imagedestroy($src);
+        imagedestroy($dst);
+
+        return 'data:image/png;base64,' . base64_encode($bytes);
+    }
+    /**
      * The card frames this project prints on, as data URIs ready for CSS.
      *
      * Embedded once in a stylesheet rather than per card - ninety mission cards
@@ -284,9 +375,9 @@ class PrintBundle
 
         // Every mission card shows the hero. Frames that drew a window get a big
         // one inside it; the rest get a small one at the top of their text band.
-        if (!empty($project['character_item_id'])) {
-            $out['hero'] = self::characterUrl($project);
-        }
+        // The cards cycle through the poses rather than repeating one picture.
+        $out['heroes'] = self::heroPoses($project);
+        $out['hero']   = $out['heroes'][0] ?? null;
 
         foreach (['mission' => 'missions', 'move' => 'moves'] as $key => $folder) {
             $rel = Library::framePath($folder, $style);

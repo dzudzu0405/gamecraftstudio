@@ -11,6 +11,9 @@ $pid = (int) $project['id'];
 
 // The same frames the print file uses, so the preview is not a different product
 $frames = PrintBundle::cardFrames($project);
+
+$poseCount = count($frames['heroes']);
+$poseNo    = 0;
 ?>
 
 <?php if ($frames['mission'] || $frames['move']): ?>
@@ -32,9 +35,9 @@ $frames = PrintBundle::cardFrames($project);
         <?php if ($frames['move']): ?>
         .pcard--move { background-image: url('<?= $frames['move'] ?>'); }
         <?php endif; ?>
-        <?php if ($frames['hero']): ?>
-        .pcard__window, .pcard__hero { background-image: url('<?= $frames['hero'] ?>'); }
-        <?php endif; ?>
+        <?php foreach ($frames['heroes'] as $i => $pose): ?>
+        .hero-<?= $i + 1 ?> { background-image: url('<?= $pose ?>'); }
+        <?php endforeach; ?>
     </style>
 <?php endif; ?>
 
@@ -192,13 +195,15 @@ $frames = PrintBundle::cardFrames($project);
                         <?php foreach ($missions as $m): ?>
                             <div class="card pcard<?= $frames['mission'] ? ' pcard--framed pcard--mission' : '' ?><?= $frames['window'] ? ' pcard--tight' : '' ?>"
                                  style="box-shadow:none">
-                                <?php if ($frames['hero'] && $frames['window']): ?>
-                                    <div class="pcard__window"></div>
+                                <?php $pose = $poseCount ? ' hero-' . ($poseNo++ % $poseCount + 1) : ''; ?>
+
+                                <?php if ($poseCount && $frames['window']): ?>
+                                    <div class="pcard__window<?= $pose ?>"></div>
                                 <?php endif; ?>
 
                                 <div class="pcard__inner">
-                                    <?php if ($frames['hero'] && !$frames['window']): ?>
-                                        <div class="pcard__hero"></div>
+                                    <?php if ($poseCount && !$frames['window']): ?>
+                                        <div class="pcard__hero<?= $pose ?>"></div>
                                     <?php endif; ?>
 
                                     <div class="flex items-center gap-1 mb-1">

@@ -668,7 +668,8 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
   margin-bottom: 4px;
 }
 .pcard__window,
-.pcard__hero {
+.pcard__hero,
+[class*='hero-'] {
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;

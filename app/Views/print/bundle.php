@@ -35,6 +35,10 @@ $foot = function () use ($brand, &$sheetNo) {
 
 // Card frames the buyer supplied, if this style has any
 $frames = PrintBundle::cardFrames($project);
+
+// Mission cards walk through the character's poses instead of repeating one
+$poseCount = count($frames['heroes']);
+$poseNo    = 0;
 ?>
 
 <?php if ($frames['mission'] || $frames['move']): ?>
@@ -56,9 +60,9 @@ $frames = PrintBundle::cardFrames($project);
         <?php if ($frames['move']): ?>
         .card-move--art { background-image: url('<?= $frames['move'] ?>'); }
         <?php endif; ?>
-        <?php if ($frames['hero']): ?>
-        .card-cut__window, .card-cut__hero { background-image: url('<?= $frames['hero'] ?>'); }
-        <?php endif; ?>
+        <?php foreach ($frames['heroes'] as $i => $pose): ?>
+        .hero-<?= $i + 1 ?> { background-image: url('<?= $pose ?>'); }
+        <?php endforeach; ?>
     </style>
 <?php endif; ?>
 
@@ -205,14 +209,16 @@ $frames = PrintBundle::cardFrames($project);
                         <div class="cards">
                             <?php foreach ($chunk as $m): ?>
                                 <div class="card-cut<?= $frames['mission'] ? ' card-cut--framed card-cut--art' : '' ?><?= $frames['window'] ? ' card-cut--tight' : '' ?>">
-                                    <?php if ($frames['hero'] && $frames['window']): ?>
+                                    <?php $pose = $poseCount ? ' hero-' . ($poseNo++ % $poseCount + 1) : ''; ?>
+
+                                    <?php if ($poseCount && $frames['window']): ?>
                                         <?php /* The frame drew a window for a picture - fill it */ ?>
-                                        <div class="card-cut__window"></div>
+                                        <div class="card-cut__window<?= $pose ?>"></div>
                                     <?php endif; ?>
 
                                     <div class="card-cut__inner">
-                                        <?php if ($frames['hero'] && !$frames['window']): ?>
-                                            <div class="card-cut__hero"></div>
+                                        <?php if ($poseCount && !$frames['window']): ?>
+                                            <div class="card-cut__hero<?= $pose ?>"></div>
                                         <?php endif; ?>
 
                                         <div class="card-cut__top">
