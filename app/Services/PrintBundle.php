@@ -191,6 +191,52 @@ class PrintBundle
     }
 
     /**
+     * The card frames this project prints on, as data URIs ready for CSS.
+     *
+     * Embedded once in a stylesheet rather than per card - ninety mission cards
+     * each carrying their own copy of the same 50 KB picture would make the
+     * print file unopenable.
+     *
+     * @return array{mission: ?string, move: ?string, style: int}
+     */
+    public static function cardFrames(array $project): array
+    {
+        $style = self::cardStyle($project);
+        $out   = ['mission' => null, 'move' => null, 'style' => $style];
+
+        foreach (['mission' => 'missions', 'move' => 'moves'] as $key => $folder) {
+            $rel = Library::framePath($folder, $style);
+            if ($rel === null) {
+                continue;
+            }
+            $full = dirname(__DIR__, 2) . '/uploads/' . $rel;
+            if (is_file($full)) {
+                $out[$key] = self::fileToDataUri($full);
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Which card style the project uses. The move card chosen at step 2 picks it,
+     * because the mission frame is the matching half of the same set.
+     */
+    public static function cardStyle(array $project): int
+    {
+        $itemId = (int) ($project['move_item_id'] ?? 0);
+
+        if ($itemId > 0) {
+            $item = Library::find($itemId);
+            if ($item && preg_match('/(\d+)$/', (string) $item['code'], $m)) {
+                return (int) $m[1];
+            }
+        }
+
+        return 1;   // nothing chosen yet - the first set
+    }
+
+    /**
      * Map background: the uploaded image when the buyer made their own,
      * otherwise the scene that belongs to the chosen theme (FR-31).
      */

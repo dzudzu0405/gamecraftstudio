@@ -217,6 +217,30 @@ html, body {
   break-inside: avoid;
 }
 
+/*
+ * A card printed on supplied artwork: the frame is the background, so the
+ * dashed cutting line and the drawn borders come off and the text moves
+ * inside the printed border rather than sitting on top of it.
+ */
+.card-cut--framed {
+  border: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  /* Every frame keeps its decoration near the top and bottom edges, so the
+     text is held to the clear middle band rather than the whole card. */
+  padding: 25mm 9mm 15mm;
+}
+.card-cut--framed .card-cut__tag,
+.card-cut--framed .card-cut__q,
+.card-cut--framed .card-cut__a { text-shadow: 0 1px 0 rgba(255, 255, 255, .65); }
+.card-cut--framed .card-cut__a { border-top-color: rgba(0, 0, 0, .18); }
+.card-cut--framed .card-cut__sticker { background: rgba(255, 255, 255, .72); }
+.card-cut--framed .card-cut__brand { color: rgba(0, 0, 0, .28); }
+
+/* The move card carries a big number, so it needs less room at the top */
+.card-move--art { padding: 16mm 9mm 15mm; }
+
 .card-cut__top {
   display: flex;
   align-items: center;

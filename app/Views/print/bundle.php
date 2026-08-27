@@ -32,7 +32,22 @@ $head = function (string $order, string $title, string $sub = '') use (&$sheetNo
 $foot = function () use ($brand, &$sheetNo) {
     echo '<div class="sheet__foot"><span>' . H::e($brand) . '</span><span>Page ' . $sheetNo . '</span></div>';
 };
+
+// Card frames the buyer supplied, if this style has any
+$frames = PrintBundle::cardFrames($project);
 ?>
+
+<?php if ($frames['mission'] || $frames['move']): ?>
+    <?php /* One copy of each picture for the whole document, not one per card */ ?>
+    <style>
+        <?php if ($frames['mission']): ?>
+        .card-cut--art { background-image: url('<?= $frames['mission'] ?>'); }
+        <?php endif; ?>
+        <?php if ($frames['move']): ?>
+        .card-move--art { background-image: url('<?= $frames['move'] ?>'); }
+        <?php endif; ?>
+    </style>
+<?php endif; ?>
 
 <!-- Toolbar: never printed -->
 <div class="printbar no-print">
@@ -133,7 +148,7 @@ $foot = function () use ($brand, &$sheetNo) {
                 <div class="sheet__body">
                     <div class="cards">
                         <?php foreach ($chunk as $c): ?>
-                            <div class="card-cut card-move">
+                            <div class="card-cut card-move<?= $frames['move'] ? ' card-cut--framed card-move--art' : '' ?>">
                                 <div class="card-move__icon">
                                     <img src="<?= H::e(Art::dataUri(Art::sticker($c['sticker'], '#6C4BD6', 26))) ?>" alt="">
                                 </div>
@@ -174,7 +189,7 @@ $foot = function () use ($brand, &$sheetNo) {
                     <div class="sheet__body">
                         <div class="cards">
                             <?php foreach ($chunk as $m): ?>
-                                <div class="card-cut">
+                                <div class="card-cut<?= $frames['mission'] ? ' card-cut--framed card-cut--art' : '' ?>">
                                     <div class="card-cut__top">
                                         <span class="card-cut__sticker">
                                             <img src="<?= H::e(Art::dataUri(Art::sticker((string) $m['sticker'], '#6C4BD6', 16))) ?>" alt="">

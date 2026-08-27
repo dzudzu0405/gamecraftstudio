@@ -39,12 +39,16 @@ class Library
     public const KIND_MOVE      = 'move';
     public const KIND_REWARD    = 'reward';
 
+    /** Mission card frames: artwork only, with no library row behind them */
+    public const KIND_MISSION   = 'mission';
+
     /** Sub-folder inside uploads/library/ for each kind */
     private const FOLDERS = [
         self::KIND_MAP       => 'maps',
         self::KIND_CHARACTER => 'characters',
         self::KIND_MOVE      => 'moves',
         self::KIND_REWARD    => 'rewards',
+        self::KIND_MISSION   => 'missions',
         'template'           => 'templates',
     ];
 
@@ -231,6 +235,26 @@ class Library
         return null;
     }
 
+    /**
+     * Card frame artwork, found by style number rather than by library item.
+     *
+     * Mission frames have no library row of their own: they are the other half of
+     * a move card set, so move-07 and mission-07 are the same design. Returns a
+     * path relative to uploads/, or null when that style has no artwork yet.
+     */
+    public static function framePath(string $folder, int $style): ?string
+    {
+        $code = sprintf('%s-%02d', rtrim($folder, 's'), max(1, $style));
+
+        foreach (self::EXTENSIONS as $ext) {
+            $rel = 'library/' . $folder . '/' . $code . '.' . $ext;
+            if (self::fileExists($rel)) {
+                return $rel;
+            }
+        }
+
+        return null;
+    }
     /** URL of the generated SVG placeholder (the /art/... routes) */
     public static function generatedImageUrl(array $item, int $variant = 1): string
     {
