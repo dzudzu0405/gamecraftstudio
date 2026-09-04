@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đối chiếu ô sao - 36 bàn cờ</title>
+<style>
+  :root {
+    --bg: #FAF6F0; --card: #fff; --line: #EFE7DB; --line-strong: #E2D8C8;
+    --ink: #2B2438; --muted: #7A7288;
+    --primary: #6C4BD6; --primary-soft: #EFEAFD;
+    --red: #D9534F; --red-soft: #FBEAE9;
+    --green: #3FA796; --green-soft: #E3F3EF;
+    --amber: #E0952E; --amber-soft: #FDF1DC;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.55 "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 28px 20px 90px; }
+
+  h1 { font-size: 23px; margin: 0 0 6px; }
+  h2 {
+    font-size: 15px; margin: 34px 0 12px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--line-strong);
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  h2 span { font-weight: 400; color: var(--muted); font-size: 13px; }
+  .lead { color: var(--muted); margin: 0 0 18px; }
+
+  .steps {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 18px; margin-bottom: 10px;
+  }
+  .steps ol { margin: 0; padding-left: 20px; }
+  .steps li { margin: 4px 0; }
+
+  .row {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px; margin-bottom: 14px;
+  }
+  .row.is-bad  { border-color: var(--red);   background: var(--red-soft); }
+  .row.is-good { border-color: var(--green); background: var(--green-soft); }
+
+  .row__head {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .row__name { font-weight: 700; font-family: ui-monospace, Consolas, monospace; font-size: 14px; }
+  .row__theme { font-size: 12px; color: var(--muted); }
+  .chip {
+    background: var(--primary-soft); color: var(--primary); font-weight: 700;
+    border-radius: 999px; padding: 3px 12px; font-size: 12.5px;
+  }
+  .chip--warn { background: var(--amber-soft); color: var(--amber); }
+  .row__field { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .row__field label { font-size: 13px; color: var(--muted); }
+  input[type=number] {
+    width: 86px; font: inherit; font-weight: 700; text-align: center;
+    padding: 7px 8px; border: 2px solid var(--line-strong);
+    border-radius: 9px; background: #fff;
+  }
+  input[type=number]:focus { outline: 0; border-color: var(--primary); }
+  .verdict { font-size: 13px; font-weight: 700; min-width: 78px; }
+  .verdict.bad  { color: var(--red); }
+  .verdict.good { color: var(--green); }
+
+  .row img {
+    width: 100%; display: block; border: 1px solid var(--line);
+    border-radius: 8px; background: #fff; cursor: zoom-in;
+  }
+
+  .result {
+    position: sticky; bottom: 0; margin-top: 30px;
+    background: var(--card); border: 2px solid var(--primary);
+    border-radius: 14px; padding: 16px;
+    box-shadow: 0 -6px 24px rgba(43,36,56,.10);
+  }
+  .result__head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  textarea {
+    width: 100%; height: 100px; font: 13px/1.5 ui-monospace, Consolas, monospace;
+    padding: 10px; border: 1px solid var(--line-strong); border-radius: 9px;
+    background: #FCFAF7; resize: vertical;
+  }
+  button {
+    font: inherit; font-weight: 700; font-size: 13.5px; cursor: pointer;
+    border: 0; border-radius: 9px; padding: 9px 16px;
+    background: var(--primary); color: #fff;
+  }
+  button.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line-strong); }
+  button:active { transform: translateY(1px); }
+  .counts { color: var(--muted); font-size: 13px; margin-left: auto; }
+
+  dialog { border: 0; padding: 0; background: transparent; max-width: 98vw; }
+  dialog::backdrop { background: rgba(20,16,28,.86); }
+  dialog img { width: 100%; border-radius: 8px; background: #fff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Đối chiếu ô sao — 36 bàn cờ</h1>
+  <p class="lead">
+    Cột <b>“GameCraft ghi”</b> là con số đã sửa vào cơ sở dữ liệu, không còn lấy
+    từ tên file nữa. Việc của bạn là kiểm xem con số đó có đúng với bức vẽ không.
+  </p>
+
+  <div class="steps">
+    <ol>
+      <li>Đếm số ô <b>có ngôi sao</b> trong ảnh (bỏ qua ô trắng). Bấm ảnh để phóng to.</li>
+      <li>Gõ số đếm được vào ô bên phải.</li>
+      <li>Khớp → viền xanh. Lệch → viền đỏ. Xong bấm <b>Sao chép</b> ở cuối trang gửi lại tôi.</li>
+    </ol>
+  </div>
+  <p class="lead" style="font-size:13.5px">
+    Các bàn cờ được xếp theo <b>số ô sao đã ghi</b>, nên tên file không còn theo thứ tự.
+    Số bạn gõ lưu trong trình duyệt, đóng trang mở lại vẫn còn.
+  </p>
+
+  <div id="groups"></div>
+
+  <div class="result">
+    <div class="result__head">
+      <strong>Chỗ tôi ghi sai</strong>
+      <span class="counts" id="counts"></span>
+    </div>
+    <textarea id="out" readonly placeholder="Chưa gõ số nào..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button id="copy">Sao chép</button>
+      <button class="ghost" id="reset">Xoá hết và làm lại</button>
+    </div>
+  </div>
+</div>
+
+<dialog id="zoom"><img alt=""></dialog>
+
+<script>
+/* Số ô sao đã ghi vào DB, khớp với bảng trong tools/fix-map-cells.php */
+const RECORDED = {
+  'map-12-01': [12, 'forest'], 'map-12-02': [18, 'dino'],   'map-12-03': [24, 'space'],
+  'map-12-04': [18, 'ocean'],  'map-12-05': [18, 'pirate'], 'map-12-06': [24, 'magic'],
+  'map-12-07': [18, 'castle'], 'map-12-08': [24, 'desert'], 'map-12-09': [12, 'arctic'],
+  'map-12-10': [18, 'candy'],  'map-12-11': [12, 'robot'],  'map-12-12': [24, 'farm'],
+
+  'map-18-01': [18, 'forest'], 'map-18-02': [12, 'dino'],   'map-18-03': [24, 'space'],
+  'map-18-04': [24, 'ocean'],  'map-18-05': [12, 'pirate'], 'map-18-06': [18, 'magic'],
+  'map-18-07': [24, 'castle'], 'map-18-08': [18, 'desert'], 'map-18-09': [13, 'arctic'],
+  'map-18-10': [24, 'candy'],  'map-18-11': [18, 'robot'],  'map-18-12': [12, 'farm'],
+
+  'map-24-01': [24, 'forest'], 'map-24-02': [18, 'dino'],   'map-24-03': [12, 'space'],
+  'map-24-04': [12, 'ocean'],  'map-24-05': [18, 'pirate'], 'map-24-06': [24, 'magic'],
+  'map-24-07': [12, 'castle'], 'map-24-08': [24, 'desert'], 'map-24-09': [18, 'arctic'],
+  'map-24-10': [12, 'candy'],  'map-24-11': [18, 'robot'],  'map-24-12': [24, 'farm'],
+};
+
+const STORE = 'gc-star-audit-v2';
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(STORE) || '{}'); } catch (e) { saved = {}; }
+
+const groupsEl = document.getElementById('groups');
+const outEl    = document.getElementById('out');
+const countsEl = document.getElementById('counts');
+const zoom     = document.getElementById('zoom');
+
+/* Gom theo con số đã ghi; 13 là bàn hỏng, để riêng cuối trang */
+const buckets = new Map();
+for (const [name, [n]] of Object.entries(RECORDED)) {
+  if (!buckets.has(n)) buckets.set(n, []);
+  buckets.get(n).push(name);
+}
+const order = [...buckets.keys()].sort((a, b) => a - b);
+
+for (const n of order) {
+  const names = buckets.get(n);
+  const odd   = ![12, 18, 24].includes(n);
+
+  const h = document.createElement('h2');
+  h.innerHTML = odd
+    ? `Bàn hỏng — ghi ${n} ô sao <span>${names.length} file · không cỡ nào dùng được, cần vẽ lại</span>`
+    : `Ghi ${n} ô sao <span>${names.length} file · mỗi file phải có đúng ${n} ô có sao</span>`;
+  groupsEl.appendChild(h);
+
+  for (const name of names) {
+    const [expected, theme] = RECORDED[name];
+
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.dataset.name = name;
+    row.dataset.expected = expected;
+    row.innerHTML = `
+      <div class="row__head">
+        <span class="row__name">${name}.png</span>
+        <span class="row__theme">${theme}</span>
+        <span class="chip${odd ? ' chip--warn' : ''}">GameCraft ghi ${expected} ô</span>
+        <span class="row__field">
+          <label for="f-${name}">Bạn đếm</label>
+          <input type="number" id="f-${name}" min="0" max="99" inputmode="numeric">
+          <span class="verdict"></span>
+        </span>
+      </div>
+      <img src="../uploads/library/maps/${name}.png" alt="${name}" loading="lazy">`;
+    groupsEl.appendChild(row);
+
+    const input = row.querySelector('input');
+    if (saved[name] != null) input.value = saved[name];
+    input.addEventListener('input', () => { store(name, input.value); paint(row); render(); });
+
+    row.querySelector('img').addEventListener('click', e => {
+      zoom.querySelector('img').src = e.target.src;
+      zoom.showModal();
+    });
+
+    paint(row);
+  }
+}
+
+function store(name, value) {
+  if (value === '') delete saved[name];
+  else saved[name] = Number(value);
+  localStorage.setItem(STORE, JSON.stringify(saved));
+}
+
+function paint(row) {
+  const name = row.dataset.name;
+  const expected = Number(row.dataset.expected);
+  const got = saved[name];
+  const v = row.querySelector('.verdict');
+
+  row.classList.remove('is-bad', 'is-good');
+  v.className = 'verdict';
+  v.textContent = '';
+
+  if (got == null) return;
+  if (got === expected) {
+    row.classList.add('is-good'); v.classList.add('good'); v.textContent = 'khớp';
+  } else {
+    row.classList.add('is-bad'); v.classList.add('bad');
+    v.textContent = `tôi ghi sai ${got > expected ? '+' : ''}${expected - got}`;
+  }
+}
+
+function render() {
+  const bad = [];
+  let done = 0;
+
+  for (const [name, [expected]] of Object.entries(RECORDED)) {
+    const got = saved[name];
+    if (got == null) continue;
+    done++;
+    if (got !== expected) bad.push(`${name}.png  GameCraft ghi ${expected}  ->  thuc te ${got} o sao`);
+  }
+
+  const total = Object.keys(RECORDED).length;
+  countsEl.textContent = `đã soi ${done}/${total} · sai ${bad.length}`;
+  outEl.value = bad.length
+    ? bad.join('\n')
+    : (done ? `Đã soi ${done}/${total} file, tất cả đều khớp.` : '');
+}
+
+document.getElementById('copy').addEventListener('click', async () => {
+  if (!outEl.value) return;
+  try { await navigator.clipboard.writeText(outEl.value); }
+  catch (e) { outEl.select(); document.execCommand('copy'); }
+  const b = document.getElementById('copy');
+  b.textContent = 'Đã chép!';
+  setTimeout(() => { b.textContent = 'Sao chép'; }, 1400);
+});
+
+document.getElementById('reset').addEventListener('click', () => {
+  if (!confirm('Xoá hết số đã gõ?')) return;
+  saved = {};
+  localStorage.removeItem(STORE);
+  document.querySelectorAll('.row').forEach(r => { r.querySelector('input').value = ''; paint(r); });
+  render();
+});
+
+zoom.addEventListener('click', () => zoom.close());
+render();
+</script>
+</body>
+</html>
