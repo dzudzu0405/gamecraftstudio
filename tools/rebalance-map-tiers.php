@@ -10,13 +10,18 @@
  * longer means anything - Starter was left with three Beginner frames while
  * Publisher had ten.
  *
- * THE SPLIT is the one the plans were designed around: half of each size to
- * Starter, and the rest divided between Pro and Publisher.
+ * THE SPLIT follows what each plan can actually build. A plan buys a
+ * difficulty, and a difficulty is a board size: Starter makes Beginner games
+ * on 12-space boards, Pro adds Standard and its 18, Publisher adds Advanced
+ * and its 24. So an 18-space frame is only ever seen by Pro and Publisher,
+ * and a 24 only by Publisher - tagging either of them "starter" would be a
+ * label nobody could reach. Each size is therefore divided only among the
+ * plans that unlock it, with the cheapest of those taking half.
  *
- * WHICH frame lands where is chosen for variety, not by number. Starter is
- * filled one theme at a time, so somebody on the free plan sees ten different
- * places rather than five drawings of the same forest. Only once every theme
- * has contributed a frame does a second frame from the same theme get used.
+ * WHICH frame lands where is chosen for variety, not by number. The cheapest
+ * plan is filled one theme at a time, so it sees ten different places rather
+ * than five drawings of the same forest. Only once every theme has
+ * contributed a frame does a second frame from the same theme get used.
  *
  * USAGE
  *   php tools/rebalance-map-tiers.php            show what would change
@@ -27,6 +32,7 @@ require dirname(__DIR__) . '/app/bootstrap.php';
 
 use App\Core\Database;
 use App\Services\Art;
+use App\Services\Difficulty;
 use App\Services\Tiers;
 
 /** Sizes the game understands */
@@ -91,13 +97,46 @@ $plan    = [];
 foreach ($bySize as $cells => $group) {
     $n = count($group);
 
-    // Half to Starter; Pro takes the odd one when the rest cannot halve evenly
-    $starter   = (int) ceil($n / 2);
-    $rest      = $n - $starter;
-    $pro       = (int) ceil($rest / 2);
-    $publisher = $rest - $pro;
+    /*
+     * A frame is only worth tagging for a plan that can build that size of
+     * game at all. Starter makes Beginner games, so it never asks for an
+     * 18-space frame; tagging one "starter" would be a label nobody could
+     * reach. The tiers a size is split across are therefore the plans that
+     * unlock its difficulty - and the smallest of those gets half, as before.
+     */
+    $tiersHere = [];
+    foreach ([Tiers::STARTER, Tiers::PRO, Tiers::PUBLISHER] as $t) {
+        if (Tiers::allowsDifficulty($t, Difficulty::fromCells($cells))) {
+            $tiersHere[] = $t;
+        }
+    }
+    if (!$tiersHere) {
+        $tiersHere = [Tiers::PUBLISHER];
+    }
 
-    $plan[$cells] = ['starter' => $starter, 'pro' => $pro, 'publisher' => $publisher, 'total' => $n];
+    $quota = [Tiers::STARTER => 0, Tiers::PRO => 0, Tiers::PUBLISHER => 0];
+
+    if (count($tiersHere) === 1) {
+        $quota[$tiersHere[0]] = $n;
+    } elseif (count($tiersHere) === 2) {
+        $quota[$tiersHere[0]] = (int) ceil($n / 2);
+        $quota[$tiersHere[1]] = $n - $quota[$tiersHere[0]];
+    } else {
+        $quota[$tiersHere[0]] = (int) ceil($n / 2);
+        $rest = $n - $quota[$tiersHere[0]];
+        $quota[$tiersHere[1]] = (int) ceil($rest / 2);
+        $quota[$tiersHere[2]] = $rest - $quota[$tiersHere[1]];
+    }
+
+    $starter   = $quota[Tiers::STARTER];
+    $pro       = $quota[Tiers::PRO];
+    $publisher = $quota[Tiers::PUBLISHER];
+
+    $plan[$cells] = [
+        'starter' => $starter, 'pro' => $pro, 'publisher' => $publisher,
+        'total'   => $n,
+        'reach'   => implode('/', $tiersHere),
+    ];
 
     foreach ($group as $i => $item) {
         $tier = $i < $starter
@@ -122,10 +161,11 @@ foreach ($bySize as $cells => $group) {
 // ---------------------------------------------------------------
 
 echo "\n=== The split ===\n\n";
-printf("  %-8s %-8s %-10s %-12s %s\n", 'SIZE', 'FRAMES', 'STARTER', 'PRO', 'PUBLISHER');
-echo '  ' . str_repeat('-', 52) . "\n";
+printf("  %-7s %-8s %-9s %-6s %-11s %s\n", 'SIZE', 'FRAMES', 'STARTER', 'PRO', 'PUBLISHER', 'PLANS THAT REACH IT');
+echo '  ' . str_repeat('-', 72) . "\n";
 foreach ($plan as $cells => $p) {
-    printf("  %-8d %-8d %-10d %-12d %d\n", $cells, $p['total'], $p['starter'], $p['pro'], $p['publisher']);
+    printf("  %-7d %-8d %-9d %-6d %-11d %s\n",
+        $cells, $p['total'], $p['starter'], $p['pro'], $p['publisher'], $p['reach']);
 }
 
 echo "\n=== Frames moving plan ===\n\n";

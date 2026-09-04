@@ -37,7 +37,7 @@ class Tiers
                 'move_per_set'    => 8,
                 'mission_sets'    => 5,
                 'reward_cards'    => 10,
-                'difficulties'    => ['beginner', 'standard'],
+                'difficulties'    => ['beginner'],
                 'projects_limit'  => 5,
                 'perks' => [
                     'Map background prompts, written for you',
@@ -48,6 +48,7 @@ class Tiers
                     'Print-ready export (PDF / PNG)',
                 ],
                 'locked' => [
+                    '18-space maps (Standard level)',
                     '24-space maps (Advanced level)',
                     'Selling on Amazon / Etsy',
                 ],
@@ -58,7 +59,7 @@ class Tiers
                 'name'        => 'Pro',
                 'price'       => 27,
                 'price_label' => '$27',
-                'tagline'     => 'Everything in Starter, plus the Advanced difficulty level',
+                'tagline'     => 'Everything in Starter, plus the Standard difficulty level',
                 'color'       => '#6C4BD6',
                 'badge'       => 'Most popular',
                 'popular'     => true,
@@ -70,16 +71,17 @@ class Tiers
                 'move_per_set'    => 8,
                 'mission_sets'    => 10,
                 'reward_cards'    => 20,
-                'difficulties'    => ['beginner', 'standard', 'advanced'],
+                'difficulties'    => ['beginner', 'standard'],
                 'projects_limit'  => 0, // 0 = unlimited
                 'perks' => [
                     'Everything in the Starter tier',
-                    'Unlocks 24-space maps - the Advanced level',
+                    'Unlocks 18-space maps - the Standard level',
                     'Character sets with 5 poses each',
                     'Unlimited projects',
                     'Priority support',
                 ],
                 'locked' => [
+                    '24-space maps (Advanced level)',
                     'Selling on Amazon / Etsy',
                 ],
             ],
@@ -89,7 +91,7 @@ class Tiers
                 'name'        => 'Publisher',
                 'price'       => 47,
                 'price_label' => '$47',
-                'tagline'     => 'Everything in Pro, plus the right to sell what you make',
+                'tagline'     => 'Everything in Pro, plus the Advanced level and the right to sell',
                 'color'       => '#E08A2E',
                 'badge'       => 'For sellers',
                 'popular'     => false,
@@ -105,6 +107,7 @@ class Tiers
                 'projects_limit'  => 0,
                 'perks' => [
                     'Everything in the Pro tier',
+                    'Unlocks 24-space maps - the Advanced level',
                     'Full library: 36 maps, 30 character sets (8 poses each)',
                     'Export product listings for Amazon and Etsy',
                     'Commercial licence for printed products',
