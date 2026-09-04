@@ -19,17 +19,26 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
                 <div class="card__head"><h3>Game details</h3></div>
                 <div class="card__body">
                     <div class="field">
-                        <label class="label" for="title">Who does the game rescue?</label>
+                        <label class="label" for="title">Game title</label>
                         <input class="input" type="text" id="title" name="title" maxlength="160" required
                                value="<?= H::e($project['title']) ?>"
-                               placeholder="Dinosaur, ...">
+                               placeholder="Dinosaur Rescue Mission">
+                        <div class="field__hint">This is the name printed on the board and on every sheet.</div>
+                    </div>
+
+                    <?php /* The next two feed the background prompt and the story, not the name */ ?>
+                    <div class="field">
+                        <label class="label" for="rescue_target">Who does the game rescue?</label>
+                        <input class="input" type="text" id="rescue_target" name="rescue_target" maxlength="120"
+                               value="<?= H::e($project['rescue_target'] ?? '') ?>"
+                               placeholder="a lost baby dinosaur, ...">
                     </div>
 
                     <div class="field">
                         <label class="label" for="setting">Where does the adventure take place?</label>
                         <input class="input" type="text" id="setting" name="setting" maxlength="120"
                                value="<?= H::e($project['setting'] ?? '') ?>"
-                               placeholder="outer space, desert, city, ...">
+                               placeholder="a prehistoric valley with volcanoes, ...">
                     </div>
 
                     <div class="form-row">
@@ -134,7 +143,7 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
                             <div class="pick__art pick__art--custom">
                                 <?= Icon::get('wand', 26) ?>
                             </div>
-                            <div class="pick__label">My own background</div>
+                            <div class="pick__label">Background I make myself<br><span class="pick__note">with the prompt given in a later step</span></div>
                         </label>
                     </div>
                 </div>

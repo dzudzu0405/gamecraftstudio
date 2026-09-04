@@ -198,11 +198,17 @@ html, body {
    Card grid - 3 x 3 per sheet
    -------------------------------------------------------------------------- */
 
+/*
+ * The gap is what stops one card's cut line from being its neighbour's. With
+ * gap:0 the dashed borders sat on top of each other, so a slightly wandering
+ * pair of scissors took a slice off the card next door. 1.5mm gives the blade
+ * somewhere to go and still fits 3 x 3 on the sheet.
+ */
 .cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-auto-rows: 1fr;
-  gap: 0;
+  gap: 1.5mm;
   height: 100%;
 }
 
@@ -266,10 +272,10 @@ html, body {
   place-items: center;
 }
 
-/* Frames without a window still show the hero, small, above the question */
+/* Frames without a window still show the hero above the question */
 .card-cut__hero {
   flex: 0 0 auto;
-  height: 26%;
+  height: 38%;
   display: grid;
   place-items: center;
   margin-bottom: 4px;
@@ -281,7 +287,11 @@ html, body {
  * and its answer are what has to fit.
  */
 .card-cut--tight .card-cut__top { display: none; }
-.card-cut--tight .card-cut__q { font-size: 9.5px; line-height: 1.3; }
+/* A window frame leaves less room, so every step is one notch smaller again */
+.card-cut--tight .card-cut__q         { font-size: 9.5px; line-height: 1.3; }
+.card-cut--tight .card-cut__q--lg     { font-size: 11.5px; line-height: 1.3; }
+.card-cut--tight .card-cut__q--sm     { font-size: 8.6px; line-height: 1.25; }
+.card-cut--tight .card-cut__q--xs     { font-size: 7.6px; line-height: 1.2; }
 .card-cut--tight .card-cut__a {
   font-size: 8px;
   padding-top: 3px;
@@ -337,12 +347,26 @@ html, body {
   color: var(--ink-soft);
 }
 
+/*
+ * The question has to fit the card, and questions are not all one length: a
+ * two-word sum and a three-line word problem were being set at the same size,
+ * so the long ones ran off the bottom. The size steps down as the text grows -
+ * PHP measures the string and picks the class, because print has no way to
+ * measure and re-fit the way a browser script would.
+ */
 .card-cut__q {
   font-size: 11.5px;
   font-weight: 700;
   line-height: 1.45;
   flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
 }
+.card-cut__q--lg { font-size: 14px;  line-height: 1.35; }
+.card-cut__q--sm { font-size: 10px;  line-height: 1.35; }
+.card-cut__q--xs { font-size: 8.6px; line-height: 1.3; }
 .card-cut__a {
   font-size: 9.5px;
   color: var(--ink-soft);
@@ -376,46 +400,185 @@ html, body {
   font-weight: 700;
   margin-top: 6px;
 }
+
+/*
+ * The penalty is deliberately quieter than the step number: it is what you
+ * read second, after you have seen how far you get to move.
+ */
+.card-move__penalty {
+  font-size: 8.5px;
+  font-style: italic;
+  font-weight: 600;
+  color: #C0564F;
+  margin-top: 3px;
+  line-height: 1.25;
+  max-width: 90%;
+}
+
+/* --------------------------------------------------------------------------
+   Paper die - printed in place of the move cards
+   -------------------------------------------------------------------------- */
+
+.dice-net {
+  display: grid;
+  place-items: center;
+  padding: 4mm 0 2mm;
+}
+.dice-net img {
+  max-width: 118mm;
+  max-height: 155mm;
+  width: auto; height: auto;
+  display: block;
+}
+.dice-steps {
+  margin: 4mm auto 0;
+  max-width: 130mm;
+  padding-left: 5mm;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.dice-steps li { margin-bottom: 1.5mm; }
 .card-move__icon { margin-bottom: 4px; }
 .card-move__icon img { width: 26px; height: 26px; }
+
+/* The character, sized so the step number is still the loudest thing here */
+.card-move__hero {
+  width: 100%;
+  height: 34%;
+  margin-bottom: 3px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
 
 /* --------------------------------------------------------------------------
    Winner hero card
    -------------------------------------------------------------------------- */
 
+/*
+ * The winner card is the one page a child keeps, so it is built to look like a
+ * prize rather than a receipt: a burst of rays behind a medallion portrait, a
+ * gold ribbon, and room to write a name on. Everything is drawn with gradients
+ * and borders, so it needs no artwork of its own and prints on any printer.
+ */
 .hero-card {
-  border: 3px solid var(--accent);
-  border-radius: 12px;
-  padding: 12mm 10mm;
+  position: relative;
+  border: 4px double var(--accent);
+  border-radius: 16px;
+  padding: 10mm 10mm 8mm;
   text-align: center;
-  max-width: 120mm;
-  margin: 8mm auto 0;
+  max-width: 122mm;
+  margin: 5mm auto 0;
   background: linear-gradient(160deg, #FFFDF8, #F5F0FC);
+  overflow: hidden;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Corner flourishes, so the border is not just a rectangle */
+.hero-card::before,
+.hero-card::after {
+  content: '';
+  position: absolute;
+  width: 14mm; height: 14mm;
+  border: 2px solid var(--accent);
+  opacity: .45;
+}
+.hero-card::before { top: 3mm; left: 3mm; border-right: 0; border-bottom: 0; border-radius: 8px 0 0 0; }
+.hero-card::after  { bottom: 3mm; right: 3mm; border-left: 0; border-top: 0; border-radius: 0 0 8px 0; }
+
+/* The starburst sitting behind the portrait */
+.hero-card__rays {
+  position: absolute;
+  top: 4mm; left: 50%;
+  width: 86mm; height: 86mm;
+  margin-left: -43mm;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(108, 75, 214, .13) 0deg 7deg,
+    rgba(108, 75, 214, 0)   7deg 14deg
+  );
+  -webkit-mask-image: radial-gradient(circle, #000 42%, transparent 72%);
+          mask-image: radial-gradient(circle, #000 42%, transparent 72%);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Medallion: gold ring, white face, character inside */
+.hero-card__medal {
+  position: relative;
+  width: 52mm; height: 52mm;
+  margin: 2mm auto 0;
+  border-radius: 50%;
+  padding: 2.4mm;
+  background: linear-gradient(145deg, #F0C46A, #E0952E 45%, #F7DFA8 70%, #C9821F);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 .hero-card__art {
-  width: 46mm; height: 46mm;
-  margin: 0 auto 8mm;
+  width: 100%; height: 100%;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid var(--accent);
+  border: 1.5mm solid #fff;
   background: #fff;
 }
-.hero-card__art img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.hero-card__eyebrow {
-  font-size: 10px; font-weight: 800; letter-spacing: .18em;
-  text-transform: uppercase; color: var(--accent);
+.hero-card__art img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+/* Gold ribbon riding across the bottom of the medallion */
+.hero-card__ribbon {
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  margin: -6mm auto 0;
+  padding: 2mm 12mm;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: #fff;
+  background: linear-gradient(180deg, #7C5CE6, #5B3CC4);
+  border-radius: 3px;
+  /* Notched ends, the way a ribbon is cut */
+  clip-path: polygon(0 0, 100% 0, calc(100% - 5mm) 50%, 100% 100%, 0 100%, 5mm 50%);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
-.hero-card__name { font-size: 24px; font-weight: 800; margin: 5px 0 8px; }
+
+.hero-card__eyebrow {
+  margin-top: 6mm;
+  font-size: 9.5px; font-weight: 800; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--ink-soft);
+}
+.hero-card__name { font-size: 26px; font-weight: 800; margin: 3px 0 4px; line-height: 1.15; }
+
+.hero-card__stars {
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  margin: 3mm 0 4mm;
+}
+.hero-card__stars img { width: 15px; height: 15px; display: block; }
+
 .hero-card__line { font-size: 11.5px; color: var(--ink-soft); line-height: 1.6; }
+
+/* Two lines to fill in by hand, side by side */
+.hero-card__signrow {
+  display: flex;
+  gap: 8mm;
+  justify-content: center;
+  margin-top: 10mm;
+}
 .hero-card__sign {
-  margin-top: 12mm;
-  border-top: 1px solid var(--ink);
-  padding-top: 5px;
-  font-size: 10px;
+  flex: 1;
+  max-width: 48mm;
+  border-top: 1.2px solid var(--ink);
+  padding-top: 4px;
+  font-size: 9px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
   color: var(--ink-soft);
-  width: 60mm;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 /* --------------------------------------------------------------------------

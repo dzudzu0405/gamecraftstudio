@@ -97,6 +97,8 @@ class Schema
                 'theme'           => "varchar:30 notnull default:forest",
                 'subjects'        => 'varchar:255 null',   // question subjects, comma separated (FR-23)
                 'setting'         => 'varchar:120 null',   // where the adventure takes place, in the buyer's words
+                'rescue_target'   => 'varchar:120 null',   // who the players set out to rescue, in the buyer's words
+                'movement'        => "varchar:10 notnull default:dice",  // dice | cards - how a turn moves you
                 'background_mode' => "varchar:20 notnull default:theme",  // theme | custom (custom = the buyer makes their own)
                 'question_count'  => 'int notnull default:90',
                 'cells'           => 'int notnull default:18',

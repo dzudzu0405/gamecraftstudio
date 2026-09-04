@@ -9,7 +9,6 @@ use App\Core\Url;
 use App\Services\Art;
 use App\Services\Difficulty;
 use App\Services\MapComposer;
-use App\Services\MissionMatcher;
 use App\Services\PrintBundle;
 
 $pid      = (int) $project['id'];
@@ -39,6 +38,21 @@ $frames = PrintBundle::cardFrames($project);
 // Mission cards walk through the character's poses instead of repeating one
 $poseCount = count($frames['heroes']);
 $poseNo    = 0;
+$movePose  = 0;   // move cards keep their own place in the pose cycle
+
+/*
+ * Step the question's type size down as it gets longer, so a long one stays
+ * inside its card. The thresholds are character counts, chosen against the
+ * seeded templates: "7 + 5 = ?" is tiny, a word problem runs past 130.
+ */
+$qSize = function (string $question): string {
+    $len = mb_strlen(trim($question));
+
+    if ($len <= 24)  return 'card-cut__q--lg';
+    if ($len <= 80)  return '';
+    if ($len <= 130) return 'card-cut__q--sm';
+    return 'card-cut__q--xs';
+};
 ?>
 
 <?php if ($frames['mission'] || $frames['move']): ?>
@@ -168,13 +182,22 @@ $poseNo    = 0;
                         <?php foreach ($chunk as $c): ?>
                             <div class="card-cut card-move<?= $frames['move'] ? ' card-cut--framed card-move--art' : '' ?>">
                                 <div class="card-cut__inner">
-                                    <div class="card-move__icon">
-                                        <img src="<?= H::e(Art::dataUri(Art::sticker($c['sticker'], '#6C4BD6', 26))) ?>" alt="">
-                                    </div>
+                                    <?php /* The chosen character rides the move cards too, cycling
+                                             its poses. With no character set, fall back to the
+                                             sticker that used to be the only thing here. */ ?>
+                                    <?php if ($poseCount): ?>
+                                        <div class="card-move__hero hero-<?= ($movePose++ % $poseCount) + 1 ?>"></div>
+                                    <?php else: ?>
+                                        <div class="card-move__icon">
+                                            <img src="<?= H::e(Art::dataUri(Art::sticker($c['sticker'], '#6C4BD6', 26))) ?>" alt="">
+                                        </div>
+                                    <?php endif; ?>
                                     <div class="card-move__steps <?= $c['steps'] < 0 ? 'is-back' : '' ?>">
                                         <?= $c['steps'] < 0 ? '&minus;' . abs($c['steps']) : '+' . $c['steps'] ?>
                                     </div>
                                     <div class="card-move__label"><?= H::e($c['label']) ?></div>
+                                    <?php /* The same card also carries the cost of a wrong answer */ ?>
+                                    <div class="card-move__penalty"><?= H::e($c['penalty']) ?></div>
                                 </div>
                                 <div class="card-cut__brand">GameCraft</div>
                             </div>
@@ -188,6 +211,32 @@ $poseNo    = 0;
                 <?php $foot(); ?>
             </div>
         <?php endforeach; ?>
+
+    <?php elseif ($section['key'] === 'dice'): ?>
+        <!-- ===== 4. Paper die (printed instead of move cards) ===== -->
+        <div class="sheet">
+            <?php $head('4', 'Paper die', 'Cut out, fold along the lines and glue the tabs'); ?>
+            <div class="sheet__body">
+                <?php if (!empty($d['image'])): ?>
+                    <div class="dice-net">
+                        <img src="<?= H::e($d['image']) ?>" alt="Die to cut out and fold">
+                    </div>
+                    <ol class="dice-steps">
+                        <li>Cut around the outside of the whole shape, tabs included.</li>
+                        <li>Fold along every inside line, so the six faces turn inwards.</li>
+                        <li>Glue the tabs under the neighbouring face and hold until dry.</li>
+                        <li>One die is enough for the whole table - roll and move that many spaces.</li>
+                    </ol>
+                <?php else: ?>
+                    <div class="prose">
+                        <p>The die artwork is missing. Put a file named <code>dice-net.png</code>
+                           into <code>uploads/library/</code> and print again, or play with any
+                           ordinary six-sided die.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+            <?php $foot(); ?>
+        </div>
 
     <?php elseif ($section['key'] === 'mission'): ?>
         <!-- ===== 5. Mission cards ===== -->
@@ -222,19 +271,16 @@ $poseNo    = 0;
                                             <div class="card-cut__hero<?= $pose ?>"></div>
                                         <?php endif; ?>
 
+                                        <?php /* The "Space 1 - Maths" line is gone: it told the
+                                                 player nothing they needed and took room the
+                                                 question wanted. The sticker stays. */ ?>
                                         <div class="card-cut__top">
                                             <span class="card-cut__sticker">
                                                 <img src="<?= H::e(Art::dataUri(Art::sticker((string) $m['sticker'], '#6C4BD6', 16))) ?>" alt="">
                                             </span>
-                                            <span class="card-cut__tag">
-                                                Space <?= (int) $m['cell_no'] ?>
-                                                <?php if (!empty($m['subject'])): ?>
-                                                    &middot; <?= H::e(MissionMatcher::subjectLabel((string) $m['subject'])) ?>
-                                                <?php endif; ?>
-                                            </span>
                                         </div>
 
-                                        <div class="card-cut__q"><?= H::e($m['question']) ?></div>
+                                        <div class="card-cut__q <?= $qSize((string) $m['question']) ?>"><?= H::e($m['question']) ?></div>
 
                                         <?php if (trim((string) $m['answer']) !== ''): ?>
                                             <div class="card-cut__a">Answer: <?= H::e($m['answer']) ?></div>
@@ -261,9 +307,22 @@ $poseNo    = 0;
             <?php $head('6', 'Winner hero card', 'One per game'); ?>
             <div class="sheet__body">
                 <div class="hero-card">
-                    <div class="hero-card__art">
-                        <img src="<?= H::e($d['character']) ?>" alt="">
+                    <div class="hero-card__rays"></div>
+
+                    <div class="hero-card__medal">
+                        <div class="hero-card__art">
+                            <img src="<?= H::e($d['character']) ?>" alt="">
+                        </div>
                     </div>
+
+                    <div class="hero-card__ribbon">Champion</div>
+
+                    <div class="hero-card__stars">
+                        <?php for ($s = 0; $s < 5; $s++): ?>
+                            <img src="<?= H::e(Art::dataUri(Art::sticker('star', '#E0952E', 15))) ?>" alt="">
+                        <?php endfor; ?>
+                    </div>
+
                     <div class="hero-card__eyebrow">Hero of</div>
                     <div class="hero-card__name"><?= H::e($project['title']) ?></div>
                     <div class="hero-card__line">
@@ -271,7 +330,11 @@ $poseNo    = 0;
                         and reached the finish first.<br>
                         Congratulations, <b><?= H::e($d['hero_name']) ?></b>!
                     </div>
-                    <div class="hero-card__sign">Winner's name</div>
+
+                    <div class="hero-card__signrow">
+                        <div class="hero-card__sign">Winner's name</div>
+                        <div class="hero-card__sign">Date</div>
+                    </div>
                 </div>
             </div>
             <?php $foot(); ?>

@@ -84,16 +84,33 @@ class PrintBundle
             'data'        => ['text' => $howTo],
         ];
 
-        // --- 4. Move cards ---
-        $moveCards = self::moveCards($project);
-        $sections[] = [
-            'key'         => 'move',
-            'order'       => 4,
-            'title'       => 'Move cards',
-            'orientation' => 'portrait',
-            'pages'       => (int) ceil(count($moveCards) / self::CARDS_PER_SHEET),
-            'data'        => ['cards' => $moveCards, 'theme' => $theme],
-        ];
+        /*
+         * --- 4. Whatever moves you ---
+         *
+         * The two are alternatives, so only one of them is printed. Printing
+         * both would put a die and a deck in the same box and leave the buyer
+         * to guess which the rules meant.
+         */
+        if (Project::usesMoveCards($project)) {
+            $moveCards = self::moveCards($project);
+            $sections[] = [
+                'key'         => 'move',
+                'order'       => 4,
+                'title'       => 'Move cards',
+                'orientation' => 'portrait',
+                'pages'       => (int) ceil(count($moveCards) / self::CARDS_PER_SHEET),
+                'data'        => ['cards' => $moveCards, 'theme' => $theme],
+            ];
+        } else {
+            $sections[] = [
+                'key'         => 'dice',
+                'order'       => 4,
+                'title'       => 'Paper die',
+                'orientation' => 'portrait',
+                'pages'       => 1,
+                'data'        => ['image' => self::diceNetUrl()],
+            ];
+        }
 
         // --- 5. Mission cards ---
         $missions = MissionMatcher::forProject($projectId);
@@ -150,27 +167,47 @@ class PrintBundle
      * Move cards, showing how many spaces to advance.
      * Fixed at 8 cards per game (FR-33), spread so the pace stays even.
      */
+    /**
+     * The move cards.
+     *
+     * A card does two jobs at once. The big number is how far you go when you
+     * draw it. The small line underneath is what you lose if the question you
+     * then land on is answered wrong - so the card you were pleased to draw is
+     * also the card that decides the size of your mistake.
+     *
+     * The far you go, the further you fall: +1 and +2 cost one space, +3 and
+     * +4 cost two. Each of the four appears twice, making eight cards.
+     */
+    private const MOVE_FACES = [
+        ['forward' => 1, 'back' => 1],
+        ['forward' => 2, 'back' => 1],
+        ['forward' => 3, 'back' => 2],
+        ['forward' => 4, 'back' => 2],
+    ];
+
     public static function moveCards(array $project): array
     {
-        $count = Difficulty::MOVE_CARDS_PER_GAME;
-
-        // Mostly small steps, a couple of big ones, and one step back for fun
-        $steps = [1, 1, 2, 2, 3, 3, 4, -1];
-        $steps = array_slice($steps, 0, $count);
+        $copies = (int) max(1, round(Difficulty::MOVE_CARDS_PER_GAME / count(self::MOVE_FACES)));
 
         $cards = [];
-        foreach ($steps as $i => $step) {
-            $cards[] = [
-                'no'    => $i + 1,
-                'steps' => $step,
-                'label' => $step < 0
-                    ? 'Move back ' . abs($step) . ' ' . (abs($step) === 1 ? 'space' : 'spaces')
-                    : 'Move forward ' . $step . ' ' . ($step === 1 ? 'space' : 'spaces'),
-                'sticker' => $step < 0 ? 'moon' : 'footprint',
-            ];
+        $no    = 1;
+
+        for ($c = 0; $c < $copies; $c++) {
+            foreach (self::MOVE_FACES as $face) {
+                $cards[] = [
+                    'no'      => $no++,
+                    'steps'   => $face['forward'],
+                    'back'    => $face['back'],
+                    'label'   => 'Move forward ' . $face['forward']
+                               . ($face['forward'] === 1 ? ' space' : ' spaces'),
+                    'penalty' => 'Wrong answer: back ' . $face['back']
+                               . ($face['back'] === 1 ? ' space' : ' spaces'),
+                    'sticker' => 'footprint',
+                ];
+            }
         }
 
-        return $cards;
+        return array_slice($cards, 0, Difficulty::MOVE_CARDS_PER_GAME);
     }
 
     /** Default player list when the project has not named anyone yet */
@@ -442,6 +479,25 @@ class PrintBundle
      * Map background: the uploaded image when the buyer made their own,
      * otherwise the scene that belongs to the chosen theme (FR-31).
      */
+    /**
+     * The cut-out die.
+     *
+     * One drawing serves every game, so it is not a library item and has no
+     * per-project variant - it just sits in uploads/library/. Embedded like
+     * the other artwork so the print file stands alone.
+     */
+    public static function diceNetUrl(): ?string
+    {
+        foreach (['png', 'jpg', 'jpeg', 'webp'] as $ext) {
+            $path = dirname(__DIR__, 2) . '/uploads/library/dice-net.' . $ext;
+            if (is_file($path)) {
+                return self::fileToDataUri($path);
+            }
+        }
+
+        return null;
+    }
+
     public static function backgroundUrl(array $project): ?string
     {
         $bgId = Project::usesThemeBackground($project)

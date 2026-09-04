@@ -34,6 +34,26 @@ class Project
     public const BACKGROUND_CUSTOM = 'custom';
     public const THEME_CUSTOM      = 'custom';
 
+    /**
+     * How a turn moves a player. The two are alternatives, never both: either
+     * you roll the paper die, or you draw a move card. Beginner is dice only,
+     * because a six-year-old counting pips is enough to be going on with.
+     */
+    public const MOVE_DICE  = 'dice';
+    public const MOVE_CARDS = 'cards';
+
+    /** Does this project move by drawing cards? */
+    public static function usesMoveCards(array $project): bool
+    {
+        return ($project['movement'] ?? self::MOVE_DICE) === self::MOVE_CARDS;
+    }
+
+    /** Difficulties where the buyer gets to pick; Beginner has no choice */
+    public static function canChooseMovement(string $difficulty): bool
+    {
+        return $difficulty !== Difficulty::BEGINNER;
+    }
+
     /** True when the map background comes from the chosen theme */
     public static function usesThemeBackground(array $project): bool
     {
@@ -132,6 +152,11 @@ class Project
             'theme'             => $data['theme'] ?? 'forest',
             'subjects'          => $data['subjects'] ?? 'math,nature',
             'setting'           => $data['setting'] ?? null,
+            'rescue_target'     => $data['rescue_target'] ?? null,
+            // Beginner never gets the choice, so it is forced here as well as in the form
+            'movement'          => self::canChooseMovement($difficulty)
+                                       ? ($data['movement'] ?? self::MOVE_DICE)
+                                       : self::MOVE_DICE,
             'background_mode'   => $data['background_mode'] ?? self::BACKGROUND_THEME,
             'question_count'    => (int) ($data['question_count'] ?? $cfg['mission_cards']),
             'cells'             => (int) $cfg['cells'],

@@ -89,6 +89,63 @@ $missionFrame = function (array $item): ?string {
                 </div>
             </div>
 
+            <!-- How a turn moves you: the die, or a move card -->
+            <?php
+            $canChoose = App\Models\Project::canChooseMovement((string) $project['difficulty']);
+            $movement  = $canChoose
+                ? (string) ($project['movement'] ?? App\Models\Project::MOVE_DICE)
+                : App\Models\Project::MOVE_DICE;
+            ?>
+            <div class="card mb-2">
+                <div class="card__head">
+                    <h3>Moving around the board</h3>
+                    <span class="small muted">Pick one - the game uses either, never both</span>
+                </div>
+                <div class="card__body">
+                    <?php if (!$canChoose): ?>
+                        <div class="notice notice--info mb-2">
+                            <?= Icon::get('info', 17) ?>
+                            <span>
+                                The Beginner level always uses the paper die. Choose Standard or
+                                Advanced at step 1 if you would rather play with move cards.
+                            </span>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="choice-grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+                        <label class="choice">
+                            <input type="radio" name="movement" value="<?= H::e(App\Models\Project::MOVE_DICE) ?>"
+                                   <?= $movement === App\Models\Project::MOVE_DICE ? 'checked' : '' ?>>
+                            <div class="choice__inner">
+                                <div class="choice__title"><?= Icon::get('dice', 15) ?> Paper die</div>
+                                <div class="choice__desc">
+                                    Roll and move that many spaces. The bundle includes a die
+                                    to cut out and glue. Answer a question wrong and you go back one space.
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="choice">
+                            <input type="radio" name="movement" value="<?= H::e(App\Models\Project::MOVE_CARDS) ?>"
+                                   <?= $movement === App\Models\Project::MOVE_CARDS ? 'checked' : '' ?>
+                                   <?= $canChoose ? '' : 'disabled' ?>>
+                            <div class="choice__inner">
+                                <div class="choice__title">
+                                    <?= Icon::get('cards', 15) ?> Move cards
+                                    <?php if (!$canChoose): ?>
+                                        <span class="badge badge--locked"><?= Icon::get('lock', 10) ?> Standard and up</span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="choice__desc">
+                                    Draw a card to see how far you go. Each card also carries the
+                                    penalty you pay if you then answer a question wrong.
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <!-- Character set -->
             <div class="card mb-2">
                 <div class="card__head">

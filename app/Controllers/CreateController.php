@@ -84,6 +84,7 @@ class CreateController extends Controller
           ->in('theme', array_merge(array_keys(Art::THEMES), [Project::THEME_CUSTOM]), 'theme')
           ->in('difficulty', array_keys(Difficulty::all()), 'difficulty')
           ->max('setting', 120, 'the setting')
+          ->max('rescue_target', 120, 'who the game rescues')
           ->between('players_min', Project::MIN_PLAYERS, Project::MAX_PLAYERS, 'the minimum player count')
           ->between('players_max', Project::MIN_PLAYERS, Project::MAX_PLAYERS, 'the maximum player count');
 
@@ -123,7 +124,8 @@ class CreateController extends Controller
             'background_mode' => $choice['background_mode'] ?? Project::BACKGROUND_THEME,
             'difficulty'  => $difficulty,
             'subjects'    => implode(',', $subjects),
-            'setting'     => mb_substr(trim($request->str('setting')), 0, 120) ?: null,
+            'setting'       => mb_substr(trim($request->str('setting')), 0, 120) ?: null,
+            'rescue_target' => mb_substr(trim($request->str('rescue_target')), 0, 120) ?: null,
             'players_min' => $min,
             'players_max' => $max,
         ]);
@@ -276,7 +278,8 @@ class CreateController extends Controller
             $update['title'] = mb_substr($title, 0, 160);
         }
 
-        $update['setting'] = mb_substr(trim($request->str('setting')), 0, 120) ?: null;
+        $update['setting']       = mb_substr(trim($request->str('setting')), 0, 120) ?: null;
+        $update['rescue_target'] = mb_substr(trim($request->str('rescue_target')), 0, 120) ?: null;
 
         $choice = $this->readThemeChoice($request);
         if ($choice['theme'] !== null) {
@@ -315,6 +318,11 @@ class CreateController extends Controller
                 // The space count changed, so the old frame and cards no longer fit
                 $update['map_item_id'] = null;
                 Database::delete('project_missions', ['project_id' => $id]);
+
+                // Dropping to Beginner takes the move-card option away with it
+                if (!Project::canChooseMovement($difficulty)) {
+                    $update['movement'] = Project::MOVE_DICE;
+                }
 
                 Flash::info('Difficulty changed, so the map frame and mission cards need choosing again.');
             }
@@ -359,6 +367,18 @@ class CreateController extends Controller
             }
 
             $update[$column] = $itemId;
+        }
+
+        /*
+         * Dice or move cards. Beginner is dice whatever the form says - the
+         * radio is disabled there, and a disabled control is a suggestion, not
+         * a guarantee, so the rule is enforced again on this side.
+         */
+        $movement = $request->str('movement');
+        if (in_array($movement, [Project::MOVE_DICE, Project::MOVE_CARDS], true)) {
+            $update['movement'] = Project::canChooseMovement((string) $project['difficulty'])
+                ? $movement
+                : Project::MOVE_DICE;
         }
 
         // Follow the chosen map's theme so the colours stay consistent

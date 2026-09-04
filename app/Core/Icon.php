@@ -66,6 +66,8 @@ class Icon
         'star'      => '<path d="m12 3.8 2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8L3.5 10l5.9-.9Z"/>',
         'heart'     => '<path d="M12 20s-7.5-4.7-7.5-9.6A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8C19.5 15.3 12 20 12 20Z"/>',
         'dice'      => '<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><circle cx="8.5" cy="8.5" r="1.2"/><circle cx="15.5" cy="15.5" r="1.2"/><circle cx="12" cy="12" r="1.2"/>',
+        // Two cards, the back one fanned out behind
+        'cards'     => '<rect x="8.5" y="4" width="11" height="16" rx="2.2"/><path d="M5.6 6.9 4.2 7.4a2 2 0 0 0-1.2 2.6l3.6 9.4"/>',
         'gift'      => '<rect x="3.5" y="8.5" width="17" height="4" rx="1"/><path d="M5 12.5V19a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6.5"/><path d="M12 8.5V21"/><path d="M12 8.5S10.8 4 8.6 4a2.3 2.3 0 0 0 0 4.5Z"/><path d="M12 8.5S13.2 4 15.4 4a2.3 2.3 0 0 1 0 4.5Z"/>',
     ];
 
