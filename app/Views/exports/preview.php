@@ -214,8 +214,13 @@ $poseNo    = 0;
                                         <span class="small faint">Space <?= (int) $m['cell_no'] ?></span>
                                     </div>
                                     <div class="small bold" style="flex:1;line-height:1.45"><?= H::e($m['question']) ?></div>
+                                    <?php /* Shown to the owner here, but not on the printed card -
+                                             it goes on the answer key at the back of the file. */ ?>
                                     <?php if (trim((string) $m['answer']) !== ''): ?>
-                                        <div class="small faint mt-1">Answer: <?= H::e($m['answer']) ?></div>
+                                        <div class="small faint mt-1">
+                                            <?= H::e($m['answer']) ?>
+                                            <span style="opacity:.7">&middot; printed on the answer key, not this card</span>
+                                        </div>
                                     <?php endif; ?>
                                 </div>
                             </div>

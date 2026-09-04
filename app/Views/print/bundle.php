@@ -282,9 +282,8 @@ $qSize = function (string $question): string {
 
                                         <div class="card-cut__q <?= $qSize((string) $m['question']) ?>"><?= H::e($m['question']) ?></div>
 
-                                        <?php if (trim((string) $m['answer']) !== ''): ?>
-                                            <div class="card-cut__a">Answer: <?= H::e($m['answer']) ?></div>
-                                        <?php endif; ?>
+                                        <?php /* No answer here - a card the child holds must not
+                                                 carry it. Every answer is on the key at the back. */ ?>
                                     </div>
 
                                     <div class="card-cut__brand">GameCraft</div>
@@ -369,6 +368,43 @@ $qSize = function (string $question): string {
             </div>
             <?php $foot(); ?>
         </div>
+
+    <?php elseif ($section['key'] === 'answers'): ?>
+        <!-- ===== 8. Answer key - the last sheets, for the game master ===== -->
+        <?php foreach ($d['pages'] as $page => $rows): ?>
+            <div class="sheet">
+                <?php $head('8', 'Answer key',
+                    count($d['pages']) > 1
+                        ? 'Sheet ' . ($page + 1) . ' of ' . count($d['pages'])
+                        : 'Keep this sheet'); ?>
+                <div class="sheet__body">
+
+                    <?php if ($page === 0): ?>
+                        <div class="answer-warn">
+                            <b>For whoever is running the game.</b>
+                            Take these last sheets off the back of the stack and keep them.
+                            The mission cards themselves do not show the answers.
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="answer-key">
+                        <?php $lastCell = null; ?>
+                        <?php foreach ($rows as $r): ?>
+                            <?php if ($r['cell'] !== $lastCell): ?>
+                                <div class="answer-key__space">Space <?= (int) $r['cell'] ?></div>
+                                <?php $lastCell = $r['cell']; ?>
+                            <?php endif; ?>
+                            <div class="answer-key__row">
+                                <span class="answer-key__q"><?= H::e($r['question']) ?></span>
+                                <span class="answer-key__a"><?= H::e($r['answer']) ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                </div>
+                <?php $foot(); ?>
+            </div>
+        <?php endforeach; ?>
 
     <?php endif; ?>
 <?php endforeach; ?>

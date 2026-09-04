@@ -439,6 +439,68 @@ html, body {
   color: var(--ink-soft);
 }
 .dice-steps li { margin-bottom: 1.5mm; }
+
+/* --------------------------------------------------------------------------
+   Answer key - the last sheets, kept by whoever runs the game
+   -------------------------------------------------------------------------- */
+
+.answer-warn {
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  padding: 3mm 4mm;
+  margin-bottom: 5mm;
+  font-size: 11px;
+  line-height: 1.5;
+  background: #FBF7FF;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/*
+ * Two columns, because ninety questions down a single column would run to
+ * four sheets. The break-inside rules stop a space heading being orphaned
+ * at the foot of a column with its questions overleaf.
+ */
+.answer-key {
+  column-count: 2;
+  column-gap: 8mm;
+  font-size: 9.5px;
+  line-height: 1.4;
+}
+.answer-key__space {
+  font-weight: 800;
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 2.5mm 0 1mm;
+  padding-bottom: .8mm;
+  border-bottom: 1px solid var(--line);
+  break-after: avoid;
+  break-inside: avoid;
+}
+.answer-key__space:first-child { margin-top: 0; }
+
+.answer-key__row {
+  display: flex;
+  gap: 3mm;
+  align-items: baseline;
+  padding: .5mm 0;
+  break-inside: avoid;
+}
+.answer-key__q {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
+  color: var(--ink-soft);
+}
+.answer-key__a {
+  flex: 0 0 auto;
+  max-width: 34%;
+  font-weight: 800;
+  text-align: right;
+  overflow-wrap: break-word;
+}
 .card-move__icon { margin-bottom: 4px; }
 .card-move__icon img { width: 26px; height: 26px; }
 

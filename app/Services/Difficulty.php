@@ -133,6 +133,8 @@ class Difficulty
         $mission = (int) ceil($cfg['mission_cards'] / $cardsPerSheet);
         $hero    = 1;
         $tokens  = 1;
-        return $map + $story + $howto + $move + $mission + $hero + $tokens;
+        // The answer key at the back, listed two columns to a sheet
+        $answers = (int) ceil($cfg['mission_cards'] / PrintBundle::ANSWERS_PER_SHEET);
+        return $map + $story + $howto + $move + $mission + $hero + $tokens + $answers;
     }
 }

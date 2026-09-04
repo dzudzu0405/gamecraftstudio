@@ -154,7 +154,60 @@ class PrintBundle
             'data'        => ['players' => $players],
         ];
 
+        /*
+         * --- 8. Answer key ---
+         *
+         * The answers used to be printed on the mission cards themselves, where
+         * the child holding the card could read them. They live here instead:
+         * the last sheets in the file, for whoever is running the game to keep
+         * and everyone else to never see. Last on purpose - it is the part you
+         * pull off the back of the stack before handing the rest out.
+         */
+        if ($missions) {
+            $answerPages = self::answerKey($missions);
+            $sections[] = [
+                'key'         => 'answers',
+                'order'       => 8,
+                'title'       => 'Answer key',
+                'orientation' => 'portrait',
+                'pages'       => count($answerPages),
+                'data'        => ['pages' => $answerPages],
+            ];
+        }
+
         return $sections;
+    }
+
+    /** Answer rows that fit on one sheet, across two columns */
+    public const ANSWERS_PER_SHEET = 60;
+
+    /**
+     * Splits the answers into printable sheets.
+     *
+     * Kept in playing order - space 1 first, then its five cards - so the
+     * person checking can find a question by where the child landed rather
+     * than by reading every line.
+     */
+    public static function answerKey(array $missions): array
+    {
+        $rows = [];
+
+        foreach ($missions as $m) {
+            $answer = trim((string) ($m['answer'] ?? ''));
+
+            $rows[] = [
+                'cell'     => (int) ($m['cell_no'] ?? 0),
+                'slot'     => (int) ($m['slot_no'] ?? 0),
+                'question' => (string) ($m['question'] ?? ''),
+                // A card with no answer recorded still gets a line, so the
+                // gap is visible rather than silently skipped
+                'answer'   => $answer !== '' ? $answer : '-',
+            ];
+        }
+
+        usort($rows, fn($a, $b) => [$a['cell'], $a['slot']] <=> [$b['cell'], $b['slot']]);
+
+        return array_chunk($rows, self::ANSWERS_PER_SHEET);
     }
 
     /** Total printed pages across the whole bundle */
