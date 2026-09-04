@@ -181,6 +181,45 @@ try {
         }
     }
 
+    /*
+     * Move card styles 16 to 20 were seeded as numbered placeholders and no
+     * artwork was ever drawn for them, so the picker offered five blank styles
+     * called "Card style 16" and up. Fifteen is the real set.
+     *
+     * A project that picked one keeps it - clearing somebody's choice to tidy
+     * the library would be a worse trade than leaving one stale row behind.
+     */
+    if (Database::tableExists('library_items') && Database::tableExists('projects')) {
+        $spare = Database::all(
+            "SELECT id, code FROM library_items WHERE kind = 'move' AND code > 'move-15'"
+        );
+
+        $removed = 0;
+        $kept    = 0;
+
+        foreach ($spare as $row) {
+            $inUse = Database::count(
+                'SELECT COUNT(*) FROM projects WHERE move_item_id = ?',
+                [(int) $row['id']]
+            );
+
+            if ($inUse > 0) {
+                $kept++;
+                continue;
+            }
+
+            Database::delete('library_items', ['id' => (int) $row['id']]);
+            $removed++;
+        }
+
+        if ($removed > 0) {
+            step('Removed ' . $removed . ' move card style' . ($removed === 1 ? '' : 's') . ' that had no artwork');
+        }
+        if ($kept > 0) {
+            step('Kept ' . $kept . ' placeholder move style' . ($kept === 1 ? '' : 's') . ' still chosen by a project');
+        }
+    }
+
     if (!$log) {
         step('Everything is already up to date. Nothing needed changing.');
     }

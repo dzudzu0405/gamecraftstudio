@@ -162,7 +162,7 @@ Every folder already contains an **`ARTWORK-FILE-LIST.txt`** listing every file 
 3. Zip them, upload into the right folder through File Manager, then *Extract*.
 4. Reload the page — real artwork replaces the placeholders automatically.
 
-The **Asset Library** page tracks progress against the content production targets (36 maps, 30 character sets, 20 move card designs, 30 hero cards).
+The **Asset Library** page tracks progress against the content production targets (36 maps, 30 character sets, 15 move card designs, 30 hero cards).
 
 ### Recommended image sizes
 

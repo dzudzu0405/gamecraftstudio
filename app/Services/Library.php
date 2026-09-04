@@ -306,7 +306,7 @@ class Library
         $targets = [
             self::KIND_MAP       => ['label' => 'Maps',              'target' => 36],
             self::KIND_CHARACTER => ['label' => 'Character sets',    'target' => 30],
-            self::KIND_MOVE      => ['label' => 'Move card designs', 'target' => 20],
+            self::KIND_MOVE      => ['label' => 'Move card designs', 'target' => 15],
             self::KIND_REWARD    => ['label' => 'Hero card designs', 'target' => 30],
         ];
 

@@ -27,10 +27,5 @@ move-12.jpg        publisher  Farm move cards
 move-13.jpg        publisher  Forest move cards
 move-14.jpg        publisher  Dinosaurs move cards
 move-15.jpg        publisher  Outer space move cards
-move-16.jpg        publisher  Ocean move cards
-move-17.jpg        publisher  Pirates move cards
-move-18.jpg        publisher  Magic move cards
-move-19.jpg        publisher  Castle move cards
-move-20.jpg        publisher  Desert move cards
 ------------------------------------------------------------------
-Total: 20 items
+Total: 15 items

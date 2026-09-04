@@ -12,7 +12,7 @@ use App\Services\Tiers;
  *
  *   36 maps            (12 spaces: 12 designs | 18 spaces: 12 | 24 spaces: 12)
  *   30 character sets  (starter 10, pro +10, publisher +10)
- *   20 move card sets  (starter 5,  pro +5,  publisher +10)
+ *   15 move card sets  (starter 5,  pro +5,  publisher +5)
  *   30 hero cards      (starter 10, pro +10, publisher +10)
  *   15 base mission templates (starter 5, pro +5, publisher +5)
  *   50+ ready-made game templates (FR-17)
@@ -138,23 +138,23 @@ class Seeder
             }
         }
 
-        // --- 20 move card designs ---
+        // --- 15 move card designs ---
         //
         // Named after the artwork, not the theme wheel. These are plain card
         // frames in fifteen colours; calling one "Forest move cards" because it
         // happened to land on that step of the loop described nothing, and the
         // names repeated once the loop went round twice.
         //
-        // 16 to 20 have no artwork yet, so they say so rather than borrowing a name.
+        // Fifteen is the whole set. There were five more numbered placeholders
+        // here, but no artwork was ever drawn for them, so they only ever showed
+        // the buyer an empty card style called "Card style 16".
         $moveNames = [
             'Peach', 'Cocoa', 'Lime', 'Sky', 'Vanilla',
             'Butter', 'Ice', 'Lavender', 'Rose', 'Honey',
             'Snow', 'Sage', 'Mist', 'Lilac', 'Meadow',
-            'Card style 16', 'Card style 17', 'Card style 18',
-            'Card style 19', 'Card style 20',
         ];
 
-        $moveTierPlan = [Tiers::STARTER => 5, Tiers::PRO => 5, Tiers::PUBLISHER => 10];
+        $moveTierPlan = [Tiers::STARTER => 5, Tiers::PRO => 5, Tiers::PUBLISHER => 5];
         $index = 0;
         foreach ($moveTierPlan as $tier => $qty) {
             for ($i = 0; $i < $qty; $i++) {
