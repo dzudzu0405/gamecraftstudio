@@ -81,6 +81,8 @@ $qSize = function (string $question): string {
             <?php if ($frames['window']): ?>
             --hero-top: <?= $frames['window']['top'] ?>%;
             --hero-height: <?= $frames['window']['height'] ?>%;
+            --hero-left: <?= $frames['window']['left'] ?? 16 ?>%;
+            --hero-right: <?= $frames['window']['right'] ?? 16 ?>%;
             <?php endif; ?>
         }
         <?php if ($frames['mission']): ?>

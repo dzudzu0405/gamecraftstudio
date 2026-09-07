@@ -699,8 +699,8 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
 /* The picture window some frames draw, and the small hero for those that do not */
 .pcard__window {
   position: absolute;
-  left: 16%;
-  right: 16%;
+  left: var(--hero-left, 16%);
+  right: var(--hero-right, 16%);
   top: var(--hero-top, 8%);
   height: var(--hero-height, 44%);
 }

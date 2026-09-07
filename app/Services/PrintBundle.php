@@ -304,7 +304,7 @@ class PrintBundle
         9  => ['mission' => [24.1, 20.0], 'move' => [26.6, 22.0]],
         10 => ['mission' => [20.9, 20.0], 'move' => [26.6, 26.6]],
         11 => ['mission' => [20.9, 20.0], 'move' => [26.6, 26.6]],
-        12 => ['mission' => [62.0, 10.0], 'move' => [21.9, 22.2]],
+        12 => ['mission' => [8.0, 68.0], 'move' => [21.9, 22.2]],
         13 => ['mission' => [17.8, 20.0], 'move' => [21.9, 21.6]],
         14 => ['mission' => [18.1, 20.0], 'move' => [23.8, 23.8]],
         15 => ['mission' => [62.0, 10.0], 'move' => [23.4, 23.8]],
@@ -332,10 +332,34 @@ class PrintBundle
         9   => ['mission' => null, 'move' => 92.1],
         10  => ['mission' => null, 'move' => 78.6],
         11  => ['mission' => 86.1, 'move' => 81.4],
-        12  => ['mission' => null, 'move' => 87.7],
+        12  => ['mission' => 93.0, 'move' => 87.7],
         13  => ['mission' => null, 'move' => 87.9],
         14  => ['mission' => 92.5, 'move' => 86.8],
         15  => ['mission' => null, 'move' => 86.8],
+    ];
+
+    /**
+     * Bands that are measured to the millimetre and must be left alone.
+     *
+     * safeZone opens a narrow band out so a question is not squeezed, which is
+     * right where the frame has spare background around it. On these it has
+     * none: the band is exactly the panel the frame drew, and a millimetre
+     * either way puts the words on top of the drawing.
+     */
+    private const EXACT_BANDS = [
+        12 => ['mission' => true],
+    ];
+
+    /**
+     * Frames that drew their picture window somewhere other than above the
+     * words, as top / height / left / right in percent of the card.
+     *
+     * Frame 12 is the one that needs this: it draws a wide panel at the top
+     * and a round badge below, so the question goes in the panel and the hero
+     * goes in the badge - the other way round from every other frame.
+     */
+    private const HERO_WINDOWS = [
+        12 => ['mission' => ['top' => 50.0, 'height' => 24.0, 'left' => 28.0, 'right' => 28.0]],
     ];
 
     /** How much of the card height one caption line needs */
@@ -393,7 +417,7 @@ class PrintBundle
         [$top, $bottom] = self::SAFE_ZONES[$style][$kind] ?? [22.0, 20.0];
 
         $band = 100 - $top - $bottom;
-        if ($band < self::MIN_BAND) {
+        if ($band < self::MIN_BAND && !(self::EXACT_BANDS[$style][$kind] ?? false)) {
             // Open it out around its own middle rather than from one side
             $grow   = (self::MIN_BAND - $band) / 2;
             $top    = max(4.0, $top - $grow);
@@ -409,6 +433,11 @@ class PrintBundle
      */
     public static function heroWindow(int $style, string $kind = 'mission'): ?array
     {
+        $set = self::HERO_WINDOWS[$style][$kind] ?? null;
+        if ($set !== null) {
+            return $set;
+        }
+
         [$top] = self::safeZone($style, $kind);
 
         // Not enough room over the band for a picture worth printing
@@ -416,7 +445,7 @@ class PrintBundle
             return null;
         }
 
-        return ['top' => 8.0, 'height' => round($top - 12.0, 1)];
+        return ['top' => 8.0, 'height' => round($top - 12.0, 1), 'left' => 16.0, 'right' => 16.0];
     }
 
     /**

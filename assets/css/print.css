@@ -264,8 +264,8 @@ html, body {
 /* The picture window some frames draw above their text box */
 .card-cut__window {
   position: absolute;
-  left: 16%;
-  right: 16%;
+  left: var(--hero-left, 16%);
+  right: var(--hero-right, 16%);
   top: var(--hero-top, 8%);
   height: var(--hero-height, 44%);
   display: grid;
