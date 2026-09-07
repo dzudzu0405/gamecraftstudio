@@ -12,9 +12,11 @@
  * So the numbers are not repeated here. They are read from Tiers.php, and the
  * rows are handed out to match. Change a plan there and run this.
  *
- * WHICH row lands where is chosen for variety rather than by number: each plan
- * is filled one theme at a time, so somebody on the free plan sees six
- * different places rather than six drawings of the same forest.
+ * WHICH row lands where follows the code: map-12-01 upwards, char-01 upwards.
+ * Rows used to be dealt one theme at a time, for variety - but the theme column
+ * is a label left over from seeding, and the boards were renamed and reshuffled
+ * long after it was written, so it no longer describes the picture under it.
+ * Sorting by it only scattered the plan's own frames through the grid.
  *
  * USAGE
  *   php tools/apply-plan-sheet.php            show what would change
@@ -31,32 +33,16 @@ $apply = in_array('--apply', $argv, true);
 $plans = [Tiers::STARTER, Tiers::PRO, Tiers::PUBLISHER];
 
 /**
- * Hands rows out to the plans, filling each plan's quota one theme at a time.
+ * Hands rows out to the plans in code order, cheapest plan first.
  *
- * @param array $rows    library rows, each with id, code, theme, tier
+ * @param array $rows    library rows in code order, each with id, code, tier
  * @param array $wanted  plan => how many rows that plan should be able to pick,
  *                       counted cumulatively as the plans inherit
  * @return array         id => the tier it should carry
  */
 function share(array $rows, array $wanted): array
 {
-    // Group by theme so the loop below can take one from each in turn
-    $byTheme = [];
-    foreach ($rows as $r) {
-        $byTheme[(string) $r['theme']][] = $r;
-    }
-    ksort($byTheme);
-
-    $queue = [];
-    while ($byTheme) {
-        foreach ($byTheme as $theme => &$list) {
-            $queue[] = array_shift($list);
-            if (!$list) {
-                unset($byTheme[$theme]);
-            }
-        }
-        unset($list);
-    }
+    $queue = array_values($rows);
 
     $out = [];
     $taken = 0;
