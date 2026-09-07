@@ -27,17 +27,34 @@ $renderPicker = function (string $name, array $items, $currentId, string $emptyM
         $checked = (int) $currentId === (int) $item['id'];
         $hasArt  = Library::hasRealImage($item, $variant);
         $second  = $companion ? $companion($item) : null;
+        $locked  = !empty($item['locked']);
 
-        echo '<label class="pick">';
-        echo '<input type="radio" name="' . H::e($name) . '" value="' . (int) $item['id'] . '"' . ($checked ? ' checked' : '') . '>';
+        // A locked tile is shown, not hidden: the buyer can see what the next
+        // plan adds. The radio is disabled so it cannot be chosen or posted.
+        echo '<label class="pick' . ($locked ? ' pick--locked' : '') . '"';
+        if ($locked) {
+            echo ' title="' . H::e(ucfirst((string) $item['tier'])) . ' plan"';
+        }
+        echo '>';
+
+        echo '<input type="radio" name="' . H::e($name) . '" value="' . (int) $item['id'] . '"'
+            . ($checked ? ' checked' : '') . ($locked ? ' disabled' : '') . '>';
+
         echo '<div class="pick__art' . ($second ? ' pick__art--pair' : '') . '">';
         echo '<img src="' . H::e(Library::imageFor($item, $variant)) . '" alt="" loading="lazy">';
         if ($second) {
             echo '<img src="' . H::e($second) . '" alt="" loading="lazy">';
         }
+        if ($locked) {
+            echo '<span class="pick__lock">' . Icon::get('lock', 18) . '</span>';
+        }
         echo '</div>';
+
         echo '<div class="pick__label">' . H::e(H::truncate($item['name'], 34));
-        if (!$hasArt) {
+        if ($locked) {
+            echo ' <span class="badge badge--locked" style="font-size:9px">'
+                . H::e(ucfirst((string) $item['tier'])) . '</span>';
+        } elseif (!$hasArt) {
             echo ' <span class="badge badge--tier" style="font-size:9px">placeholder</span>';
         }
         echo '</div></label>';

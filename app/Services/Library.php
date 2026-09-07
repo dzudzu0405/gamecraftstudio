@@ -72,17 +72,41 @@ class Library
     // ---------------------------------------------------------------
 
     /**
+     * Everything of a kind, with each row marked as available to this plan or
+     * not, so a picker can show what the buyer has not bought yet.
+     *
+     * Kept separate from forPlan(): that one answers "what may this plan use",
+     * and entitlement checks depend on it returning nothing else.
+     *
+     * @return array rows with an added 'locked' flag
+     */
+    public static function withLocked(string $kind, ?string $plan, array $filters = []): array
+    {
+        $rows = self::forPlan($kind, null, $filters + ['all_tiers' => true]);
+
+        foreach ($rows as &$row) {
+            $row['locked'] = !self::unlocked($row, $plan);
+        }
+
+        return $rows;
+    }
+
+    /**
      * Library items this plan may use, inheritance included (FR-29).
      *
-     * @param array $filters cells, theme, search, limit, offset
+     * @param array $filters cells, theme, search, limit, offset, all_tiers
      */
     public static function forPlan(string $kind, ?string $plan, array $filters = []): array
     {
-        $tiers = Tiers::unlockedTiers($plan);
-        $in    = implode(', ', array_fill(0, count($tiers), '?'));
+        $sql    = 'SELECT * FROM library_items WHERE kind = ? AND is_active = 1';
+        $params = [$kind];
 
-        $sql    = 'SELECT * FROM library_items WHERE kind = ? AND is_active = 1 AND tier IN (' . $in . ')';
-        $params = array_merge([$kind], $tiers);
+        // all_tiers is for the pickers, which show the locked rows greyed out
+        if (empty($filters['all_tiers'])) {
+            $tiers = Tiers::unlockedTiers($plan);
+            $sql  .= ' AND tier IN (' . implode(', ', array_fill(0, count($tiers), '?')) . ')';
+            $params = array_merge($params, $tiers);
+        }
 
         if (!empty($filters['cells'])) {
             $sql .= ' AND cells = ?';

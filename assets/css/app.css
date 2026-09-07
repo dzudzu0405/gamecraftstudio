@@ -613,6 +613,33 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
 .pick input { position: absolute; opacity: 0; pointer-events: none; }
 .pick:has(input:checked) { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
 .pick:has(input:disabled) { cursor: not-allowed; }
+
+/*
+ * A tile the plan does not include. Shown rather than hidden, so the buyer can
+ * see what the next plan adds - drained of colour, with a padlock over the art.
+ */
+.pick--locked { cursor: not-allowed; }
+.pick--locked .pick__art { filter: grayscale(1) opacity(.45); }
+.pick--locked .pick__label { color: var(--text-faint); }
+.pick--locked:hover { border-color: var(--line); box-shadow: none; }
+
+.pick__art { position: relative; }
+.pick__lock {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--text-soft);
+}
+/* .pick__art svg already claims 100% of the tile, so this has to outrank it */
+.pick__art .pick__lock svg {
+  width: 26px;
+  height: 26px;
+  padding: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .82);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .16);
+}
 .pick__art { aspect-ratio: 4 / 3; background: var(--bg-sunken); }
 .pick__art img, .pick__art svg { width: 100%; height: 100%; object-fit: cover; display: block; }
 

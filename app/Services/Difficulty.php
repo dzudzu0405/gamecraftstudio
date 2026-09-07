@@ -20,8 +20,8 @@ class Difficulty
     public const STANDARD = 'standard';
     public const ADVANCED = 'advanced';
 
-    /** Fixed for every game regardless of difficulty (SRS section 10) */
-    public const MOVE_CARDS_PER_GAME = 8;
+    /** Fixed for every game regardless of difficulty */
+    public const MOVE_CARDS_PER_GAME = 12;
     public const HERO_CARDS_PER_GAME = 1;
 
     /** Mission cards stacked at each space */

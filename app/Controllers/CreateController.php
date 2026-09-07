@@ -173,12 +173,14 @@ class CreateController extends Controller
                 break;
 
             case 2:
-                $data['maps'] = Library::forPlan(Library::KIND_MAP, $plan, [
+                // withLocked, not forPlan: the tiles a plan has not bought are
+                // shown greyed with a padlock rather than left out
+                $data['maps'] = Library::withLocked(Library::KIND_MAP, $plan, [
                     'cells' => (int) $project['cells'],
                 ]);
                 $data['lockedMaps'] = $this->lockedCount(Library::KIND_MAP, $plan, (int) $project['cells']);
-                $data['characters'] = Library::forPlan(Library::KIND_CHARACTER, $plan);
-                $data['moves']      = Library::forPlan(Library::KIND_MOVE, $plan);
+                $data['characters'] = Library::withLocked(Library::KIND_CHARACTER, $plan);
+                $data['moves']      = Library::withLocked(Library::KIND_MOVE, $plan);
                 break;
 
             case 3:

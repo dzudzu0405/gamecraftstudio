@@ -230,7 +230,7 @@ class PrintBundle
      * also the card that decides the size of your mistake.
      *
      * The far you go, the further you fall: +1 and +2 cost one space, +3 and
-     * +4 cost two. Each of the four appears twice, making eight cards.
+     * +4 cost two. Each of the four is dealt three times, making twelve cards.
      */
     private const MOVE_FACES = [
         ['forward' => 1, 'back' => 1],
