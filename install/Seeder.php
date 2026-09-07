@@ -234,150 +234,9 @@ class Seeder
             return 0;
         }
 
-        $templates = [
-            // --- STARTER: 5 templates ---
-            [
-                'code' => 'math-add', 'name' => 'Simple addition', 'subject' => 'math',
-                'level' => 'beginner', 'tier' => Tiers::STARTER, 'sticker' => 'star',
-                'pattern' => 'There are {a} rabbits in the meadow, and {b} more hop over to join them. How many rabbits are there now?',
-                'answer'  => '{a+b} rabbits',
-                'variables' => ['a' => ['min' => 2, 'max' => 12], 'b' => ['min' => 1, 'max' => 8]],
-                'hint' => 'Count them all together.',
-            ],
-            [
-                'code' => 'math-sub', 'name' => 'Simple subtraction', 'subject' => 'math',
-                'level' => 'beginner', 'tier' => Tiers::STARTER, 'sticker' => 'leaf',
-                'pattern' => 'There are {a} apples on the tree and {b} of them fall to the ground. How many are still on the tree?',
-                'answer'  => '{a-b} apples',
-                'variables' => ['a' => ['min' => 6, 'max' => 20], 'b' => ['min' => 1, 'max' => 5]],
-                'hint' => 'Take the fallen ones away from the total.',
-            ],
-            [
-                'code' => 'nature-animal', 'name' => 'Animal sounds', 'subject' => 'nature',
-                'level' => 'beginner', 'tier' => Tiers::STARTER, 'sticker' => 'heart',
-                'pattern' => 'What sound does a {animal} make? Do your best impression!',
-                'answer'  => 'Any good impression counts',
-                'variables' => ['animal' => ['list' => ['cat', 'dog', 'cow', 'rooster', 'duck', 'sheep', 'frog', 'pig', 'horse', 'goat']]],
-                'hint' => 'If everyone laughs, you win.',
-            ],
-            [
-                'code' => 'life-action', 'name' => 'Silly challenge', 'subject' => 'life',
-                'level' => 'beginner', 'tier' => Tiers::STARTER, 'sticker' => 'sun',
-                'pattern' => 'Try to {action} for {n} seconds. Manage it and you carry on!',
-                'answer'  => 'Complete the action',
-                'variables' => [
-                    'action' => ['list' => ['hop on one foot', 'stand on one leg', 'clap as fast as you can', 'spin around', 'laugh out loud', 'pretend to be a cat']],
-                    'n' => ['min' => 5, 'max' => 15, 'step' => 5],
-                ],
-                'hint' => 'Everyone else counts out loud.',
-            ],
-            [
-                'code' => 'lit-letter', 'name' => 'Words that start with', 'subject' => 'literacy',
-                'level' => 'beginner', 'tier' => Tiers::STARTER, 'sticker' => 'book',
-                'pattern' => 'Name {n} words that begin with the letter "{letter}".',
-                'answer'  => 'Any {n} valid words',
-                'variables' => [
-                    'n' => ['min' => 2, 'max' => 4],
-                    'letter' => ['list' => ['B', 'C', 'H', 'M', 'N', 'T', 'L', 'S', 'D', 'G']],
-                ],
-                'hint' => 'Look around the room for ideas.',
-            ],
-
-            // --- PRO: 5 templates ---
-            [
-                'code' => 'math-mul', 'name' => 'Multiplication', 'subject' => 'math',
-                'level' => 'standard', 'tier' => Tiers::PRO, 'sticker' => 'gem',
-                'pattern' => 'There are {a} baskets and each one holds {b} eggs. How many eggs are there altogether?',
-                'answer'  => '{a*b} eggs',
-                'variables' => ['a' => ['min' => 2, 'max' => 9], 'b' => ['min' => 2, 'max' => 9]],
-                'hint' => 'Multiply the baskets by the eggs in each.',
-            ],
-            [
-                'code' => 'en-word', 'name' => 'Vocabulary', 'subject' => 'english',
-                'level' => 'standard', 'tier' => Tiers::PRO, 'sticker' => 'bulb',
-                'pattern' => 'What does the word "{word}" mean? Explain it in your own words.',
-                'answer'  => 'A sensible explanation counts',
-                'variables' => ['word' => ['list' => ['forest', 'river', 'mountain', 'treasure', 'bridge', 'castle', 'dragon', 'compass', 'island', 'journey', 'courage', 'friendship']]],
-                'hint' => 'Think about where you have heard it before.',
-            ],
-            [
-                'code' => 'science-why', 'name' => 'Why does it happen', 'subject' => 'science',
-                'level' => 'standard', 'tier' => Tiers::PRO, 'sticker' => 'drop',
-                'pattern' => 'Why {phenomenon}?',
-                'answer'  => 'Any reasonable explanation counts',
-                'variables' => ['phenomenon' => ['list' => [
-                    'does it rain', 'do rainbows appear after rain', 'does ice melt when you leave it out',
-                    'do leaves change colour in autumn', 'can we see stars at night',
-                    'do balloons float when filled with helium', 'are shadows longer in the afternoon',
-                ]]],
-                'hint' => 'No textbook needed - just say what you think.',
-            ],
-            [
-                'code' => 'logic-seq', 'name' => 'Number sequence', 'subject' => 'logic',
-                'level' => 'standard', 'tier' => Tiers::PRO, 'sticker' => 'key',
-                'pattern' => 'What number comes next in this sequence: {a}, {a+d}, {a+d+d}, ... ?',
-                'answer'  => '{a+d+d+d}',
-                'variables' => ['a' => ['min' => 1, 'max' => 10], 'd' => ['min' => 2, 'max' => 6]],
-                'hint' => 'Work out how much each number grows by.',
-            ],
-            [
-                'code' => 'lit-opposite', 'name' => 'Opposites', 'subject' => 'literacy',
-                'level' => 'standard', 'tier' => Tiers::PRO, 'sticker' => 'music',
-                'pattern' => 'What is the opposite of "{word}"?',
-                'answer'  => 'The correct opposite',
-                'variables' => ['word' => ['list' => ['tall', 'fast', 'hot', 'bright', 'happy', 'big', 'thick', 'new', 'near', 'heavy', 'clean', 'dry']]],
-                'hint' => 'Think of the other end of the scale.',
-            ],
-
-            // --- PUBLISHER: 5 templates ---
-            [
-                'code' => 'math-div', 'name' => 'Sharing equally', 'subject' => 'math',
-                'level' => 'advanced', 'tier' => Tiers::PUBLISHER, 'sticker' => 'shield',
-                'pattern' => 'Share {a} biscuits equally between {b} friends. How many does each friend get?',
-                'answer'  => '{a/b} biscuits each',
-                'variables' => ['a' => ['min' => 12, 'max' => 48, 'step' => 6], 'b' => ['min' => 2, 'max' => 6]],
-                'hint' => 'Everyone gets exactly the same.',
-            ],
-            [
-                'code' => 'math-word2', 'name' => 'Two-step word problem', 'subject' => 'math',
-                'level' => 'advanced', 'tier' => Tiers::PUBLISHER, 'sticker' => 'trophy',
-                'pattern' => 'You have {a} coins. You buy {b} items that cost {c} coins each. How many coins are left?',
-                'answer'  => '{a-b*c} coins',
-                'variables' => ['a' => ['min' => 50, 'max' => 100, 'step' => 10], 'b' => ['min' => 2, 'max' => 4], 'c' => ['min' => 5, 'max' => 12]],
-                'hint' => 'Work out the cost first, then subtract.',
-            ],
-            [
-                'code' => 'geo-continent', 'name' => 'Places on the map', 'subject' => 'geography',
-                'level' => 'advanced', 'tier' => Tiers::PUBLISHER, 'sticker' => 'flag',
-                'pattern' => 'Which continent is "{place}" in?',
-                'answer'  => 'The correct continent',
-                'variables' => ['place' => ['list' => ['Egypt', 'Brazil', 'Japan', 'Italy', 'Kenya', 'Canada', 'India', 'Norway', 'Peru', 'Vietnam']]],
-                'hint' => 'Picture a world map in your head.',
-            ],
-            [
-                'code' => 'logic-riddle', 'name' => 'Days puzzle', 'subject' => 'logic',
-                'level' => 'advanced', 'tier' => Tiers::PUBLISHER, 'sticker' => 'moon',
-                'pattern' => 'If today is day {a} of the week, what day will it be in {b} days?',
-                'answer'  => 'Count {b} days on from day {a}',
-                'variables' => ['a' => ['min' => 2, 'max' => 7], 'b' => ['min' => 2, 'max' => 9]],
-                'hint' => 'Count on your fingers.',
-            ],
-            [
-                'code' => 'life-team', 'name' => 'Working together', 'subject' => 'life',
-                'level' => 'advanced', 'tier' => Tiers::PUBLISHER, 'sticker' => 'rocket',
-                'pattern' => 'What would you do if {situation}? Tell everyone one way to handle it.',
-                'answer'  => 'Any thoughtful answer counts',
-                'variables' => ['situation' => ['list' => [
-                    'a friend fell over in the playground',
-                    'your group could not agree on anything',
-                    'you spilled water all over the table',
-                    'you saw someone sitting on their own',
-                    'you forgot to bring your homework',
-                    'you found something that belongs to someone else',
-                ]]],
-                'hint' => 'There is no single right answer - just be kind.',
-            ],
-        ];
+        // Shared with tools/refresh-mission-templates.php so a fresh install
+        // and a running site are given the same questions
+        $templates = require __DIR__ . '/mission-templates.php';
 
         foreach ($templates as $t) {
             Database::insert('mission_templates', [
@@ -385,7 +244,7 @@ class Seeder
                 'name'       => $t['name'],
                 'subject'    => $t['subject'],
                 'level'      => $t['level'],
-                'tier'       => $t['tier'],
+                'tier'       => Tiers::STARTER,   // questions are not a paid feature
                 'sticker'    => $t['sticker'],
                 'pattern'    => $t['pattern'],
                 'answer'     => $t['answer'],

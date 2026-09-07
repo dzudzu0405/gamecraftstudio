@@ -171,6 +171,15 @@ class MissionMatcher
 
         mt_srand($randomSeed ?? random_int(1, PHP_INT_MAX));
 
+        /*
+         * The loop below deals the templates in turn, which keeps the subjects
+         * evenly spread. Dealing them in list order as well made the pattern
+         * visible: with four maths templates, cards 1, 5 and 9 were always the
+         * same kind of question. Shuffling the order once keeps the balance and
+         * loses the rhythm, and stays reproducible because the seed is set.
+         */
+        shuffle($templates);
+
         $perCell = (int) max(1, ceil($total / max(1, $cells)));
         $cards   = [];
         $seen    = [];      // guards against duplicate questions
