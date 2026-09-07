@@ -1,21 +1,23 @@
 <?php
 /**
- * Corrects the mission-space count on the supplied map frames.
+ * Keeps the mission-space count in the library in step with the artwork.
  *
  * WHY THIS EXISTS
  *
- * The 36 board illustrations were filed by their file name - map-12-* was
- * assumed to carry 12 mission stars, map-18-* eighteen, and so on. Counting
- * the stars on each one showed that only 11 of the 36 actually matched. A
- * buyer choosing Beginner could therefore pick a frame and be handed a board
- * with 24 stars on it.
+ * The count a board really draws used to sit in a hand-written table here,
+ * because the file names could not be trusted: only 11 of the 36 drawings
+ * carried the number their name claimed.
  *
- * The drawings themselves are fine, so nothing is renamed and no artwork is
- * touched: the file name stays as the item's id, and only the `cells` column
- * and the display name are corrected to say what the picture really shows.
+ * The artwork has since been renamed so that each file says what it draws, and
+ * every board was checked against that table, drawing by drawing, before the
+ * table was retired. The file name is now the record, so the count is read
+ * from it rather than from a list that goes stale the next time a board is
+ * renamed or replaced.
  *
- * COUNTS were made by eye, one file at a time. map-24-09 is the buyer's own
- * count; the rest are mine.
+ * What this still catches is DRIFT: a `cells` column that no longer agrees
+ * with the file it belongs to, and any file named for a size the game cannot
+ * use. What it cannot catch is a drawing filed under the wrong number -
+ * that means looking at the picture, which map-star-audit.html is for.
  *
  * USAGE
  *   php tools/fix-map-cells.php            show what would change
@@ -26,26 +28,16 @@ require dirname(__DIR__) . '/app/bootstrap.php';
 
 use App\Core\Database;
 
-/** code => mission stars actually drawn */
-const REAL_COUNTS = [
-    // --- filed as 12 ---
-    'map-12-01' => 12,  'map-12-02' => 18,  'map-12-03' => 24,
-    'map-12-04' => 18,  'map-12-05' => 18,  'map-12-06' => 24,
-    'map-12-07' => 18,  'map-12-08' => 24,  'map-12-09' => 12,
-    'map-12-10' => 18,  'map-12-11' => 12,  'map-12-12' => 24,
-
-    // --- filed as 18 ---
-    'map-18-01' => 18,  'map-18-02' => 12,  'map-18-03' => 24,
-    'map-18-04' => 24,  'map-18-05' => 12,  'map-18-06' => 18,
-    'map-18-07' => 24,  'map-18-08' => 18,  'map-18-09' => 13,
-    'map-18-10' => 24,  'map-18-11' => 18,  'map-18-12' => 12,
-
-    // --- filed as 24 ---
-    'map-24-01' => 24,  'map-24-02' => 18,  'map-24-03' => 12,
-    'map-24-04' => 12,  'map-24-05' => 18,  'map-24-06' => 24,
-    'map-24-07' => 12,  'map-24-08' => 24,  'map-24-09' => 18,
-    'map-24-10' => 12,  'map-24-11' => 18,  'map-24-12' => 24,
-];
+/**
+ * The count a board draws, taken from its own file name: map-18-04 draws 18.
+ *
+ * Null when the name carries no number, which is left alone rather than
+ * guessed at.
+ */
+function drawnCount(string $code): ?int
+{
+    return preg_match('/^map-(\d+)-/', $code, $m) ? (int) $m[1] : null;
+}
 
 /** The only sizes the game understands */
 const VALID = [12, 18, 24];
@@ -67,12 +59,13 @@ foreach ($rows as $r) {
     $code = (string) $r['code'];
     $was  = (int) $r['cells'];
 
-    if (!isset(REAL_COUNTS[$code])) {
-        echo "  ? no count recorded for {$code}, left alone\n";
+    $is = drawnCount($code);
+
+    if ($is === null) {
+        echo "  ? {$code} carries no size in its name, left alone
+";
         continue;
     }
-
-    $is = REAL_COUNTS[$code];
 
     /*
      * A board drawn with some other number of stars still gets the true count
