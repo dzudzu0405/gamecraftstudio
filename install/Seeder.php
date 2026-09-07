@@ -100,15 +100,20 @@ class Seeder
         }
 
         // --- 30 character sets: pose count rises with the tier (3 / 5 / 8) ---
+        // Named after the artwork. The everyday animals come first, so the free
+        // plan gets creatures a child recognises; the invented ones - dragons,
+        // fairies, moonlings - are what the paid plans are buying.
         $charNames = [
-            'Junior Hero - Bunny', 'Junior Hero - Kitten', 'Junior Hero - Puppy', 'Quick Kai',
-            'Curious Cora',       'Cheerful Theo',    'Steady Sana',     'Mighty Milo',
-            'Bright Bella',       'Patient Pedro',    'Gentle Gia',      'Playful Pax',
-            'Creative Cleo',      'Fearless Finn',    'Graceful Grace',  'Solid Sam',
-            'Diligent Dara',      'Noble Nico',       'Thoughtful Thea', 'Free-spirited Fox',
-            'Sharp Sky',          'Sturdy Stone',     'Wise Willow',     'Certain Cedar',
-            'Kind Kira',          'Decisive Dex',     'Dreamy Delia',    'Roaming Rex',
-            'Precious Pearl',     'Talented Tessa',
+            'Junior Hero - Bunny', 'Junior Hero - Kitten', 'Junior Hero - Puppy',
+            'Junior Hero - Bear Cub', 'Junior Hero - Elephant Calf', 'Junior Hero - Fox',
+            'Junior Hero - Frog', 'Junior Hero - Hedgehog', 'Junior Hero - Lion Cub',
+            'Junior Hero - Mouse', 'Junior Hero - Otter', 'Junior Hero - Owl',
+            'Junior Hero - Penguin', 'Junior Hero - Racoon', 'Junior Hero - Squirrel',
+            'Junior Hero - Aquafin', 'Junior Hero - Breezlet', 'Junior Hero - Fluffhorn',
+            'Junior Hero - Foxling', 'Junior Hero - Leafling', 'Junior Hero - Cloud Dragon',
+            'Junior Hero - Embercub', 'Junior Hero - Little Fairy', 'Junior Hero - Moonling',
+            'Junior Hero - Moonmew', 'Junior Hero - Puffalo', 'Junior Hero - Shellbit',
+            'Junior Hero - Sparkpaw', 'Junior Hero - Starhoof', 'Junior Hero - Tiny Dragon',
         ];
 
         $charTierPlan = [Tiers::STARTER => 10, Tiers::PRO => 10, Tiers::PUBLISHER => 10];
