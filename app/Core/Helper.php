@@ -104,7 +104,13 @@ class Helper
     public static function truncate(?string $text, int $length = 120, string $suffix = '...'): string
     {
         $text = trim((string) $text);
-        return mb_strlen($text) <= $length ? $text : mb_substr($text, 0, $length) . $suffix;
+
+        if (mb_strlen($text) <= $length) {
+            return $text;
+        }
+
+        // rtrim first, or a cut landing on a space reads "Magic Academy ..."
+        return rtrim(mb_substr($text, 0, $length)) . $suffix;
     }
 
     /** Status badge for a project (FR-10) */

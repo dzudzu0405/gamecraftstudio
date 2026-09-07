@@ -16,6 +16,16 @@ $pid      = (int) $project['id'];
 // product, and a maker selling a printed board should not be handing out
 // somebody else's brand with it.
 $brand    = (string) $project['title'];
+
+/*
+ * The same name goes faintly on every card. A household with three printed
+ * games has a few hundred small cards that look alike, and once a box is
+ * tipped out there is otherwise nothing to sort them by.
+ *
+ * Truncated: at 7px in a narrow column a long title would wrap and steal a
+ * line from the question.
+ */
+$cardName = H::e(H::truncate((string) $project['title'], 24));
 $sheetNo  = 0;
 $perSheet = PrintBundle::CARDS_PER_SHEET;
 
@@ -201,6 +211,8 @@ $qSize = function (string $question): string {
                                     <div class="card-move__label"><?= H::e($c['label']) ?></div>
                                     <?php /* The same card also carries the cost of a wrong answer */ ?>
                                     <div class="card-move__penalty"><?= H::e($c['penalty']) ?></div>
+
+                                    <div class="card-cut__game"><?= $cardName ?></div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -286,6 +298,8 @@ $qSize = function (string $question): string {
 
                                         <?php /* No answer here - a card the child holds must not
                                                  carry it. Every answer is on the key at the back. */ ?>
+
+                                        <div class="card-cut__game"><?= $cardName ?></div>
                                     </div>
 
                                 </div>

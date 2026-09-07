@@ -353,6 +353,26 @@ html, body {
  * PHP measures the string and picks the class, because print has no way to
  * measure and re-fit the way a browser script would.
  */
+/*
+ * The game's own name, at the foot of the text band rather than the foot of
+ * the card. The mark that used to sit here was positioned against the card
+ * edge, which put it on top of whatever the frame draws along the bottom -
+ * the very overlap the safe bands exist to prevent.
+ */
+.card-cut__game {
+  margin-top: auto;
+  padding-top: 2mm;
+  font-size: 6.5px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  opacity: .45;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .card-cut__q {
   font-size: 11.5px;
   font-weight: 700;
