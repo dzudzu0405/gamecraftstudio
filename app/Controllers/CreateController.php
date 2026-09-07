@@ -320,7 +320,7 @@ class CreateController extends Controller
                 Database::delete('project_missions', ['project_id' => $id]);
 
                 // Dropping to Beginner takes the move-card option away with it
-                if (!Project::canChooseMovement($difficulty)) {
+                if (!Project::canChooseMovement($plan)) {
                     $update['movement'] = Project::MOVE_DICE;
                 }
 
@@ -376,7 +376,7 @@ class CreateController extends Controller
          */
         $movement = $request->str('movement');
         if (in_array($movement, [Project::MOVE_DICE, Project::MOVE_CARDS], true)) {
-            $update['movement'] = Project::canChooseMovement((string) $project['difficulty'])
+            $update['movement'] = Project::canChooseMovement($plan)
                 ? $movement
                 : Project::MOVE_DICE;
         }

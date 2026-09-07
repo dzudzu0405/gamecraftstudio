@@ -49,9 +49,25 @@ class Project
     }
 
     /** Difficulties where the buyer gets to pick; Beginner has no choice */
-    public static function canChooseMovement(string $difficulty): bool
+    /** The plan the owner is on, so callers cannot forget to pass it */
+    public static function planOf(int $userId): ?string
     {
-        return $difficulty !== Difficulty::BEGINNER;
+        $row = Database::first('SELECT plan FROM users WHERE id = ? LIMIT 1', [$userId]);
+
+        return $row['plan'] ?? null;
+    }
+
+    /**
+     * Whether a plan may swap the dice for move cards.
+     *
+     * This is something a buyer pays for, not something a difficulty unlocks:
+     * Starter plays with the dice at every level, and is sold no move card
+     * designs at all. Deciding it by difficulty let a Starter game reach the
+     * cards simply by being set to Standard.
+     */
+    public static function canChooseMovement(?string $plan): bool
+    {
+        return Tiers::get($plan)['move_sets'] > 0;
     }
 
     /** True when the map background comes from the chosen theme */
@@ -154,7 +170,7 @@ class Project
             'setting'           => $data['setting'] ?? null,
             'rescue_target'     => $data['rescue_target'] ?? null,
             // Beginner never gets the choice, so it is forced here as well as in the form
-            'movement'          => self::canChooseMovement($difficulty)
+            'movement'          => self::canChooseMovement(self::planOf($userId))
                                        ? ($data['movement'] ?? self::MOVE_DICE)
                                        : self::MOVE_DICE,
             'background_mode'   => $data['background_mode'] ?? self::BACKGROUND_THEME,

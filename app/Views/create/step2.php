@@ -91,7 +91,7 @@ $missionFrame = function (array $item): ?string {
 
             <!-- How a turn moves you: the die, or a move card -->
             <?php
-            $canChoose = App\Models\Project::canChooseMovement((string) $project['difficulty']);
+            $canChoose = App\Models\Project::canChooseMovement($planKey);
             $movement  = $canChoose
                 ? (string) ($project['movement'] ?? App\Models\Project::MOVE_DICE)
                 : App\Models\Project::MOVE_DICE;

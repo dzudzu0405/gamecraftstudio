@@ -3,6 +3,7 @@ namespace App\Services;
 
 use App\Core\Database;
 use App\Models\Project;
+use App\Services\Tiers;
 
 /**
  * Assembles the print bundle in the EXACT ORDER required by FR-27
@@ -354,8 +355,14 @@ class PrintBundle
 
     /**
      * A character set is drawn in several poses, and a deck of sixty mission
-     * cards showing the same picture sixty times wastes them. This returns every
-     * pose the set actually has, ready for the cards to cycle through.
+     * cards showing the same picture sixty times wastes them. This returns the
+     * poses the project's owner is entitled to, ready for the cards to cycle
+     * through.
+     *
+     * How many that is belongs to the PLAN, not to the set: every set is drawn
+     * in eight poses, and Starter is sold three of them, Pro five, Publisher
+     * all eight. Reading them all off disk regardless, which is what this did,
+     * handed the free plan the whole set.
      *
      * Each one is shrunk on the way out. The window it prints into is around
      * 40mm wide, so 420px is past what the paper can show, while the originals
@@ -375,10 +382,14 @@ class PrintBundle
             return [];
         }
 
+        $owner = Database::first('SELECT plan FROM users WHERE id = ? LIMIT 1',
+            [(int) ($project['user_id'] ?? 0)]);
+        $allowed = min(self::MAX_POSES, Tiers::characterPoses($owner['plan'] ?? null));
+
         $seen  = [];
         $poses = [];
 
-        for ($variant = 1; $variant <= self::MAX_POSES; $variant++) {
+        for ($variant = 1; $variant <= $allowed; $variant++) {
             $rel = Library::realImagePath($item, $variant);
 
             // A set with three poses answers every variant with the same file
