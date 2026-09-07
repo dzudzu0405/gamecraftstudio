@@ -12,7 +12,10 @@ use App\Services\MapComposer;
 use App\Services\PrintBundle;
 
 $pid      = (int) $project['id'];
-$brand    = 'GameCraft Studio - ' . $project['title'];
+// The sheet foot names the buyer's game, not this app: the pages are their
+// product, and a maker selling a printed board should not be handing out
+// somebody else's brand with it.
+$brand    = (string) $project['title'];
 $sheetNo  = 0;
 $perSheet = PrintBundle::CARDS_PER_SHEET;
 
@@ -199,7 +202,6 @@ $qSize = function (string $question): string {
                                     <?php /* The same card also carries the cost of a wrong answer */ ?>
                                     <div class="card-move__penalty"><?= H::e($c['penalty']) ?></div>
                                 </div>
-                                <div class="card-cut__brand">GameCraft</div>
                             </div>
                         <?php endforeach; ?>
 
@@ -286,7 +288,6 @@ $qSize = function (string $question): string {
                                                  carry it. Every answer is on the key at the back. */ ?>
                                     </div>
 
-                                    <div class="card-cut__brand">GameCraft</div>
                                 </div>
                             <?php endforeach; ?>
 

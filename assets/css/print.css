@@ -321,7 +321,6 @@ html, body {
 .card-cut--framed .card-cut__a { text-shadow: 0 1px 0 rgba(255, 255, 255, .65); }
 .card-cut--framed .card-cut__a { border-top-color: rgba(0, 0, 0, .18); }
 .card-cut--framed .card-cut__sticker { background: rgba(255, 255, 255, .72); }
-.card-cut--framed .card-cut__brand { color: rgba(0, 0, 0, .28); }
 
 /* The move card carries a big number, so it needs less room at the top */
 
@@ -374,14 +373,6 @@ html, body {
   padding-top: 5px;
   margin-top: 6px;
 }
-.card-cut__brand {
-  position: absolute;
-  bottom: 3mm; right: 4mm;
-  font-size: 7px;
-  color: #B9B1C6;
-  letter-spacing: .05em;
-}
-
 /* Move cards - big number in the middle */
 .card-move {
   align-items: center;
