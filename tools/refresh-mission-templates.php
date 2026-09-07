@@ -87,6 +87,22 @@ foreach ($templates as $t) {
 
 $orphans = array_diff(array_keys($existing), array_column($templates, 'code'));
 
+/*
+ * Questions are reached by level, not by plan, so no template should carry a
+ * tier above starter - including ones added by hand or left from an older
+ * install. Four rows kept their pro and publisher tiers through the first
+ * refresh, which left Standard and Advanced still differing by plan.
+ */
+$mistiered = [];
+foreach ($existing as $code => $row) {
+    if ((string) $row['tier'] !== Tiers::STARTER) {
+        $mistiered[] = $code;
+        if ($apply) {
+            Database::update('mission_templates', ['tier' => Tiers::STARTER], ['id' => (int) $row['id']]);
+        }
+    }
+}
+
 printf("%d templates in the file\n\n", count($templates));
 printf("  %-10s %d  %s\n", 'new', count($added), implode(', ', array_slice($added, 0, 6))
     . (count($added) > 6 ? ' ...' : ''));
@@ -95,7 +111,11 @@ printf("  %-10s %d  %s\n", 'changed', count($updated), implode(', ', array_slice
 printf("  %-10s %d\n", 'unchanged', count($same));
 
 if ($orphans) {
-    printf("  %-10s %d  %s  (left alone)\n", 'not in file', count($orphans), implode(', ', $orphans));
+    printf("  %-10s %d  %s  (kept)\n", 'not in file', count($orphans), implode(', ', $orphans));
+}
+
+if ($mistiered) {
+    printf("  %-10s %d  %s\n", 'un-tiered', count($mistiered), implode(', ', $mistiered));
 }
 
 if (!$apply) {
