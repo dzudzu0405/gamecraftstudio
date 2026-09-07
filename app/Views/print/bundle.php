@@ -76,6 +76,8 @@ $qSize = function (string $question): string {
             --mission-bottom: <?= $frames['zone']['mission'][1] ?>%;
             --move-top: <?= $frames['zone']['move'][0] ?>%;
             --move-bottom: <?= $frames['zone']['move'][1] ?>%;
+            --mission-caption: <?= $frames['caption']['mission'] ?>%;
+            --move-caption: <?= $frames['caption']['move'] ?>%;
             <?php if ($frames['window']): ?>
             --hero-top: <?= $frames['window']['top'] ?>%;
             --hero-height: <?= $frames['window']['height'] ?>%;
@@ -212,8 +214,9 @@ $qSize = function (string $question): string {
                                     <?php /* The same card also carries the cost of a wrong answer */ ?>
                                     <div class="card-move__penalty"><?= H::e($c['penalty']) ?></div>
 
-                                    <div class="card-cut__game"><?= $cardName ?></div>
                                 </div>
+
+                                <div class="card-cut__game"><?= $cardName ?></div>
                             </div>
                         <?php endforeach; ?>
 
@@ -299,8 +302,9 @@ $qSize = function (string $question): string {
                                         <?php /* No answer here - a card the child holds must not
                                                  carry it. Every answer is on the key at the back. */ ?>
 
-                                        <div class="card-cut__game"><?= $cardName ?></div>
                                     </div>
+
+                                    <div class="card-cut__game"><?= $cardName ?></div>
 
                                 </div>
                             <?php endforeach; ?>

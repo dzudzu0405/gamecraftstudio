@@ -310,6 +310,72 @@ class PrintBundle
         15 => ['mission' => [62.0, 10.0], 'move' => [23.4, 23.8]],
     ];
 
+    /**
+     * Where the game's name sits on a card, as a percent down its height.
+     *
+     * Measured off each frame the same way the text bands were: the lowest run
+     * of plain background BELOW the band, which on most frames is the margin
+     * between the decoration and the border. null means the frame is drawn all
+     * the way down, and the caption stays at the foot of the text band.
+     *
+     * Capped at 94: a line centred lower than that lands on the cut edge.
+     */
+    public const CAPTION_AT = [
+        1   => ['mission' => 93.2, 'move' => 87.1],
+        2   => ['mission' => 94.0, 'move' => 86.4],
+        3   => ['mission' => null, 'move' => 84.1],
+        4   => ['mission' => null, 'move' => 81.2],
+        5   => ['mission' => null, 'move' => 87.0],
+        6   => ['mission' => null, 'move' => 87.3],
+        7   => ['mission' => 93.0, 'move' => 86.1],
+        8   => ['mission' => 94.0, 'move' => 94.0],
+        9   => ['mission' => null, 'move' => 92.1],
+        10  => ['mission' => null, 'move' => 78.6],
+        11  => ['mission' => 86.1, 'move' => 81.4],
+        12  => ['mission' => null, 'move' => 87.7],
+        13  => ['mission' => null, 'move' => 87.9],
+        14  => ['mission' => 92.5, 'move' => 86.8],
+        15  => ['mission' => null, 'move' => 86.8],
+    ];
+
+    /** How much of the card height one caption line needs */
+    private const CAPTION_ROOM = 6.0;
+
+    /**
+     * The band the words get, once the caption has been given its room.
+     *
+     * A frame with a clear strip below its decoration puts the caption there,
+     * clear of everything, and the words keep the whole band. A frame drawn all
+     * the way down has nowhere else to put it, so it sits at the foot of the
+     * band - and the band has to give up that much, or the question runs
+     * underneath it.
+     *
+     * @return array{0: float, 1: float}
+     */
+    public static function textBand(int $style, string $kind): array
+    {
+        [$top, $bottom] = self::safeZone($style, $kind);
+
+        // A frame drawn to its border has nowhere below the band for the name,
+        // so the name sits at the band's foot and the question gives up the
+        // room. The band cannot grow upwards to make that back: above it is
+        // the frame's own decoration, which is why the band stops there.
+        if ((self::CAPTION_AT[$style][$kind] ?? null) === null) {
+            $bottom += self::CAPTION_ROOM;
+        }
+
+        return [round($top, 1), round($bottom, 1)];
+    }
+
+    /** Where the caption goes on one card, in percent down the card */
+    public static function captionAt(int $style, string $kind, float $bandBottom): float
+    {
+        $at = self::CAPTION_AT[$style][$kind] ?? null;
+
+        // No room below the decoration - just inside the foot of the text band
+        return $at ?? max(0.0, 100.0 - $bandBottom - 3.0);
+    }
+
     /** A band narrower than this cannot hold a question, so it is opened out */
     private const MIN_BAND = 30.0;
 
@@ -496,8 +562,12 @@ class PrintBundle
             'hero'    => null,
             'window'  => self::heroWindow($style),
             'zone'    => [
-                'mission' => self::safeZone($style, 'mission'),
-                'move'    => self::safeZone($style, 'move'),
+                'mission' => self::textBand($style, 'mission'),
+                'move'    => self::textBand($style, 'move'),
+            ],
+            'caption' => [
+                'mission' => self::captionAt($style, 'mission', self::safeZone($style, 'mission')[1]),
+                'move'    => self::captionAt($style, 'move', self::safeZone($style, 'move')[1]),
             ],
         ];
 

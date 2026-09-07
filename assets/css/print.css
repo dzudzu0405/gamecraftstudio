@@ -354,14 +354,19 @@ html, body {
  * measure and re-fit the way a browser script would.
  */
 /*
- * The game's own name, at the foot of the text band rather than the foot of
- * the card. The mark that used to sit here was positioned against the card
- * edge, which put it on top of whatever the frame draws along the bottom -
- * the very overlap the safe bands exist to prevent.
+ * The game's own name, low on the card.
+ *
+ * Each frame was measured for a clear strip below its decoration, which is
+ * where this sits; a frame drawn all the way down falls back to just inside
+ * the foot of its text band. Either way the position arrives as a custom
+ * property, so the line lands on plain background rather than on a row of
+ * printed stars.
  */
 .card-cut__game {
-  margin-top: auto;
-  padding-top: 2mm;
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  transform: translateY(-50%);
   font-size: 6.5px;
   letter-spacing: .06em;
   text-transform: uppercase;
@@ -372,6 +377,11 @@ html, body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.card-cut--art > .card-cut__game { top: var(--mission-caption, 88%); }
+.card-move--art > .card-cut__game { top: var(--move-caption, 86%); }
+
+/* An unframed card is plain to the edge, so the foot is free */
+.card-cut:not(.card-cut--framed) > .card-cut__game { top: auto; bottom: 3mm; transform: none; }
 
 .card-cut__q {
   font-size: 11.5px;
