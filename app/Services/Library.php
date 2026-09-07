@@ -78,17 +78,27 @@ class Library
      * Kept separate from forPlan(): that one answers "what may this plan use",
      * and entitlement checks depend on it returning nothing else.
      *
+     * What the buyer owns comes first and the locked rows follow, so the grid
+     * reads as "yours, then the rest" instead of scattering the greyed-out
+     * tiles through the choices.
+     *
      * @return array rows with an added 'locked' flag
      */
     public static function withLocked(string $kind, ?string $plan, array $filters = []): array
     {
-        $rows = self::forPlan($kind, null, $filters + ['all_tiers' => true]);
+        $open = $shut = [];
 
-        foreach ($rows as &$row) {
+        foreach (self::forPlan($kind, null, $filters + ['all_tiers' => true]) as $row) {
             $row['locked'] = !self::unlocked($row, $plan);
+
+            if ($row['locked']) {
+                $shut[] = $row;
+            } else {
+                $open[] = $row;
+            }
         }
 
-        return $rows;
+        return array_merge($open, $shut);
     }
 
     /**
