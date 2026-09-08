@@ -95,7 +95,19 @@ return [
         'date'     => 'Datum',
     ],
 
+    'level' => [
+        'beginner' => 'Anfänger',
+        'standard' => 'Mittel',
+        'advanced' => 'Fortgeschritten',
+    ],
+
+    'board' => [
+        'start'  => 'START',
+        'finish' => 'ZIEL',
+    ],
+
     'tokens' => [
+        'player' => 'Spieler {n}',
         'note' => 'Jeder Spieler bekommt zwei Figuren: eine zum Spielen und eine als Ersatz. Klebe sie '
                 . 'auf festen Karton und schneide rund um den Kreis aus, damit sie auf dem Plan stehen.',
     ],

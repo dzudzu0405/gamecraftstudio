@@ -50,7 +50,7 @@ class StudioController extends Controller
             [$pid]
         );
         if (!$players) {
-            $players = PrintBundle::defaultPlayers((int) $project['players_max']);
+            $players = PrintBundle::defaultPlayers((int) $project['players_max'], Lang::of($project));
         }
 
         $this->view('studio/index', [

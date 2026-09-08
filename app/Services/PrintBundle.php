@@ -146,7 +146,7 @@ class PrintBundle
             [$projectId]
         );
         if (!$players) {
-            $players = self::defaultPlayers((int) ($project['players_max'] ?? 4));
+            $players = self::defaultPlayers((int) ($project['players_max'] ?? 4), Lang::of($project));
         }
         $sections[] = [
             'key'         => 'tokens',
@@ -347,7 +347,7 @@ class PrintBundle
     }
 
     /** Default player list when the project has not named anyone yet */
-    public static function defaultPlayers(int $count): array
+    public static function defaultPlayers(int $count, ?string $locale = null): array
     {
         $colors = array_keys(Art::TOKEN_COLORS);
         $out = [];
@@ -355,7 +355,7 @@ class PrintBundle
 
         for ($i = 0; $i < $count; $i++) {
             $out[] = [
-                'name'       => 'Player ' . ($i + 1),
+                'name'       => Lang::get('tokens.player', $locale, ['n' => $i + 1]),
                 'color'      => $colors[$i % count($colors)],
                 'sort_order' => $i,
             ];

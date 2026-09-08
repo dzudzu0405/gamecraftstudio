@@ -111,7 +111,7 @@ $qSize = function (string $question): string {
         <div class="printbar__title"><?= H::e($project['title']) ?></div>
         <div class="printbar__meta">
             <?= H::e($tn('bar.pages', (int) $totalPages)) ?> &middot;
-            <?= H::e(Difficulty::name((string) $project['difficulty'])) ?> &middot;
+            <?= H::e($t('level.' . $project['difficulty'])) ?> &middot;
             <?= H::e($tn('bar.spaces', (int) $project['cells'])) ?>
         </div>
     </div>

@@ -18,6 +18,7 @@ namespace App\Services;
  *   - It stays small and can be adjusted at any time.
  */
 use App\Core\Url;
+use App\Services\Lang;
 
 class MapComposer
 {
@@ -99,7 +100,7 @@ class MapComposer
             }
 
             // --- Layer 3: the mission spaces ---
-            $svg .= self::cellsLayer($points, $palette, $showNumbers);
+            $svg .= self::cellsLayer($points, $palette, $showNumbers, Lang::of($project));
         }
 
         // --- Layer 4: the game title ---
@@ -143,8 +144,32 @@ class MapComposer
              . '</g>';
     }
 
-    /** Numbered round spaces, including START and FINISH */
-    private static function cellsLayer(array $points, array $palette, bool $showNumbers): string
+    /**
+     * A font size that keeps one word inside a 92-wide circle.
+     *
+     * The words differ by language - WIN is three letters, ARRIVEE is seven -
+     * so the size follows the word rather than being fixed.
+     */
+    private static function labelSize(string $label): int
+    {
+        $length = max(1, mb_strlen($label));
+
+        if ($length <= 3) { return 26; }
+        if ($length <= 5) { return 20; }
+        if ($length <= 7) { return 14; }
+
+        return 12;
+    }
+
+    /**
+     * Numbered round spaces, including the first and the last.
+     *
+     * Those two carry a word rather than a number, and it is the same word the
+     * rules sheet uses - START and FINISH in English, DEPART and ARRIVEE in
+     * French. Long words are set smaller so they still fit inside the circle,
+     * which is 92 across.
+     */
+    private static function cellsLayer(array $points, array $palette, bool $showNumbers, string $locale): string
     {
         $out   = '';
         $total = count($points);
@@ -165,10 +190,13 @@ class MapComposer
             $out .= '<circle cx="' . round($pt['x'], 1) . '" cy="' . round($pt['y'], 1) . '" r="' . ($r - 6) . '" fill="none" stroke="' . $ring . '" stroke-width="5"/>';
 
             if ($showNumbers) {
-                $label = $no;
+                $label = (string) $no;
                 $size  = 34;
-                if ($isStart) { $label = 'GO'; $size = 26; }
-                if ($isEnd)   { $label = 'WIN'; $size = 22; }
+
+                if ($isStart || $isEnd) {
+                    $label = Lang::get('board.' . ($isStart ? 'start' : 'finish'), $locale);
+                    $size  = self::labelSize($label);
+                }
 
                 $out .= '<text x="' . round($pt['x'], 1) . '" y="' . round($pt['y'] + $size * 0.35, 1) . '"';
                 $out .= ' text-anchor="middle" font-family="Verdana, Geneva, sans-serif" font-size="' . $size . '"';

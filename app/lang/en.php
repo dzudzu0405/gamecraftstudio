@@ -95,7 +95,19 @@ return [
         'date'     => 'Date',
     ],
 
+    'level' => [
+        'beginner' => 'Beginner',
+        'standard' => 'Standard',
+        'advanced' => 'Advanced',
+    ],
+
+    'board' => [
+        'start'  => 'START',
+        'finish' => 'FINISH',
+    ],
+
     'tokens' => [
+        'player' => 'Player {n}',
         'note' => 'Each player gets two tokens - one to use and one spare. Glue them onto thick '
                 . 'card and cut around the circle so they stand up on the map.',
     ],

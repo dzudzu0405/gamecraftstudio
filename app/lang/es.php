@@ -95,7 +95,19 @@ return [
         'date'     => 'Fecha',
     ],
 
+    'level' => [
+        'beginner' => 'Principiante',
+        'standard' => 'Intermedio',
+        'advanced' => 'Avanzado',
+    ],
+
+    'board' => [
+        'start'  => 'SALIDA',
+        'finish' => 'META',
+    ],
+
     'tokens' => [
+        'player' => 'Jugador {n}',
         'note' => 'Cada jugador recibe dos fichas: una para jugar y otra de repuesto. Pégalas sobre '
                 . 'cartulina gruesa y recorta alrededor del círculo para que se sostengan en el tablero.',
     ],

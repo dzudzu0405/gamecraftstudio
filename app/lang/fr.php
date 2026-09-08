@@ -96,7 +96,19 @@ return [
         'date'     => 'Date',
     ],
 
+    'level' => [
+        'beginner' => 'Débutant',
+        'standard' => 'Intermédiaire',
+        'advanced' => 'Avancé',
+    ],
+
+    'board' => [
+        'start'  => 'DÉPART',
+        'finish' => 'ARRIVÉE',
+    ],
+
     'tokens' => [
+        'player' => 'Joueur {n}',
         'note' => 'Chaque joueur reçoit deux pions : un pour jouer et un de rechange. Colle-les sur du '
                 . 'carton épais et découpe autour du cercle pour qu’ils tiennent debout sur le plateau.',
     ],
