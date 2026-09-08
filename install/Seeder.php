@@ -235,12 +235,14 @@ class Seeder
         }
 
         // Shared with tools/refresh-mission-templates.php so a fresh install
-        // and a running site are given the same questions
-        $templates = require __DIR__ . '/mission-templates.php';
+        // and a running site are given the same questions - in all four
+        // languages, one row per template per language
+        $templates = require __DIR__ . '/mission-templates-all.php';
 
         foreach ($templates as $t) {
             Database::insert('mission_templates', [
                 'code'       => $t['code'],
+                'locale'     => $t['locale'] ?? 'en',
                 'name'       => $t['name'],
                 'subject'    => $t['subject'],
                 'level'      => $t['level'],

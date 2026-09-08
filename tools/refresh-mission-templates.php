@@ -1,6 +1,6 @@
 <?php
 /**
- * Loads install/mission-templates.php into a database that is already running.
+ * Loads install/mission-templates-all.php into a database that is already running.
  *
  * WHY THIS EXISTS
  *
@@ -23,10 +23,10 @@ use App\Services\MissionMatcher;
 use App\Services\Tiers;
 
 $apply = in_array('--apply', $argv, true);
-$file  = dirname(__DIR__) . '/install/mission-templates.php';
+$file  = dirname(__DIR__) . '/install/mission-templates-all.php';
 
 if (!is_file($file)) {
-    echo "Cannot find install/mission-templates.php\n";
+    echo "Cannot find install/mission-templates-all.php\n";
     exit(1);
 }
 
@@ -44,6 +44,7 @@ foreach ($templates as $t) {
 
     $fields = [
         'name'      => $t['name'],
+        'locale'    => $t['locale'] ?? 'en',
         'subject'   => $t['subject'],
         'level'     => $t['level'],
         // Templates are not sold by plan - see the note in the templates file

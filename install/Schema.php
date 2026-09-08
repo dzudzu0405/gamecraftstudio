@@ -73,6 +73,7 @@ class Schema
                 'id'         => 'pk',
                 'code'       => 'varchar:60 notnull',
                 'name'       => 'varchar:160 notnull',
+                'locale'     => "varchar:5 notnull default:en",  // en | es | fr | de - the language the question is written in
                 'subject'    => 'varchar:40 notnull',    // math | literacy | english | science | nature | logic | life | geography
                 'level'      => 'varchar:20 notnull',    // beginner | standard | advanced
                 'tier'       => 'varchar:20 notnull',
@@ -84,7 +85,7 @@ class Schema
                 'is_active'  => 'tinyint notnull default:1',
                 'created_at' => 'datetime notnull',
                 '#unique'    => [['code']],
-                '#index'     => [['subject', 'level'], ['tier']],
+                '#index'     => [['locale', 'subject', 'level'], ['tier']],
             ],
 
             'projects' => [

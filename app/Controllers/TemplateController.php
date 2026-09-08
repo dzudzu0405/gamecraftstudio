@@ -10,6 +10,7 @@ use App\Core\Response;
 use App\Models\Project;
 use App\Services\Art;
 use App\Services\Difficulty;
+use App\Services\Lang;
 use App\Services\Library;
 use App\Services\MissionMatcher;
 use App\Services\PromptGenerator;
@@ -23,6 +24,7 @@ class TemplateController extends Controller
         $theme      = $request->str('theme');
         $difficulty = $request->str('difficulty');
         $search     = $request->str('q');
+        $language   = Lang::normalize($request->str('language'));
 
         $sql    = 'SELECT * FROM game_templates WHERE is_active = 1';
         $params = [];
@@ -51,6 +53,8 @@ class TemplateController extends Controller
             'theme'        => $theme,
             'difficulty'   => $difficulty,
             'search'       => $search,
+            'language'     => $language,
+            'languages'    => Lang::LOCALES,
             'planKey'      => Auth::plan(),
         ]);
     }
@@ -86,7 +90,8 @@ class TemplateController extends Controller
             return;
         }
 
-        $cfg = Difficulty::get($difficulty);
+        $cfg      = Difficulty::get($difficulty);
+        $language = Lang::normalize($request->str('language'));
 
         // Pick a map with the same theme and the right space count
         $tiers = Tiers::unlockedTiers($plan);
@@ -97,14 +102,16 @@ class TemplateController extends Controller
         );
 
         $seed = PromptGenerator::storySeed([
-            'title' => $tpl['name'],
-            'theme' => $tpl['theme'],
-            'cells' => (int) $cfg['cells'],
+            'title'    => $tpl['name'],
+            'theme'    => $tpl['theme'],
+            'cells'    => (int) $cfg['cells'],
+            'language' => $language,
         ]);
 
         $projectId = Project::create($this->userId(), [
             'title'       => (string) $tpl['name'],
             'theme'       => (string) $tpl['theme'],
+            'language'    => $language,
             'difficulty'  => $difficulty,
             'subjects'    => (string) ($tpl['subjects'] ?? 'math,nature'),
             'players_min' => (int) $tpl['players_min'],
@@ -122,7 +129,9 @@ class TemplateController extends Controller
             $difficulty,
             $plan,
             (int) $cfg['cells'],
-            (int) $cfg['mission_cards']
+            (int) $cfg['mission_cards'],
+            null,
+            $language
         );
         if ($cards) {
             MissionMatcher::saveForProject($projectId, $cards);

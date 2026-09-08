@@ -207,7 +207,8 @@ class CreateController extends Controller
                 $data['templates']    = MissionMatcher::matchTemplates(
                     Project::subjects($project),
                     (string) $project['difficulty'],
-                    $plan
+                    $plan,
+                    Lang::of($project)
                 );
                 $data['variants']     = MissionMatcher::estimateVariants($data['templates']);
                 $data['sample']       = array_slice(MissionMatcher::forProject((int) $project['id']), 0, 6);
@@ -453,7 +454,8 @@ class CreateController extends Controller
         $cells      = (int) $project['cells'];
         $total      = Difficulty::missionCount($difficulty);
 
-        $cards = MissionMatcher::generate($subjects, $difficulty, $plan, $cells, $total);
+        $cards = MissionMatcher::generate($subjects, $difficulty, $plan, $cells, $total,
+                                          null, Lang::of($project));
 
         if (!$cards) {
             Flash::error('No mission templates match those subjects. Try adding another subject.');

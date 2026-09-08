@@ -10,6 +10,7 @@ use App\Core\Response;
 use App\Models\Project;
 use App\Services\Art;
 use App\Services\Difficulty;
+use App\Services\Lang;
 use App\Services\MissionMatcher;
 use App\Services\PrintBundle;
 use App\Services\PromptGenerator;
@@ -144,7 +145,9 @@ class StudioController extends Controller
             (string) $project['difficulty'],
             Auth::plan(),
             (int) $project['cells'],
-            Difficulty::missionCount((string) $project['difficulty'])
+            Difficulty::missionCount((string) $project['difficulty']),
+            null,
+            Lang::of($project)
         );
 
         if (!$cards) {

@@ -37,6 +37,15 @@ use App\Services\Tiers;
                 <?php endforeach; ?>
             </select>
 
+            <?php /* Which language the game gets made in - it travels with the button below */ ?>
+            <select class="select" name="language" data-autosubmit-select style="width:auto">
+                <?php foreach ($languages as $code => $label): ?>
+                    <option value="<?= H::e($code) ?>" <?= $language === $code ? 'selected' : '' ?>>
+                        <?= H::e($label) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+
             <noscript><button class="btn btn--ghost btn--sm" type="submit">Apply</button></noscript>
         </form>
     </div>
@@ -103,6 +112,7 @@ use App\Services\Tiers;
                         <?php else: ?>
                             <form method="post" action="<?= Url::to('/templates/' . (int) $t['id'] . '/use') ?>">
                                 <?= Csrf::field() ?>
+                                <input type="hidden" name="language" value="<?= H::e($language) ?>">
                                 <button class="btn btn--primary btn--sm btn--block" type="submit">
                                     <?= Icon::get('sparkles', 14) ?> Use this template
                                 </button>

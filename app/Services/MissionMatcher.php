@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Core\Database;
+use App\Services\Lang;
 
 /**
  * Matches and generates mission cards.
@@ -58,13 +59,16 @@ class MissionMatcher
      * @param string $level     beginner | standard | advanced
      * @param string $plan      The user's plan, used to filter by entitlement
      */
-    public static function matchTemplates(array $subjects, string $level, ?string $plan): array
+    public static function matchTemplates(array $subjects, string $level, ?string $plan, ?string $locale = null): array
     {
+        $locale = Lang::normalize($locale);
         $tiers  = Tiers::unlockedTiers($plan);
         $tierIn = implode(', ', array_fill(0, count($tiers), '?'));
 
-        $sql    = 'SELECT * FROM mission_templates WHERE is_active = 1 AND tier IN (' . $tierIn . ')';
+        $sql    = 'SELECT * FROM mission_templates WHERE is_active = 1 AND tier IN (' . $tierIn . ')'
+                . ' AND locale = ?';
         $params = $tiers;
+        $params[] = $locale;
 
         // An easy game uses only easy templates; a hard game may also use easier ones
         $levels = self::levelsUpTo($level);
@@ -82,7 +86,16 @@ class MissionMatcher
 
         // If the filter was too narrow, relax it by dropping the subject condition
         if (!$rows && $subjects) {
-            return self::matchTemplates([], $level, $plan);
+            $rows = self::matchTemplates([], $level, $plan, $locale);
+        }
+
+        /*
+         * A language nobody has written questions for yet still has to deal a
+         * playable deck, so it falls back to English rather than to nothing.
+         * The rest of the printed game is still in the buyer's language.
+         */
+        if (!$rows && $locale !== Lang::DEFAULT) {
+            return self::matchTemplates($subjects, $level, $plan, Lang::DEFAULT);
         }
 
         return $rows;
@@ -161,9 +174,9 @@ class MissionMatcher
      * @param int $total  Cards required (60 / 90 / 120)
      * @return array Cards with cell_no, slot_no, question, answer, sticker, subject, template_id
      */
-    public static function generate(array $subjects, string $level, ?string $plan, int $cells, int $total, ?int $randomSeed = null): array
+    public static function generate(array $subjects, string $level, ?string $plan, int $cells, int $total, ?int $randomSeed = null, ?string $locale = null): array
     {
-        $templates = self::matchTemplates($subjects, $level, $plan);
+        $templates = self::matchTemplates($subjects, $level, $plan, $locale);
 
         if (!$templates) {
             return self::fallbackCards($cells, $total);
