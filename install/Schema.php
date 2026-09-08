@@ -79,6 +79,7 @@ class Schema
                 'tier'       => 'varchar:20 notnull',
                 'sticker'    => 'varchar:30 notnull',
                 'pattern'    => 'text notnull',          // for example: "{a} + {b} = ?"
+                'patterns'   => 'text null',             // JSON: other ways of asking the same question
                 'answer'     => 'text notnull',          // for example: "{a+b}"
                 'variables'  => 'text null',             // JSON describing the range of a, b and so on
                 'hint'       => 'varchar:255 null',

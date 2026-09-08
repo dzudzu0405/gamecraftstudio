@@ -280,6 +280,9 @@ class MissionMatcher
 
         mt_srand($randomSeed ?? random_int(1, PHP_INT_MAX));
 
+        // how many times each template has been dealt, so its wordings rotate
+        $used = [];
+
         /*
          * The loop below deals the templates in turn, which keeps the subjects
          * evenly spread. Dealing them in list order as well made the pattern
@@ -313,10 +316,18 @@ class MissionMatcher
                  * appear twice in the same game.
                  */
                 for ($offset = 0; $offset < count($templates) && $card === null; $offset++) {
-                    $tpl = $templates[($start + $offset) % count($templates)];
+                    $index = ($start + $offset) % count($templates);
+                    $tpl   = $templates[$index];
+
+                    /*
+                     * Each time a template comes round it is asked a different
+                     * way, so the second maths card does not open with the same
+                     * six words as the first.
+                     */
+                    $used[$index] = ($used[$index] ?? -1) + 1;
 
                     for ($try = 0; $try < 20; $try++) {
-                        $candidate = self::renderTemplate($tpl);
+                        $candidate = self::renderTemplate($tpl, $used[$index]);
                         $key = mb_strtolower(trim($candidate['question']));
 
                         if (!isset($seen[$key])) {
@@ -345,17 +356,73 @@ class MissionMatcher
     /**
      * Fills a base template in, producing one concrete card.
      */
-    public static function renderTemplate(array $tpl): array
+    public static function renderTemplate(array $tpl, ?int $phrasing = null): array
     {
-        $vars = self::drawVariables($tpl['variables'] ?? null);
+        $vars     = self::drawVariables($tpl['variables'] ?? null);
+        $wordings = self::phrasings($tpl);
+        $which    = $phrasing === null
+            ? array_rand($wordings)
+            : $phrasing % count($wordings);
+        $pattern  = $wordings[$which];
 
         return [
             'template_id' => (int) $tpl['id'],
+            // which wording was used - not stored, but it lets the deck be
+            // checked for shapes coming round rather than only questions
+            'phrasing'    => $which,
             'subject'     => (string) $tpl['subject'],
             'sticker'     => (string) ($tpl['sticker'] ?? 'star'),
-            'question'    => self::fill((string) $tpl['pattern'], $vars),
+            'question'    => self::fill($pattern, $vars),
             'answer'      => self::fill((string) ($tpl['answer'] ?? ''), $vars),
         ];
+    }
+
+    /**
+     * Every way this template can ask its question.
+     *
+     * A child spots the SHAPE of a sentence long before they notice the
+     * numbers have changed, so "there are 5 rabbits and 3 more arrive" wears
+     * out even while every card is technically different. A template can
+     * therefore carry alternative wordings of the same question, and the deck
+     * works through them rather than repeating the first one.
+     *
+     * @return string[] the written pattern first, then any alternatives
+     */
+    public static function phrasings(array $tpl): array
+    {
+        $out = [(string) $tpl['pattern']];
+
+        $extra = $tpl['patterns'] ?? null;
+        if (is_string($extra)) {
+            $extra = json_decode($extra, true);
+        }
+
+        if (is_array($extra)) {
+            foreach ($extra as $one) {
+                if (is_string($one) && trim($one) !== '') {
+                    $out[] = $one;
+                }
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * How many different sentence shapes these templates can print.
+     *
+     * estimateVariants counts questions; this counts shapes, which is what a
+     * player actually notices repeating.
+     */
+    public static function estimateShapes(array $templates): int
+    {
+        $total = 0;
+
+        foreach ($templates as $tpl) {
+            $total += count(self::phrasings($tpl));
+        }
+
+        return $total;
     }
 
     /** Draws a random value for each of the template's variables */

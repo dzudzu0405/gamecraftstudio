@@ -211,6 +211,7 @@ class CreateController extends Controller
                     Lang::of($project)
                 );
                 $data['variants']     = MissionMatcher::estimateVariants($data['templates']);
+                $data['shapes']       = MissionMatcher::estimateShapes($data['templates']);
                 $data['sample']       = array_slice(MissionMatcher::forProject((int) $project['id']), 0, 6);
                 break;
 

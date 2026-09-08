@@ -249,6 +249,9 @@ class Seeder
                 'tier'       => Tiers::STARTER,   // questions are not a paid feature
                 'sticker'    => $t['sticker'],
                 'pattern'    => $t['pattern'],
+                'patterns'   => empty($t['patterns'])
+                    ? null
+                    : json_encode($t['patterns'], JSON_UNESCAPED_UNICODE),
                 'answer'     => $t['answer'],
                 'variables'  => json_encode($t['variables'], JSON_UNESCAPED_UNICODE),
                 'hint'       => $t['hint'] ?? null,

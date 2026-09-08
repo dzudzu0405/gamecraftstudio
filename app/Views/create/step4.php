@@ -47,7 +47,10 @@ $ownQuestions = Project::usesOwnQuestions($project);
                     <div class="stat">
                         <div class="stat__label">Matching templates</div>
                         <div class="stat__value"><?= count($templates) ?></div>
-                        <div class="stat__sub">about <?= number_format($variants) ?> distinct questions</div>
+                        <div class="stat__sub">
+                            <?= number_format($shapes) ?> question shapes &middot;
+                            <?= number_format($variants) ?> distinct questions
+                        </div>
                     </div>
                 </div>
 
@@ -64,7 +67,23 @@ $ownQuestions = Project::usesOwnQuestions($project);
                         <span>
                             These subjects can only produce about <b><?= number_format($variants) ?></b> distinct
                             questions, but the game needs <b><?= (int) $expected ?></b> cards.
-                            Some questions will repeat - add more subjects to avoid that.
+                            Some questions will repeat word for word - add another subject to avoid that.
+                        </span>
+                    </div>
+                <?php elseif ($shapes < $expected): ?>
+                    <?php /*
+                     * Every card can be a different question and the game can
+                     * still feel repetitive, because a child recognises the
+                     * SHAPE of a sentence long before the numbers in it. This
+                     * says how often a shape will come round, and what to do.
+                     */ ?>
+                    <div class="notice notice--info">
+                        <?= Icon::get('alert', 17) ?>
+                        <span>
+                            Every card will be a different question, but these subjects have
+                            <b><?= number_format($shapes) ?></b> ways of asking one, so the same kind of
+                            question comes round about <b><?= (int) ceil($expected / max(1, $shapes)) ?> times</b>
+                            across <?= (int) $expected ?> cards. Adding a subject brings that down.
                         </span>
                     </div>
                 <?php endif; ?>

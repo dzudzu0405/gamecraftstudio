@@ -51,6 +51,9 @@ foreach ($templates as $t) {
         'tier'      => Tiers::STARTER,
         'sticker'   => $t['sticker'],
         'pattern'   => $t['pattern'],
+        'patterns'  => empty($t['patterns'])
+            ? null
+            : json_encode($t['patterns'], JSON_UNESCAPED_UNICODE),
         'answer'    => $t['answer'],
         'variables' => $vars,
         'hint'      => $t['hint'] ?? null,

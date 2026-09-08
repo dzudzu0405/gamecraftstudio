@@ -35,8 +35,10 @@ $creatures = ['rabbits', 'kittens', 'puppies', 'ducklings', 'frogs', 'bees',
 $things = ['apples', 'marbles', 'stickers', 'crayons', 'shells', 'acorns',
            'buttons', 'pebbles', 'ribbons', 'conkers', 'feathers', 'cherries'];
 
-$places = ['meadow', 'garden', 'pond', 'forest', 'playground', 'beach',
-           'orchard', 'treehouse', 'barn', 'rockpool'];
+// Each carries its own preposition: it is "in the meadow" but "on the beach"
+$places = ['in the meadow', 'in the garden', 'by the pond', 'in the forest',
+           'on the playground', 'on the beach', 'in the orchard', 'in the treehouse',
+           'in the barn', 'by the rockpool'];
 
 $names = ['Maya', 'Ben', 'Chloe', 'Kai', 'Cora', 'Theo', 'Sana', 'Milo',
           'Bella', 'Pedro', 'Ada', 'Noor'];
@@ -53,9 +55,13 @@ return [
     [
         'code' => 'math-add', 'name' => 'Adding on', 'subject' => 'math',
         'level' => 'beginner', 'sticker' => 'star',
-        'pattern' => 'There are {a} {creature} in the {place}. {b} more come along to join them. How many {creature} are there now?',
+        'pattern' => 'There are {a} {creature} {place}. {b} more come along to join them. How many {creature} are there now?',
         'answer'  => '{a+b} {creature}',
-        'variables' => ['a' => ['min' => 2, 'max' => 12], 'b' => ['min' => 1, 'max' => 8],
+        'patterns' => [
+            '{b} more {creature} turn up {place}, where {a} were already waiting. How many now?',
+            'Count the {creature} {place}: {a} to begin with, then {b} more turn up.',
+        ],
+        'variables' => ['a' => ['min' => 2, 'max' => 12], 'b' => ['min' => 2, 'max' => 8],
                         'creature' => ['list' => $creatures], 'place' => ['list' => $places]],
         'hint' => 'Count them all together.',
     ],
@@ -64,6 +70,10 @@ return [
         'level' => 'beginner', 'sticker' => 'leaf',
         'pattern' => '{who} collected {a} {thing}. {who} gives {b} of them away. How many {thing} are left?',
         'answer'  => '{a-b} {thing}',
+        'patterns' => [
+            '{who} had {a} {thing} this morning and has given {b} away since. How many are left?',
+            'Out of {a} {thing}, {who} hands {b} to a friend. What is left in {who}\'s pocket?',
+        ],
         'variables' => ['a' => ['min' => 6, 'max' => 20], 'b' => ['min' => 1, 'max' => 5],
                         'thing' => ['list' => $things], 'who' => ['list' => $names]],
         'hint' => 'Start with what you had and take the rest away.',
@@ -73,6 +83,10 @@ return [
         'level' => 'beginner', 'sticker' => 'footprint',
         'pattern' => 'Start at {a} and count back {b}. Where do you land?',
         'answer'  => '{a-b}',
+        'patterns' => [
+            'Count backwards {b} from {a}. What number do you say last?',
+            'You are on {a} and take {b} steps backwards. Where do you stop?',
+        ],
         'variables' => ['a' => ['min' => 10, 'max' => 20], 'b' => ['min' => 2, 'max' => 8]],
         'hint' => 'Use your fingers if it helps.',
     ],
@@ -81,6 +95,10 @@ return [
         'level' => 'beginner', 'sticker' => 'gem',
         'pattern' => '{who} has {a} {thing} and finds exactly the same number again. How many now?',
         'answer'  => '{a+a} {thing}',
+        'patterns' => [
+            '{who} has {a} {thing}. Double it. How many is that?',
+            'There are {a} {thing} on the table and the same number again in the box. How many altogether?',
+        ],
         'variables' => ['a' => ['min' => 2, 'max' => 10],
                         'thing' => ['list' => $things], 'who' => ['list' => $names]],
         'hint' => 'Double means the same amount twice.',
@@ -91,6 +109,10 @@ return [
         'level' => 'standard', 'sticker' => 'sun',
         'pattern' => 'There are {a} {container} and each one holds {b} {thing}. How many {thing} altogether?',
         'answer'  => '{a*b} {thing}',
+        'patterns' => [
+            '{a} {container}, {b} {thing} in each. How many {thing} is that?',
+            'Every one of the {a} {container} holds {b} {thing}. Work out the total.',
+        ],
         'variables' => ['a' => ['min' => 2, 'max' => 9], 'b' => ['min' => 2, 'max' => 9],
                         'container' => ['list' => $containers], 'thing' => ['list' => $things]],
         'hint' => 'Count the groups, then count what is in each one.',
@@ -100,6 +122,10 @@ return [
         'level' => 'standard', 'sticker' => 'heart',
         'pattern' => 'Share {a} {treat} equally between {b} friends. How many does each friend get?',
         'answer'  => '{a/b} {treat} each',
+        'patterns' => [
+            '{b} friends are sharing {a} {treat} fairly. How many does each one get?',
+            'Split {a} {treat} into {b} equal piles. How big is one pile?',
+        ],
         'variables' => ['a' => ['min' => 12, 'max' => 48, 'step' => 6], 'b' => ['min' => 2, 'max' => 6],
                         'treat' => ['list' => $treats]],
         'hint' => 'Deal them out one at a time, like cards.',
@@ -109,6 +135,10 @@ return [
         'level' => 'standard', 'sticker' => 'key',
         'pattern' => '{who} had some {thing}, was given {b} more, and now has {c}. How many did {who} start with?',
         'answer'  => '{c-b} {thing}',
+        'patterns' => [
+            '{who} has {c} {thing} now, after being given {b}. How many were there before?',
+            'Someone gave {who} {b} {thing}, bringing the total to {c}. What was the total before that?',
+        ],
         'variables' => ['b' => ['min' => 3, 'max' => 15], 'c' => ['min' => 20, 'max' => 60],
                         'thing' => ['list' => $things], 'who' => ['list' => $names]],
         'hint' => 'Work backwards from the total.',
@@ -119,6 +149,10 @@ return [
         'level' => 'advanced', 'sticker' => 'gem',
         'pattern' => 'You have {a} coins. You buy {b} {thing} costing {c} coins each. How many coins are left?',
         'answer'  => '{a-b*c} coins',
+        'patterns' => [
+            '{b} {thing} cost {c} coins each. You pay with {a} coins. What is your change?',
+            'You start with {a} coins and buy {b} {thing} at {c} coins each. How much is left?',
+        ],
         'variables' => ['a' => ['min' => 50, 'max' => 100, 'step' => 10], 'b' => ['min' => 2, 'max' => 4],
                         'c' => ['min' => 5, 'max' => 12], 'thing' => ['list' => $things]],
         'hint' => 'Work out the cost first, then take it off what you had.',
@@ -128,6 +162,10 @@ return [
         'level' => 'advanced', 'sticker' => 'rocket',
         'pattern' => '{who} packs {a} {container} with {b} {thing} in each, then {c} {thing} fall out. How many are packed?',
         'answer'  => '{a*b-c} {thing}',
+        'patterns' => [
+            '{a} {container} are filled with {b} {thing} each, then {c} {thing} are dropped. How many are still packed?',
+            '{who} packs {b} {thing} into each of {a} {container} and loses {c} on the way. How many arrive?',
+        ],
         'variables' => ['a' => ['min' => 3, 'max' => 8], 'b' => ['min' => 4, 'max' => 9],
                         'c' => ['min' => 2, 'max' => 10], 'container' => ['list' => $containers],
                         'thing' => ['list' => $things], 'who' => ['list' => $names]],
@@ -142,6 +180,10 @@ return [
         'level' => 'beginner', 'sticker' => 'book',
         'pattern' => 'Say a word that rhymes with "{word}".',
         'answer'  => 'Any real rhyming word counts',
+        'patterns' => [
+            'Which words rhyme with "{word}"? Say one.',
+            'Find something that sounds like "{word}" at the end.',
+        ],
         'variables' => ['word' => ['list' => ['cat', 'star', 'tree', 'moon', 'bell', 'cake',
                                               'frog', 'snail', 'nose', 'ring', 'boat', 'hen',
                                               'sock', 'chair', 'light', 'blue', 'door', 'mouse',
@@ -153,6 +195,10 @@ return [
         'level' => 'beginner', 'sticker' => 'bulb',
         'pattern' => 'Name {a} things that begin with the letter "{letter}".',
         'answer'  => 'Any {a} valid words',
+        'patterns' => [
+            'Look around and find {a} things beginning with "{letter}".',
+            '"{letter}" - name {a} things that start with that sound.',
+        ],
         'variables' => ['a' => ['min' => 2, 'max' => 4],
                         'letter' => ['list' => ['B', 'C', 'D', 'F', 'G', 'H', 'L', 'M', 'P', 'R', 'S', 'T']]],
         'hint' => 'Look around the room for ideas.',
@@ -162,6 +208,10 @@ return [
         'level' => 'beginner', 'sticker' => 'flag',
         'pattern' => 'What is the opposite of "{word}"?',
         'answer'  => 'The correct opposite',
+        'patterns' => [
+            '"{word}" - what is the other way round?',
+            'If something is not "{word}", what is it?',
+        ],
         'variables' => ['word' => ['list' => ['hot', 'big', 'fast', 'happy', 'day', 'up',
                                               'loud', 'wet', 'full', 'early', 'hard', 'near',
                                               'open', 'heavy', 'young', 'clean', 'first', 'inside',
@@ -174,6 +224,10 @@ return [
         'level' => 'standard', 'sticker' => 'book',
         'pattern' => 'What does the word "{word}" mean? Explain it in your own words.',
         'answer'  => 'A sensible explanation counts',
+        'patterns' => [
+            'Explain "{word}" to somebody who has never heard it.',
+            'Someone asks you what "{word}" means. What do you say?',
+        ],
         'variables' => ['word' => ['list' => ['courage', 'curious', 'gentle', 'ancient', 'fragile',
                                               'generous', 'stubborn', 'grateful', 'anxious', 'loyal',
                                               'patient', 'honest', 'clumsy', 'enormous', 'silent',
@@ -185,6 +239,10 @@ return [
         'level' => 'standard', 'sticker' => 'star',
         'pattern' => 'Make up a sentence that uses both "{word}" and "{other}".',
         'answer'  => 'Any sentence using both words',
+        'patterns' => [
+            'Use "{word}" and "{other}" in the same sentence.',
+            'Make one sentence with both "{word}" and "{other}" in it.',
+        ],
         'variables' => ['word'  => ['list' => ['river', 'castle', 'storm', 'lantern', 'harbour', 'meadow',
                                                'staircase', 'market', 'lighthouse', 'orchard']],
                         'other' => ['list' => ['silent', 'golden', 'sudden', 'enormous', 'frozen', 'crooked',
@@ -197,6 +255,10 @@ return [
         'level' => 'advanced', 'sticker' => 'book',
         'pattern' => 'Tell the next part of the story: "{opening}"',
         'answer'  => 'Any story that follows on',
+        'patterns' => [
+            'Here is the beginning: "{opening}" What happens next?',
+            '"{opening}" Carry on from there.',
+        ],
         'variables' => ['opening' => ['list' => [
             'The door at the top of the stairs had never been open before...',
             'The map showed an island that was not on any other map...',
@@ -226,6 +288,10 @@ return [
         'level' => 'beginner', 'sticker' => 'leaf',
         'pattern' => 'What is the plural of "{word}"?',
         'answer'  => 'The correct plural',
+        'patterns' => [
+            'How do you say "{word}" when there is more than one?',
+            'One {word}, but two of them are called what?',
+        ],
         'variables' => ['word' => ['list' => ['child', 'mouse', 'leaf', 'foot', 'box',
                                               'knife', 'goose', 'shelf', 'tooth', 'baby',
                                               'man', 'woman', 'sheep', 'wolf', 'city',
@@ -237,6 +303,10 @@ return [
         'level' => 'beginner', 'sticker' => 'book',
         'pattern' => 'Do you say "a" or "an" before "{word}"?',
         'answer'  => 'The right one, said out loud',
+        'patterns' => [
+            '"{word}" - does it take "a" or "an"?',
+            'Say "{word}" with the right little word in front.',
+        ],
         'variables' => ['word' => ['list' => ['apple', 'book', 'orange', 'tree', 'elephant', 'cup',
                                               'umbrella', 'hat', 'egg', 'island', 'dog', 'hour',
                                               'ant', 'chair', 'owl', 'window']]],
@@ -247,6 +317,10 @@ return [
         'level' => 'beginner', 'sticker' => 'bulb',
         'pattern' => 'Turn this into a question: "{sentence}"',
         'answer'  => 'The same words, asked as a question',
+        'patterns' => [
+            'Ask this instead of saying it: "{sentence}"',
+            '"{sentence}" - now ask it as a question.',
+        ],
         'variables' => ['sentence' => ['list' => ['You are hungry.', 'She can swim.', 'They went home.',
                                                   'It is raining.', 'He has a bike.', 'We are late.',
                                                   'The dog is asleep.', 'You like apples.',
@@ -261,6 +335,10 @@ return [
         'level' => 'standard', 'sticker' => 'flag',
         'pattern' => 'Put this into the past tense: "I {verb} every day."',
         'answer'  => 'The correct past tense of "{verb}"',
+        'patterns' => [
+            '"I {verb} every day" - say it as if it happened yesterday.',
+            'Change "I {verb}" so it is about the past.',
+        ],
         'variables' => ['verb' => ['list' => ['run', 'swim', 'eat', 'write', 'sing',
                                               'think', 'bring', 'catch', 'draw', 'fly',
                                               'go', 'take', 'give', 'sleep', 'buy',
@@ -272,6 +350,10 @@ return [
         'level' => 'advanced', 'sticker' => 'bulb',
         'pattern' => 'Describe a {thing} to somebody who has never seen one - without using the word "{thing}".',
         'answer'  => 'Any clear description',
+        'patterns' => [
+            'Explain what {thing} is without using the word itself.',
+            'Somebody has never seen {thing}. Describe it to them.',
+        ],
         'variables' => ['thing' => ['list' => ['bicycle', 'umbrella', 'kettle', 'staircase',
                                                'telescope', 'sandcastle', 'windmill', 'kite',
                                                'lighthouse', 'wheelbarrow', 'zip', 'mirror',
@@ -288,6 +370,10 @@ return [
         'level' => 'beginner', 'sticker' => 'bulb',
         'pattern' => 'Which part of your body do you use to {sense}?',
         'answer'  => 'The matching sense organ',
+        'patterns' => [
+            'You want to {sense}. Which part of you does the work?',
+            'Which sense do you use to {sense}?',
+        ],
         'variables' => ['sense' => ['list' => ['smell a flower', 'hear a bell', 'taste honey',
                                                'see a rainbow', 'feel warm sand', 'hear thunder',
                                                'taste a lemon', 'see a star at night', 'smell fresh bread',
@@ -300,6 +386,10 @@ return [
         'level' => 'beginner', 'sticker' => 'drop',
         'pattern' => 'Is {thing} usually hot or cold?',
         'answer'  => 'Whichever it is, with a reason',
+        'patterns' => [
+            'Would {thing} feel warm or cold to touch?',
+            'Warm or cold: {thing}?',
+        ],
         'variables' => ['thing' => ['list' => ['ice cream', 'soup', 'snow', 'a radiator', 'the sea in winter',
                                                'a cup of tea', 'the inside of a fridge', 'a candle flame',
                                                'sand on a summer beach', 'an ice cube', 'a hot water bottle',
@@ -312,6 +402,10 @@ return [
         'level' => 'beginner', 'sticker' => 'leaf',
         'pattern' => 'Is {thing} alive? How can you tell?',
         'answer'  => 'The right answer with any sensible reason',
+        'patterns' => [
+            'Would you say {thing} is a living thing? Why?',
+            'Living or not living: {thing}? Give a reason.',
+        ],
         'variables' => ['thing' => ['list' => ['a tree', 'a rock', 'a cat', 'a cloud', 'a mushroom',
                                                'a bicycle', 'a worm', 'a river', 'a daisy', 'a teddy bear',
                                                'a spider', 'a candle', 'grass', 'a seashell', 'a bee',
@@ -323,6 +417,10 @@ return [
         'level' => 'standard', 'sticker' => 'drop',
         'pattern' => 'Would a {thing} float or sink in water? Say why you think so.',
         'answer'  => 'Either answer with a reason',
+        'patterns' => [
+            'Drop {thing} into water. Does it float or sink? Why?',
+            'Would {thing} stay on top of the water or go down? Say why.',
+        ],
         'variables' => ['thing' => ['list' => ['cork', 'stone', 'apple', 'coin', 'feather',
                                                'sponge', 'nail', 'candle', 'orange', 'wooden spoon',
                                                'grape', 'plastic bottle with the lid on', 'paperclip',
@@ -334,6 +432,10 @@ return [
         'level' => 'advanced', 'sticker' => 'rocket',
         'pattern' => 'What happens when {event}? Explain as best you can.',
         'answer'  => 'A reasonable explanation',
+        'patterns' => [
+            'Say what you would see if {event}.',
+            '{event} - what happens, and why?',
+        ],
         'variables' => ['event' => ['list' => [
             'you leave an ice cube in a warm room',
             'a plant is kept in a dark cupboard',
@@ -362,6 +464,10 @@ return [
         'level' => 'beginner', 'sticker' => 'heart',
         'pattern' => 'What sound does a {animal} make? Do your best impression!',
         'answer'  => 'Any good attempt counts',
+        'patterns' => [
+            'Make the sound a {animal} makes.',
+            'A {animal} is behind you. What would you hear?',
+        ],
         'variables' => ['animal' => ['list' => ['cow', 'duck', 'lion', 'sheep', 'owl', 'frog',
                                                 'horse', 'bee', 'cat', 'wolf', 'goat', 'crow',
                                                 'pig', 'donkey', 'hen', 'mouse', 'snake', 'elephant',
@@ -373,6 +479,10 @@ return [
         'level' => 'beginner', 'sticker' => 'leaf',
         'pattern' => 'Where does a {animal} live?',
         'answer'  => 'The right kind of home',
+        'patterns' => [
+            'What kind of home does a {animal} have?',
+            'If you were looking for a {animal}, where would you look?',
+        ],
         'variables' => ['animal' => ['list' => ['bee', 'rabbit', 'penguin', 'camel', 'fish',
                                                 'owl', 'mole', 'crab', 'bat', 'squirrel',
                                                 'polar bear', 'kangaroo', 'spider', 'beaver', 'ant',
@@ -384,6 +494,10 @@ return [
         'level' => 'beginner', 'sticker' => 'heart',
         'pattern' => 'What do we call a baby {animal}?',
         'answer'  => 'The right name for the young one',
+        'patterns' => [
+            'A {animal} has a baby. What is it called?',
+            'What name do we give a young {animal}?',
+        ],
         'variables' => ['animal' => ['list' => ['cat', 'dog', 'cow', 'sheep', 'duck', 'horse',
                                                 'frog', 'bear', 'goat', 'hen', 'pig', 'swan',
                                                 'deer', 'kangaroo', 'butterfly', 'owl']]],
@@ -394,6 +508,10 @@ return [
         'level' => 'standard', 'sticker' => 'drop',
         'pattern' => 'Name two things {living} needs to stay alive.',
         'answer'  => 'Any two sensible needs',
+        'patterns' => [
+            '{living} - name two things it cannot live without.',
+            'What would {living} need if you looked after it?',
+        ],
         'variables' => ['living' => ['list' => ['a tree', 'a dog', 'a fish', 'a bee', 'a person',
                                                 'a plant in a pot', 'a bird', 'a worm', 'a horse',
                                                 'a cat', 'a sunflower', 'a frog', 'a rabbit',
@@ -405,6 +523,10 @@ return [
         'level' => 'standard', 'sticker' => 'sun',
         'pattern' => 'Name two things that happen in {season}. Look {aspect}.',
         'answer'  => 'Any two sensible answers',
+        'patterns' => [
+            'Think about {season}. Name two things that change {aspect}.',
+            'What is different {aspect} {season}? Say two things.',
+        ],
         'variables' => ['season' => ['list' => ['spring', 'summer', 'autumn', 'winter']],
                         'aspect' => ['list' => ['to the weather', 'to the trees', 'to the animals',
                                                 'to what people wear', 'in the garden']]],
@@ -415,6 +537,10 @@ return [
         'level' => 'advanced', 'sticker' => 'leaf',
         'pattern' => 'What might a {animal} eat, and what might eat a {animal}?',
         'answer'  => 'A sensible food chain',
+        'patterns' => [
+            'A {animal} eats something, and something eats a {animal}. What are they?',
+            'Where does a {animal} sit in the food chain? Say what is above and below it.',
+        ],
         'variables' => ['animal' => ['list' => ['mouse', 'frog', 'rabbit', 'fish', 'caterpillar', 'sparrow',
                                                 'worm', 'snail', 'grasshopper', 'duckling', 'squirrel',
                                                 'ladybird', 'shrimp', 'field vole', 'young owl', 'tadpole']]],
@@ -429,6 +555,10 @@ return [
         'level' => 'beginner', 'sticker' => 'key',
         'pattern' => 'Which is the odd one out: {set}? Say why.',
         'answer'  => 'Any answer with a good reason',
+        'patterns' => [
+            'One of these does not belong: {set}. Which, and why?',
+            '{set} - cross one out and say what the others have in common.',
+        ],
         'variables' => ['set' => ['list' => [
             'apple, banana, carrot, pear',
             'dog, cat, fish, rabbit',
@@ -456,6 +586,10 @@ return [
         'level' => 'beginner', 'sticker' => 'gem',
         'pattern' => 'What do {pair} have in common?',
         'answer'  => 'Any sensible thing they share',
+        'patterns' => [
+            '{pair} - name one thing they share.',
+            'Think of {pair}. What is the same about them?',
+        ],
         'variables' => ['pair' => ['list' => ['a bicycle and a car', 'an apple and a banana',
                                               'a dog and a wolf', 'rain and snow', 'a chair and a bed',
                                               'a spoon and a fork', 'the sun and a lamp',
@@ -471,6 +605,10 @@ return [
         'level' => 'beginner', 'sticker' => 'footprint',
         'pattern' => 'Put these in order, smallest first: {set}.',
         'answer'  => 'The three in the right order',
+        'patterns' => [
+            'Smallest to biggest: {set}. Say them in order.',
+            '{set} - which is smallest, which is biggest?',
+        ],
         'variables' => ['set' => ['list' => ['an ant, a dog, an elephant', 'a cup, a bucket, a bath',
                                              'a minute, an hour, a day', 'a pebble, a rock, a mountain',
                                              'a seed, a flower, a tree', 'a shoe, a car, a house',
@@ -487,6 +625,10 @@ return [
         'level' => 'standard', 'sticker' => 'flag',
         'pattern' => 'True or false: {claim}? Say why.',
         'answer'  => 'The right answer with a reason',
+        'patterns' => [
+            'Is this right or wrong: {claim}? Explain.',
+            'Somebody says {claim}. Do you agree? Say why.',
+        ],
         'variables' => ['claim' => ['list' => ['all birds can fly', 'every square is also a rectangle',
                                                'all fish live in water', 'all spiders have six legs',
                                                'the sun rises in the west', 'some cats have no tail',
@@ -500,6 +642,10 @@ return [
         'level' => 'standard', 'sticker' => 'key',
         'pattern' => 'What comes next: {a}, {b}, {c}, ... ?',
         'answer'  => 'The number that continues the pattern',
+        'patterns' => [
+            'Carry the pattern on: {a}, {b}, {c}, ...',
+            '{a}, {b}, {c} - what number belongs next?',
+        ],
         'variables' => ['a' => ['min' => 2, 'max' => 6], 'b' => ['min' => 8, 'max' => 12],
                         'c' => ['min' => 14, 'max' => 20]],
         'hint' => 'Work out the step between them.',
@@ -509,6 +655,10 @@ return [
         'level' => 'advanced', 'sticker' => 'bulb',
         'pattern' => '{riddle}',
         'answer'  => 'The riddle\'s answer',
+        'patterns' => [
+            'Here is a riddle. {riddle}',
+            'See if you can work this one out: {riddle}',
+        ],
         'variables' => ['riddle' => ['list' => [
             'I have hands but cannot clap. What am I?',
             'I get wetter the more I dry. What am I?',
@@ -540,6 +690,10 @@ return [
         'level' => 'beginner', 'sticker' => 'heart',
         'pattern' => 'Name one kind thing you could do for {who} today.',
         'answer'  => 'Any kind idea counts',
+        'patterns' => [
+            'Think of something kind you could do for {who}.',
+            'How could you cheer up {who} today?',
+        ],
         'variables' => ['who' => ['list' => ['a friend', 'someone in your family', 'a neighbour',
                                              'a new person at school', 'someone feeling sad',
                                              'a younger child', 'somebody who helped you last week',
@@ -555,6 +709,10 @@ return [
         'level' => 'beginner', 'sticker' => 'key',
         'pattern' => 'Where does {thing} belong when you tidy up?',
         'answer'  => 'Any sensible place',
+        'patterns' => [
+            'Tidying up: what is the right place for {thing}?',
+            '{thing} is on the floor. Where should it go?',
+        ],
         'variables' => ['thing' => ['list' => ['your shoes', 'a dirty plate', 'a library book',
                                                'your coat', 'the rubbish', 'a toy car', 'a wet towel',
                                                'dirty socks', 'the milk', 'a pencil', 'your school bag',
@@ -567,6 +725,10 @@ return [
         'level' => 'standard', 'sticker' => 'footprint',
         'pattern' => 'Name two things you need to do before {activity}.',
         'answer'  => 'Any two sensible steps',
+        'patterns' => [
+            'What has to happen before {activity}? Name two things.',
+            'You are about to be {activity}. What do you sort out first?',
+        ],
         'variables' => ['activity' => ['list' => ['going swimming', 'cooking a meal', 'riding your bike',
                                                   'leaving for school', 'having friends over',
                                                   'going on a long walk', 'planting seeds',
@@ -579,6 +741,10 @@ return [
         'level' => 'standard', 'sticker' => 'flag',
         'pattern' => 'What should you do if {situation}?',
         'answer'  => 'Any sensible, safe answer',
+        'patterns' => [
+            '{situation} - what is the first thing you do?',
+            'Imagine {situation}. What is the safe thing to do?',
+        ],
         'variables' => ['situation' => ['list' => [
             'you get separated from your grown-up in a shop',
             'a stranger asks you to go with them',
@@ -603,6 +769,10 @@ return [
         'level' => 'advanced', 'sticker' => 'trophy',
         'pattern' => 'What would you do if {situation}?',
         'answer'  => 'There is no single right answer - just be kind',
+        'patterns' => [
+            'Imagine {situation}. What do you do next?',
+            '{situation} - talk it through. What would you choose?',
+        ],
         'variables' => ['situation' => ['list' => [
             'a friend takes the blame for something you did',
             'you forgot to bring your homework',
@@ -632,6 +802,10 @@ return [
         'level' => 'beginner', 'sticker' => 'flag',
         'pattern' => 'Would you find {thing} near your home, or far away?',
         'answer'  => 'Either, with a reason',
+        'patterns' => [
+            'Is {thing} the sort of thing you find nearby, or far off?',
+            '{thing} - near your home or a long way away? Why?',
+        ],
         'variables' => ['thing' => ['list' => ['a mountain', 'a beach', 'a river', 'a desert',
                                                'a forest', 'a harbour', 'a volcano', 'a farm',
                                                'a railway station', 'a glacier', 'a lake', 'an island',
@@ -644,6 +818,10 @@ return [
         'level' => 'beginner', 'sticker' => 'sun',
         'pattern' => 'Would you need {thing} somewhere hot or somewhere cold?',
         'answer'  => 'Whichever it is, with a reason',
+        'patterns' => [
+            '{thing} - would you pack it for a hot country or a cold one?',
+            'Hot country or cold country: where do you need {thing}?',
+        ],
         'variables' => ['thing' => ['list' => ['a woolly hat', 'sunglasses', 'a scarf', 'sandals',
                                                'a thick coat', 'a sun hat', 'gloves', 'a fan',
                                                'snow boots', 'a swimming costume', 'a warm blanket',
@@ -656,6 +834,10 @@ return [
         'level' => 'beginner', 'sticker' => 'rocket',
         'pattern' => 'How would you travel to {place}?',
         'answer'  => 'Any sensible way of travelling',
+        'patterns' => [
+            'Plan the journey to {place}. What do you travel in?',
+            'How do people get to {place}?',
+        ],
         'variables' => ['place' => ['list' => ['an island out at sea', 'the top of a mountain',
                                                'the shop at the end of the road', 'a country far away',
                                                'a farm across the fields', 'the middle of a big lake',
@@ -670,6 +852,10 @@ return [
         'level' => 'standard', 'sticker' => 'key',
         'pattern' => 'What is the difference between {pair}?',
         'answer'  => 'Any clear difference',
+        'patterns' => [
+            '{pair} - what tells them apart?',
+            'Explain what makes {pair} different.',
+        ],
         'variables' => ['pair' => ['list' => ['a lake and a sea', 'a hill and a mountain',
                                               'a village and a city', 'a river and a canal',
                                               'an island and a peninsula', 'a wood and a forest',
@@ -683,6 +869,10 @@ return [
         'level' => 'standard', 'sticker' => 'footprint',
         'pattern' => 'If you face {direction} and turn {turn}, which way are you facing now?',
         'answer'  => 'The direction {turn} of {direction}',
+        'patterns' => [
+            'Face {direction}, then turn {turn}. What are you looking at now?',
+            'You are looking {direction}. Turn {turn} - which way is that?',
+        ],
         'variables' => ['direction' => ['list' => ['north', 'south', 'east', 'west']],
                         'turn'      => ['list' => ['right', 'left', 'right twice', 'all the way round']]],
         'hint' => 'Picture a compass, or use your hands.',
@@ -692,6 +882,10 @@ return [
         'level' => 'advanced', 'sticker' => 'gem',
         'pattern' => 'Name a country where you would expect to find {feature}, and say why.',
         'answer'  => 'Any country that fits, with a reason',
+        'patterns' => [
+            'Which country would have {feature}? Say how you know.',
+            'Where in the world would you go to see {feature}?',
+        ],
         'variables' => ['feature' => ['list' => ['a rainforest', 'a desert', 'snow all year round',
                                                  'active volcanoes', 'coral reefs', 'very long rivers',
                                                  'penguins in the wild', 'olive groves', 'tea growing on hills',
@@ -709,6 +903,10 @@ return [
         'level' => 'beginner', 'sticker' => 'sun',
         'pattern' => 'Try to {action} for {n} seconds. Manage it and you carry on!',
         'answer'  => 'Complete the action',
+        'patterns' => [
+            'Can you {action} for {n} seconds? Go!',
+            '{n} seconds to {action}. Everybody count.',
+        ],
         'variables' => ['action' => ['list' => ['hop on one foot', 'stand on one leg',
                                                 'clap as fast as you can', 'spin around slowly',
                                                 'laugh out loud', 'pretend to be a cat',
@@ -723,6 +921,10 @@ return [
         'level' => 'advanced', 'sticker' => 'rocket',
         'pattern' => 'What would you do if {situation}? Tell everyone one way to handle it.',
         'answer'  => 'Any thoughtful answer counts',
+        'patterns' => [
+            'Suppose {situation}. What is your idea?',
+            '{situation} - tell the table one way to sort it out.',
+        ],
         'variables' => ['situation' => ['list' => ['a friend fell over in the playground',
                                                    'your group could not agree on anything',
                                                    'you spilled water all over the table',
@@ -738,6 +940,10 @@ return [
         'level' => 'standard', 'sticker' => 'bulb',
         'pattern' => 'What does the word "{word}" mean? Explain it in your own words.',
         'answer'  => 'A sensible explanation counts',
+        'patterns' => [
+            'Somebody in your game says "{word}". What do they mean?',
+            'Explain "{word}" as if you were telling the story.',
+        ],
         'variables' => ['word' => ['list' => ['forest', 'river', 'mountain', 'treasure', 'bridge',
                                               'castle', 'dragon', 'compass', 'island', 'journey',
                                               'courage', 'friendship', 'harbour', 'lantern',
@@ -749,6 +955,10 @@ return [
         'level' => 'standard', 'sticker' => 'drop',
         'pattern' => 'Why {phenomenon}?',
         'answer'  => 'Any reasonable explanation counts',
+        'patterns' => [
+            'Can you explain why {phenomenon}?',
+            'Somebody asks: why {phenomenon}? What do you tell them?',
+        ],
         'variables' => ['phenomenon' => ['list' => ['does it rain', 'do rainbows appear after rain',
                                                     'does ice melt when you leave it out',
                                                     'do leaves change colour in autumn',
@@ -767,6 +977,10 @@ return [
         'level' => 'advanced', 'sticker' => 'flag',
         'pattern' => 'Which continent is {place} in?',
         'answer'  => 'The correct continent',
+        'patterns' => [
+            '{place} is on which continent?',
+            'Point to the continent {place} belongs to, and name it.',
+        ],
         'variables' => ['place' => ['list' => ['Egypt', 'Brazil', 'Japan', 'Italy', 'Kenya',
                                                'Canada', 'India', 'Norway', 'Peru', 'Vietnam',
                                                'Australia', 'Mexico', 'Spain', 'China',

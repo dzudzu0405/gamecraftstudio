@@ -81,6 +81,7 @@ foreach (['es', 'fr', 'de'] as $locale) {
             'level'     => $t['level'],
             'sticker'   => $t['sticker'],
             'pattern'   => $tr['pattern'],
+            'patterns'  => $tr['patterns'] ?? null,
             'answer'    => $tr['answer'],
             'variables' => $variables,
             'hint'      => $tr['hint'] ?? null,
