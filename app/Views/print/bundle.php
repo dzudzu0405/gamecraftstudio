@@ -8,10 +8,17 @@ use App\Core\Helper as H;
 use App\Core\Url;
 use App\Services\Art;
 use App\Services\Difficulty;
+use App\Services\Lang;
 use App\Services\MapComposer;
 use App\Services\PrintBundle;
 
 $pid      = (int) $project['id'];
+
+// Everything the buyer prints is written in the game's own language; the
+// Studio around it stays in English.
+$lang = Lang::of($project);
+$t    = fn (string $key, array $r = []) => Lang::get($key, $lang, $r);
+$tn   = fn (string $key, int $n, array $r = []) => Lang::choose($key, $n, $lang, $r);
 // The sheet foot names the buyer's game, not this app: the pages are their
 // product, and a maker selling a printed board should not be handing out
 // somebody else's brand with it.
@@ -41,8 +48,9 @@ $head = function (string $order, string $title, string $sub = '') use (&$sheetNo
     echo '</div>';
 };
 
-$foot = function () use ($brand, &$sheetNo) {
-    echo '<div class="sheet__foot"><span>' . H::e($brand) . '</span><span>Page ' . $sheetNo . '</span></div>';
+$foot = function () use ($brand, $lang, &$sheetNo) {
+    echo '<div class="sheet__foot"><span>' . H::e($brand) . '</span><span>'
+       . H::e(Lang::get('sheet.page', $lang, ['n' => $sheetNo])) . '</span></div>';
 };
 
 // Card frames the buyer supplied, if this style has any
@@ -102,20 +110,17 @@ $qSize = function (string $question): string {
     <div>
         <div class="printbar__title"><?= H::e($project['title']) ?></div>
         <div class="printbar__meta">
-            <?= (int) $totalPages ?> pages &middot;
+            <?= H::e($tn('bar.pages', (int) $totalPages)) ?> &middot;
             <?= H::e(Difficulty::name((string) $project['difficulty'])) ?> &middot;
-            <?= (int) $project['cells'] ?> spaces
+            <?= H::e($tn('bar.spaces', (int) $project['cells'])) ?>
         </div>
     </div>
     <div class="printbar__spacer"></div>
-    <a href="<?= Url::to('/studio/' . $pid) ?>">Back to Studio</a>
-    <a href="<?= Url::to('/preview/' . $pid) ?>">Preview</a>
-    <button type="button" class="primary" data-print>Print / Save as PDF</button>
+    <a href="<?= Url::to('/studio/' . $pid) ?>"><?= H::e($t('bar.back')) ?></a>
+    <a href="<?= Url::to('/preview/' . $pid) ?>"><?= H::e($t('bar.preview')) ?></a>
+    <button type="button" class="primary" data-print><?= H::e($t('bar.print')) ?></button>
 
-    <div class="printbar__hint">
-        In the print dialog choose <b>Destination: Save as PDF</b>, turn on <b>Background graphics</b>
-        and set <b>Margins: None</b> so the colours and cut lines come out correctly.
-    </div>
+    <div class="printbar__hint"><?= $t('bar.hint') ?></div>
 </div>
 
 <div class="sheets">
@@ -126,7 +131,7 @@ $qSize = function (string $question): string {
     <?php if ($section['key'] === 'map'): ?>
         <!-- ===== 1. Game map ===== -->
         <div class="sheet sheet--landscape">
-            <?php $head('1', 'Game map', (int) $project['cells'] . ' mission spaces'); ?>
+            <?php $head('1', $t('sheet.map'), $tn('sheet.map_sub', (int) $project['cells'])); ?>
             <div class="sheet__body map-wrap">
                 <?= MapComposer::render($project, $d['background'], [
                     'width'    => MapComposer::WIDTH,
@@ -140,7 +145,7 @@ $qSize = function (string $question): string {
     <?php elseif ($section['key'] === 'story'): ?>
         <!-- ===== 2. Story ===== -->
         <div class="sheet">
-            <?php $head('2', 'The story', $project['title']); ?>
+            <?php $head('2', $t('sheet.story'), $project['title']); ?>
             <div class="sheet__body">
                 <div class="story-hero">
                     <img src="<?= H::e(Art::dataUri(Art::scene((string) $project['theme'], (string) $project['cover_seed'], 900, 340))) ?>" alt="">
@@ -158,32 +163,17 @@ $qSize = function (string $question): string {
     <?php elseif ($section['key'] === 'howto'): ?>
         <!-- ===== 3. How to play ===== -->
         <div class="sheet">
-            <?php $head('3', 'How to play', H::playerRange((int) $project['players_min'], (int) $project['players_max'])); ?>
+            <?php $head('3', $t('sheet.howto'), PrintBundle::playerRange($project)); ?>
             <div class="sheet__body">
                 <ol class="rules">
-                    <?php
-                    $lines = array_values(array_filter(array_map('trim', explode("\n", (string) $d['text']))));
-                    $extra = [];
-                    foreach ($lines as $line) {
-                        // Strip any leading numbering - the CSS numbers these itself
-                        $clean = preg_replace('/^\d+[\.\)]\s*/', '', $line);
-                        if ($clean === '') { continue; }
-                        if (stripos($clean, 'You will need') === 0) { $extra[] = $clean; continue; }
-                        echo '<li>' . H::e($clean) . '</li>';
-                    }
-                    ?>
+                    <?php foreach (PrintBundle::ruleSteps((string) $d['text']) as $rule): ?>
+                        <li><?= H::e($rule) ?></li>
+                    <?php endforeach; ?>
                 </ol>
 
                 <div class="callout">
-                    <b>What to prepare:</b>
-                    <?= Difficulty::MOVE_CARDS_PER_GAME ?> move cards,
-                    <?= (int) $project['cells'] * Difficulty::MISSIONS_PER_CELL ?> mission cards split into
-                    <?= (int) $project['cells'] ?> piles (<?= Difficulty::MISSIONS_PER_CELL ?> per space),
-                    <?= Difficulty::HERO_CARDS_PER_GAME ?> hero card,
-                    and one token for each player.
-                    <?php foreach ($extra as $e): ?>
-                        <br><?= H::e($e) ?>
-                    <?php endforeach; ?>
+                    <b><?= H::e($t('howto.prepare')) ?></b>
+                    <?= H::e(PrintBundle::prepareLine($project)) ?>
                 </div>
             </div>
             <?php $foot(); ?>
@@ -193,7 +183,7 @@ $qSize = function (string $question): string {
         <!-- ===== 4. Move cards ===== -->
         <?php foreach (array_chunk($d['cards'], $perSheet) as $page => $chunk): ?>
             <div class="sheet">
-                <?php $head('4', 'Move cards', 'Cut along the dashed lines - ' . count($d['cards']) . ' cards'); ?>
+                <?php $head('4', $t('sheet.move'), $tn('sheet.move_sub', count($d['cards']))); ?>
                 <div class="sheet__body">
                     <div class="cards">
                         <?php foreach ($chunk as $c): ?>
@@ -234,23 +224,20 @@ $qSize = function (string $question): string {
     <?php elseif ($section['key'] === 'dice'): ?>
         <!-- ===== 4. Paper die (printed instead of move cards) ===== -->
         <div class="sheet">
-            <?php $head('4', 'Paper die', 'Cut out, fold along the lines and glue the tabs'); ?>
+            <?php $head('4', $t('sheet.dice'), $t('sheet.dice_sub')); ?>
             <div class="sheet__body">
                 <?php if (!empty($d['image'])): ?>
                     <div class="dice-net">
-                        <img src="<?= H::e($d['image']) ?>" alt="Die to cut out and fold">
+                        <img src="<?= H::e($d['image']) ?>" alt="<?= H::e($t('dice.alt')) ?>">
                     </div>
                     <ol class="dice-steps">
-                        <li>Cut around the outside of the whole shape, tabs included.</li>
-                        <li>Fold along every inside line, so the six faces turn inwards.</li>
-                        <li>Glue the tabs under the neighbouring face and hold until dry.</li>
-                        <li>One die is enough for the whole table - roll and move that many spaces.</li>
+                        <?php foreach (Lang::all('dice.steps', $lang) as $stepLine): ?>
+                            <li><?= H::e($stepLine) ?></li>
+                        <?php endforeach; ?>
                     </ol>
                 <?php else: ?>
                     <div class="prose">
-                        <p>The die artwork is missing. Put a file named <code>dice-net.png</code>
-                           into <code>uploads/library/</code> and print again, or play with any
-                           ordinary six-sided die.</p>
+                        <p><?= $t('dice.missing') ?></p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -261,19 +248,19 @@ $qSize = function (string $question): string {
         <!-- ===== 5. Mission cards ===== -->
         <?php if (!$d['cards']): ?>
             <div class="sheet">
-                <?php $head('5', 'Mission cards', 'None generated yet'); ?>
+                <?php $head('5', $t('sheet.mission'), $t('sheet.mission_none')); ?>
                 <div class="sheet__body prose">
-                    <p>This project has no mission cards yet. Go back to the Studio and choose
-                       "Match mission cards".</p>
+                    <p><?= H::e($t('mission.empty')) ?></p>
                 </div>
                 <?php $foot(); ?>
             </div>
         <?php else: ?>
             <?php foreach (array_chunk($d['cards'], $perSheet) as $page => $chunk): ?>
                 <div class="sheet">
-                    <?php $head('5', 'Mission cards',
-                        'Sheet ' . ($page + 1) . ' of ' . (int) ceil(count($d['cards']) / $perSheet)
-                        . ' - ' . count($d['cards']) . ' cards'); ?>
+                    <?php $head('5', $t('sheet.mission'),
+                        $t('sheet.sheet_of', ['page' => $page + 1,
+                                              'total' => (int) ceil(count($d['cards']) / $perSheet)])
+                        . ' - ' . $tn('sheet.cards', count($d['cards']))); ?>
                     <div class="sheet__body">
                         <div class="cards">
                             <?php foreach ($chunk as $m): ?>
@@ -324,7 +311,7 @@ $qSize = function (string $question): string {
     <?php elseif ($section['key'] === 'hero'): ?>
         <!-- ===== 6. Winner hero card ===== -->
         <div class="sheet">
-            <?php $head('6', 'Winner hero card', 'One per game'); ?>
+            <?php $head('6', $t('sheet.hero'), $t('sheet.hero_sub')); ?>
             <div class="sheet__body">
                 <div class="hero-card">
                     <div class="hero-card__rays"></div>
@@ -335,7 +322,7 @@ $qSize = function (string $question): string {
                         </div>
                     </div>
 
-                    <div class="hero-card__ribbon">Champion</div>
+                    <div class="hero-card__ribbon"><?= H::e($t('hero_card.champion')) ?></div>
 
                     <div class="hero-card__stars">
                         <?php for ($s = 0; $s < 5; $s++): ?>
@@ -343,17 +330,17 @@ $qSize = function (string $question): string {
                         <?php endfor; ?>
                     </div>
 
-                    <div class="hero-card__eyebrow">Hero of</div>
+                    <div class="hero-card__eyebrow"><?= H::e($t('hero_card.eyebrow')) ?></div>
                     <div class="hero-card__name"><?= H::e($project['title']) ?></div>
                     <div class="hero-card__line">
-                        Made it through all <?= (int) $project['cells'] ?> challenges
-                        and reached the finish first.<br>
-                        Congratulations, <b><?= H::e($d['hero_name']) ?></b>!
+                        <?= H::e($t('hero_card.line', ['n' => (int) $project['cells']])) ?><br>
+                        <?= str_replace('{name}', '<b>' . H::e($d['hero_name']) . '</b>',
+                                        H::e($t('hero_card.congrats', ['name' => '{name}']))) ?>
                     </div>
 
                     <div class="hero-card__signrow">
-                        <div class="hero-card__sign">Winner's name</div>
-                        <div class="hero-card__sign">Date</div>
+                        <div class="hero-card__sign"><?= H::e($t('hero_card.winner')) ?></div>
+                        <div class="hero-card__sign"><?= H::e($t('hero_card.date')) ?></div>
                     </div>
                 </div>
             </div>
@@ -363,7 +350,7 @@ $qSize = function (string $question): string {
     <?php elseif ($section['key'] === 'tokens'): ?>
         <!-- ===== 7. Player tokens ===== -->
         <div class="sheet">
-            <?php $head('7', 'Player tokens', 'Cut out and glue onto card'); ?>
+            <?php $head('7', $t('sheet.tokens'), $t('sheet.tokens_sub')); ?>
             <div class="sheet__body">
                 <div class="tokens">
                     <?php foreach ($d['players'] as $p): ?>
@@ -383,8 +370,7 @@ $qSize = function (string $question): string {
                 </div>
 
                 <div class="callout" style="margin-top:10mm">
-                    Each player gets two tokens - one to use and one spare.
-                    Glue them onto thick card and cut around the circle so they stand up on the map.
+                    <?= H::e($t('tokens.note')) ?>
                 </div>
             </div>
             <?php $foot(); ?>
@@ -394,25 +380,21 @@ $qSize = function (string $question): string {
         <!-- ===== 8. Answer key - the last sheets, for the game master ===== -->
         <?php foreach ($d['pages'] as $page => $rows): ?>
             <div class="sheet">
-                <?php $head('8', 'Answer key',
+                <?php $head('8', $t('sheet.answers'),
                     count($d['pages']) > 1
-                        ? 'Sheet ' . ($page + 1) . ' of ' . count($d['pages'])
-                        : 'Keep this sheet'); ?>
+                        ? $t('sheet.sheet_of', ['page' => $page + 1, 'total' => count($d['pages'])])
+                        : $t('sheet.answers_keep')); ?>
                 <div class="sheet__body">
 
                     <?php if ($page === 0): ?>
-                        <div class="answer-warn">
-                            <b>For whoever is running the game.</b>
-                            Take these last sheets off the back of the stack and keep them.
-                            The mission cards themselves do not show the answers.
-                        </div>
+                        <div class="answer-warn"><?= $t('answers.warn') ?></div>
                     <?php endif; ?>
 
                     <div class="answer-key">
                         <?php $lastCell = null; ?>
                         <?php foreach ($rows as $r): ?>
                             <?php if ($r['cell'] !== $lastCell): ?>
-                                <div class="answer-key__space">Space <?= (int) $r['cell'] ?></div>
+                                <div class="answer-key__space"><?= H::e($t('answers.space', ['n' => (int) $r['cell']])) ?></div>
                                 <?php $lastCell = $r['cell']; ?>
                             <?php endif; ?>
                             <div class="answer-key__row">

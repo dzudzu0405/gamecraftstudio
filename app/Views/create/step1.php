@@ -36,6 +36,8 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
 
                     <?= View::partial('partials/setting-field', ['value' => $project['setting'] ?? '']) ?>
 
+                    <?= View::partial('partials/language-field', ['value' => $project['language'] ?? null]) ?>
+
                     <div class="form-row">
                         <div class="field">
                             <label class="label" for="players_min">Minimum players</label>

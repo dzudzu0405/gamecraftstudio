@@ -94,6 +94,7 @@ class Schema
                 'slug'            => 'varchar:180 notnull',
                 'status'          => "varchar:20 notnull default:draft", // draft | in_progress | ready | published
                 'difficulty'      => "varchar:20 notnull default:standard",
+                'language'        => "varchar:5 notnull default:en",   // en | es | fr | de - what the printed pages are written in
                 'theme'           => "varchar:30 notnull default:forest",
                 'subjects'        => 'varchar:255 null',   // question subjects, comma separated (FR-23)
                 'setting'         => 'varchar:120 null',   // where the adventure takes place, in the buyer's words

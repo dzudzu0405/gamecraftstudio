@@ -11,6 +11,7 @@ use App\Core\Validator;
 use App\Models\Project;
 use App\Services\Art;
 use App\Services\Difficulty;
+use App\Services\Lang;
 use App\Services\Library;
 use App\Services\MissionMatcher;
 use App\Services\PromptGenerator;
@@ -83,6 +84,7 @@ class CreateController extends Controller
         $v->required('title', 'a game title')->max('title', 160, 'the game title')
           ->in('theme', array_merge(array_keys(Art::THEMES), [Project::THEME_CUSTOM]), 'theme')
           ->in('difficulty', array_keys(Difficulty::all()), 'difficulty')
+          ->in('language', array_keys(Lang::LOCALES), 'language')
           ->max('setting_other', 120, 'the adventure you described')
           ->max('rescue_target', 120, 'who the game rescues')
           ->between('players_min', Project::MIN_PLAYERS, Project::MAX_PLAYERS, 'the minimum player count')
@@ -125,6 +127,7 @@ class CreateController extends Controller
             'difficulty'  => $difficulty,
             'subjects'    => implode(',', $subjects),
             'setting'       => $this->readSetting($request),
+            'language'      => $request->str('language'),
             'rescue_target' => mb_substr(trim($request->str('rescue_target')), 0, 120) ?: null,
             'players_min' => $min,
             'players_max' => $max,
@@ -281,6 +284,7 @@ class CreateController extends Controller
         }
 
         $update['setting']       = $this->readSetting($request);
+        $update['language']      = Lang::normalize($request->str('language'));
         $update['rescue_target'] = mb_substr(trim($request->str('rescue_target')), 0, 120) ?: null;
 
         $choice = $this->readThemeChoice($request);

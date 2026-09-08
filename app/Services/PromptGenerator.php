@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Models\Project;
+use App\Services\Lang;
 
 /**
  * Builds the map background prompts (FR-30, step 2 of SRS section 2.3).
@@ -63,6 +64,38 @@ class PromptGenerator
         'robot'  => 'the little repair robot who kept the city running',
         'farm'   => 'every animal that vanished in the night',
     ];
+
+    /** How the story starts, one for each theme */
+    private const OPENING_EN = [
+        'forest' => 'The old forest has fallen silent. Even the golden leaves have stopped falling, caught still in mid-air.',
+        'dino'   => 'A great roar rolls up from the valley below. Somewhere down there, a baby dinosaur has lost its way.',
+        'space'  => 'The space station sends out a distress call: a small planet is about to lose its light forever.',
+        'ocean'  => 'The bright coral reef is fading to grey, and the little fish are calling out for help.',
+        'pirate' => 'A weathered map washes ashore inside a bottle, promising a treasure the world forgot.',
+        'magic'  => 'The magic flame in the old tower has gone out, and the whole kingdom is sinking into mist.',
+        'castle' => 'The golden bell of the castle was stolen the night before the great festival.',
+        'desert' => 'The only oasis in the desert is drying up a little more with every passing day.',
+        'arctic' => 'The ice floe the penguins call home is melting far too quickly.',
+        'candy'  => 'The chocolate river in Candy Land has frozen solid overnight.',
+        'robot'  => 'The robot factory has lost power, and every machine has stopped mid-step.',
+        'farm'   => 'All the animals on the farm vanished during one very windy night.',
+    ];
+
+    /**
+     * One theme phrase in the game's language, falling back to English.
+     *
+     * @param array<string, string> $english the table this class already holds
+     */
+    private static function themePhrase(string $group, string $theme, string $lang, array $english): string
+    {
+        $translated = Lang::raw('story.' . $group . '.' . $theme, $lang);
+
+        if (is_string($translated) && $translated !== '') {
+            return $translated;
+        }
+
+        return $english[$theme] ?? $english['forest'];
+    }
 
     /** What stands in the way, to give the middle of the story some weight */
     private const TROUBLE_EN = [
@@ -234,33 +267,26 @@ class PromptGenerator
      */
     public static function storySeed(array $project): array
     {
+        $lang  = Lang::of($project);
         $theme = (string) ($project['theme'] ?? 'forest');
         $title = trim((string) ($project['title'] ?? 'The adventure'));
         $cells = MapComposer::normalizeCells((int) ($project['cells'] ?? 18));
-        $hero  = trim((string) ($project['hero_name'] ?? '')) ?: 'our young hero';
+        $hero  = trim((string) ($project['hero_name'] ?? ''))
+              ?: Lang::get('story.hero_default', $lang);
 
-        $openings = [
-            'forest' => 'The old forest has fallen silent. Even the golden leaves have stopped falling, caught still in mid-air.',
-            'dino'   => 'A great roar rolls up from the valley below. Somewhere down there, a baby dinosaur has lost its way.',
-            'space'  => 'The space station sends out a distress call: a small planet is about to lose its light forever.',
-            'ocean'  => 'The bright coral reef is fading to grey, and the little fish are calling out for help.',
-            'pirate' => 'A weathered map washes ashore inside a bottle, promising a treasure the world forgot.',
-            'magic'  => 'The magic flame in the old tower has gone out, and the whole kingdom is sinking into mist.',
-            'castle' => 'The golden bell of the castle was stolen the night before the great festival.',
-            'desert' => 'The only oasis in the desert is drying up a little more with every passing day.',
-            'arctic' => 'The ice floe the penguins call home is melting far too quickly.',
-            'candy'  => 'The chocolate river in Candy Land has frozen solid overnight.',
-            'robot'  => 'The robot factory has lost power, and every machine has stopped mid-step.',
-            'farm'   => 'All the animals on the farm vanished during one very windy night.',
-        ];
-
-        $opening = $openings[$theme] ?? $openings['forest'];
-        $trouble = self::TROUBLE_EN[$theme] ?? self::TROUBLE_EN['forest'];
+        /*
+         * The three phrases that change with the theme. English lives in the
+         * tables above, which the picture prompts also read; the other
+         * languages carry their own in app/lang, and fall back to English if
+         * one is missing rather than leaving a hole in the page.
+         */
+        $opening = self::themePhrase('opening', $theme, $lang, self::OPENING_EN);
+        $trouble = self::themePhrase('trouble', $theme, $lang, self::TROUBLE_EN);
 
         $rescue = trim((string) ($project['rescue_target'] ?? ''))
-               ?: (self::RESCUE_EN[$theme] ?? self::RESCUE_EN['forest']);
+               ?: self::themePhrase('rescue', $theme, $lang, self::RESCUE_EN);
 
-        $place = Project::sceneFor($project['setting'] ?? null);
+        $place = Project::sceneFor($project['setting'] ?? null, $lang);
 
         /*
          * Four beats, in the order a read-aloud story wants them: the world and
@@ -269,21 +295,16 @@ class PromptGenerator
          */
         $p1 = $opening;
         if ($place !== '') {
-            $p1 .= ' All of it happens in ' . rtrim($place, '.') . ', a place that until this morning'
-                 . ' had never given anyone a reason to worry.';
+            $p1 .= ' ' . Lang::get('story.place', $lang, ['place' => rtrim($place, '.')]);
         }
 
-        $p2 = 'Word travels quickly, and it reaches ' . $hero . ' before anyone else. '
-            . 'Somewhere out there is ' . rtrim($rescue, '.') . ', waiting, with no idea whether help is coming. '
-            . 'Nobody older is willing to go. So ' . $hero . ' packs a bag, says nothing to anybody, '
-            . 'and leaves while the light is still good.';
-
-        $p3 = 'The road ahead breaks into ' . $cells . ' stages, and not one of them lets you pass for free. '
-            . $trouble . ' At every stage there is a question to answer, and answering well is the only way forward. '
-            . 'Get one wrong and the road takes a step back from you - but it never closes.';
-
-        $p4 = 'Reach the end and ' . rtrim($rescue, '.') . ' comes home, and the story of how it happened '
-            . 'belongs to ' . $hero . ' from then on. That story is called "' . $title . '".';
+        $p2 = Lang::get('story.p2', $lang, ['hero' => $hero, 'rescue' => rtrim($rescue, '.')]);
+        $p3 = Lang::get('story.p3', $lang, ['cells' => $cells, 'trouble' => $trouble]);
+        $p4 = Lang::get('story.p4', $lang, [
+            'hero'   => $hero,
+            'rescue' => rtrim($rescue, '.'),
+            'title'  => $title,
+        ]);
 
         $story = implode("\n\n", [$p1, $p2, $p3, $p4]);
 
@@ -292,35 +313,22 @@ class PromptGenerator
          * carry a question, and the penalty for getting one wrong is written on
          * the move card you drew - which is why the dice version needs its own
          * fixed penalty instead.
+         *
+         * What to prepare is deliberately not here: the sheet prints that under
+         * the rules, counted from the game itself.
          */
         $byCards = Project::usesMoveCards($project);
+        $rule    = fn (string $key) => Lang::get('rules.' . $key, $lang);
 
-        $howTo = implode("\n", array_merge(
-            ['1. Each player picks a token and places it on the START space.'],
-            $byCards
-                ? ['2. On your turn, draw a move card and go forward the number of spaces on it. Keep the card in front of you.']
-                : ['2. On your turn, roll the die and go forward that many spaces.'],
-            [
-                '3. Land on a space with a star and you draw a mission card from that space.',
-                '   Land anywhere else and your turn simply ends.',
-                '4. Answer the question. Get it right and you stay where you are.',
-            ],
-            $byCards
-                ? ['5. Get it wrong and you go back by the penalty printed on the move card you drew.']
-                : ['5. Get it wrong and you go back one space.'],
-            [
-                '6. Put the mission card back at the bottom of its pile'
-                    . ($byCards ? ', and the move card at the bottom of its deck.' : '.'),
-                '7. The first player to reach the FINISH space wins the hero card.',
-                '',
-                'You will need: '
-                    . ($byCards
-                        ? Difficulty::MOVE_CARDS_PER_GAME . ' move cards'
-                        : 'the cut-out die')
-                    . ', ' . $cells * Difficulty::MISSIONS_PER_CELL . ' mission cards, and '
-                    . Difficulty::HERO_CARDS_PER_GAME . ' hero card.',
-            ]
-        ));
+        $howTo = implode("\n", [
+            '1. ' . $rule('start'),
+            '2. ' . $rule($byCards ? 'move_cards' : 'move_dice'),
+            '3. ' . $rule('star'),
+            '4. ' . $rule('answer'),
+            '5. ' . $rule($byCards ? 'wrong_cards' : 'wrong_dice'),
+            '6. ' . $rule($byCards ? 'return_cards' : 'return_dice'),
+            '7. ' . $rule('win'),
+        ]);
 
         return ['story' => $story, 'how_to_play' => $howTo];
     }

@@ -52,6 +52,8 @@ if (!is_array($oldSubjects)) {
 
                     <?= View::partial('partials/setting-field', ['value' => Flash::old('setting')]) ?>
 
+                    <?= View::partial('partials/language-field', ['value' => Flash::old('language')]) ?>
+
                     <div class="form-row">
                         <div class="field">
                             <label class="label" for="players_min">Minimum players</label>

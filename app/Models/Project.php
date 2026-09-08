@@ -6,6 +6,7 @@ use App\Core\Helper;
 use App\Core\Url;
 use App\Services\Art;
 use App\Services\Difficulty;
+use App\Services\Lang;
 use App\Services\Library;
 use App\Services\MissionMatcher;
 use App\Services\Tiers;
@@ -74,13 +75,29 @@ class Project
     /**
      * Turns what is stored into a place a sentence can be built around.
      *
-     * One of ours becomes its scene; anything else is the buyer's own words.
+     * One of ours becomes its scene; anything else is the buyer's own words,
+     * used as written - we cannot translate what we did not write.
+     *
+     * With a language given, the scene comes back in that language, which is
+     * what the printed story needs. Without one it stays English, which is what
+     * the picture prompt needs: image models are trained on English.
      */
-    public static function sceneFor(?string $setting): string
+    public static function sceneFor(?string $setting, ?string $locale = null): string
     {
         $setting = trim((string) $setting);
 
-        return self::SETTINGS[$setting] ?? $setting;
+        if (!isset(self::SETTINGS[$setting])) {
+            return $setting;
+        }
+
+        if ($locale !== null) {
+            $translated = Lang::raw('settings.' . $setting, $locale);
+            if (is_string($translated) && $translated !== '') {
+                return $translated;
+            }
+        }
+
+        return self::SETTINGS[$setting];
     }
 
     /** Is this one of the twenty, rather than something typed? */
@@ -229,6 +246,7 @@ class Project
                                        ? ($data['movement'] ?? self::MOVE_DICE)
                                        : self::MOVE_DICE,
             'background_mode'   => $data['background_mode'] ?? self::BACKGROUND_THEME,
+            'language'          => Lang::normalize($data['language'] ?? null),
             'question_count'    => (int) ($data['question_count'] ?? $cfg['mission_cards']),
             'cells'             => (int) $cfg['cells'],
             'players_min'       => (int) ($data['players_min'] ?? 2),

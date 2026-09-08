@@ -3,6 +3,7 @@ namespace App\Services;
 
 use App\Core\Database;
 use App\Models\Project;
+use App\Services\Lang;
 use App\Services\Tiers;
 
 /**
@@ -132,7 +133,8 @@ class PrintBundle
             'orientation' => 'portrait',
             'pages'       => 1,
             'data'        => [
-                'hero_name' => trim((string) ($project['hero_name'] ?? '')) ?: 'the hero',
+                'hero_name' => trim((string) ($project['hero_name'] ?? ''))
+                            ?: Lang::get('hero_card.hero_default', Lang::of($project)),
                 'theme'     => $theme,
                 'character' => self::characterUrl($project),
             ],
@@ -211,6 +213,87 @@ class PrintBundle
         return array_chunk($rows, self::ANSWERS_PER_SHEET);
     }
 
+    /**
+     * The numbered rules, ready to print.
+     *
+     * The stored text is one rule per line, sometimes numbered by whoever
+     * edited it - the sheet numbers them itself, so any leading number goes.
+     *
+     * A line naming what to prepare is dropped: the callout underneath says
+     * the same thing, in the game's language and from the real card counts.
+     * Older projects saved before this was worked out still carry that line
+     * in English, which is what NEEDS_MARK is for.
+     */
+    public const NEEDS_MARK = 'You will need';
+
+    public static function ruleSteps(string $text): array
+    {
+        $steps = [];
+
+        foreach (explode("\n", $text) as $line) {
+            $line = trim(preg_replace('/^\d+[.)]\s*/', '', trim($line)) ?? '');
+
+            if ($line === '' || str_starts_with($line, self::NEEDS_MARK)) {
+                continue;
+            }
+
+            $steps[] = $line;
+        }
+
+        return $steps;
+    }
+
+    /**
+     * How many players, in the game's own language.
+     *
+     * Helper::playerRange says it in English for the Studio; a printed sheet
+     * needs the buyer's language, and German says "Spieler" whether there are
+     * two or six.
+     */
+    public static function playerRange(array $project): string
+    {
+        $lang = Lang::of($project);
+        $min  = (int) ($project['players_min'] ?? 2);
+        $max  = (int) ($project['players_max'] ?? 4);
+
+        if ($min === $max) {
+            return Lang::choose('sheet.players', $min, $lang);
+        }
+
+        return Lang::get('sheet.players_range', $lang, ['min' => $min, 'max' => $max]);
+    }
+
+    /**
+     * The list under "What to prepare", assembled in the right language.
+     *
+     * Built here rather than in the view because the pieces differ by how the
+     * game moves, and word order differs by language.
+     */
+    public static function prepareLine(array $project): string
+    {
+        $lang  = Lang::of($project);
+        $cells = MapComposer::normalizeCells((int) ($project['cells'] ?? 18));
+
+        $parts = [
+            Project::usesMoveCards($project)
+                ? Lang::choose('howto.prepare_move', Difficulty::MOVE_CARDS_PER_GAME, $lang)
+                : Lang::get('howto.prepare_dice', $lang),
+            Lang::get('howto.prepare_cards', $lang, [
+                'total' => $cells * Difficulty::MISSIONS_PER_CELL,
+                'piles' => $cells,
+                'each'  => Difficulty::MISSIONS_PER_CELL,
+            ]),
+            Lang::choose('howto.prepare_hero', Difficulty::HERO_CARDS_PER_GAME, $lang),
+            Lang::get('howto.prepare_token', $lang),
+        ];
+
+        // The last item carries its own "and" in every language, and only
+        // English would put a comma in front of one.
+        $last = array_pop($parts);
+
+        return implode(', ', $parts) . ' ' . $last . '.';
+    }
+
     /** Total printed pages across the whole bundle */
     public static function totalPages(array $sections): int
     {
@@ -242,6 +325,7 @@ class PrintBundle
     public static function moveCards(array $project): array
     {
         $copies = (int) max(1, round(Difficulty::MOVE_CARDS_PER_GAME / count(self::MOVE_FACES)));
+        $lang   = Lang::of($project);
 
         $cards = [];
         $no    = 1;
@@ -252,10 +336,8 @@ class PrintBundle
                     'no'      => $no++,
                     'steps'   => $face['forward'],
                     'back'    => $face['back'],
-                    'label'   => 'Move forward ' . $face['forward']
-                               . ($face['forward'] === 1 ? ' space' : ' spaces'),
-                    'penalty' => 'Wrong answer: back ' . $face['back']
-                               . ($face['back'] === 1 ? ' space' : ' spaces'),
+                    'label'   => Lang::choose('move_card.forward', $face['forward'], $lang),
+                    'penalty' => Lang::choose('move_card.back', $face['back'], $lang),
                     'sticker' => 'footprint',
                 ];
             }
