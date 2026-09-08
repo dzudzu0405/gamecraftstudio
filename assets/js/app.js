@@ -260,6 +260,55 @@
   });
 
   /* ----------------------------------------------------------------------
+     Step 4: the library's subjects, or a list of your own questions
+     ---------------------------------------------------------------------- */
+
+  document.querySelectorAll('[data-question-source]').forEach(function (form) {
+    var radios = form.querySelectorAll('[data-source-radio]');
+    var panels = form.querySelectorAll('[data-source-panel]');
+    var box = form.querySelector('[data-own-questions]');
+    var count = form.querySelector('[data-own-count]');
+    var needed = parseInt(form.getAttribute('data-cards-needed') || '0', 10);
+
+    function show() {
+      var chosen = form.querySelector('[data-source-radio]:checked');
+      var value = chosen ? chosen.value : 'library';
+      panels.forEach(function (p) {
+        p.hidden = p.getAttribute('data-source-panel') !== value;
+      });
+    }
+
+    function tally() {
+      if (!box || !count) return;
+
+      var lines = box.value.split(/\r\n|\r|\n/).filter(function (l) {
+        return l.trim() !== '';
+      }).length;
+
+      if (lines === 0) {
+        count.textContent = '';
+        return;
+      }
+
+      var word = lines === 1 ? '1 question' : lines + ' questions';
+
+      if (!needed || lines >= needed) {
+        count.textContent = word + ' - enough for all ' + needed + ' cards.';
+      } else {
+        var times = Math.ceil(needed / lines);
+        count.textContent = word + ' for ' + needed + ' cards, so each one is printed about '
+          + times + ' times. Add more to repeat less.';
+      }
+    }
+
+    radios.forEach(function (r) { r.addEventListener('change', show); });
+    if (box) box.addEventListener('input', tally);
+
+    show();
+    tally();
+  });
+
+  /* ----------------------------------------------------------------------
      The adventure picker: "Other" opens a box to write your own
      ---------------------------------------------------------------------- */
 

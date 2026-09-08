@@ -107,6 +107,23 @@ class Project
     }
 
     /**
+     * Where a game's questions come from.
+     *
+     * The library writes them from templates; "own" means the buyer typed or
+     * pasted their own, which is what a teacher with a term's worth of
+     * spelling words wants. The two are alternatives - a game is dealt from
+     * one or the other, never both, so the buyer always knows what will print.
+     */
+    public const QUESTIONS_LIBRARY = 'library';
+    public const QUESTIONS_OWN     = 'own';
+
+    /** Does this game use questions the buyer wrote? */
+    public static function usesOwnQuestions(array $project): bool
+    {
+        return ($project['question_source'] ?? self::QUESTIONS_LIBRARY) === self::QUESTIONS_OWN;
+    }
+
+    /**
      * How a turn moves a player. The two are alternatives, never both: either
      * you roll the paper die, or you draw a move card. Beginner is dice only,
      * because a six-year-old counting pips is enough to be going on with.

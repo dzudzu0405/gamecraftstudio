@@ -110,9 +110,14 @@ class StudioController extends Controller
 
         $new = MissionMatcher::reroll((int) $mission['id'], Auth::plan());
 
+        // There is nothing to swap for on a game built from the buyer's own list
+        $why = Project::usesOwnQuestions($project)
+            ? 'This game uses your own questions, so there is nothing to swap in. Edit the card instead.'
+            : 'No base template is available to swap this card.';
+
         if ($request->isAjax()) {
             if (!$new) {
-                $this->json(['ok' => false, 'message' => 'No base template is available to swap this card.'], 422);
+                $this->json(['ok' => false, 'message' => $why], 422);
                 return;
             }
             Project::touch((int) $project['id']);
@@ -126,7 +131,7 @@ class StudioController extends Controller
         }
 
         if (!$new) {
-            Flash::error('This card cannot be swapped - you wrote it yourself, or its template is gone.');
+            Flash::error($why);
         } else {
             Project::touch((int) $project['id']);
             Flash::success('Swapped in a different question.');
@@ -140,15 +145,30 @@ class StudioController extends Controller
     {
         $project = $this->ownedProject((int) ($params['id'] ?? 0));
 
-        $cards = MissionMatcher::generate(
-            Project::subjects($project),
-            (string) $project['difficulty'],
-            Auth::plan(),
-            (int) $project['cells'],
-            Difficulty::missionCount((string) $project['difficulty']),
-            null,
-            Lang::of($project)
-        );
+        $total = Difficulty::missionCount((string) $project['difficulty']);
+
+        /*
+         * A game built on the buyer's own questions is dealt again from that
+         * same list. Regenerating it out of the library would throw away work
+         * they typed themselves, which is not what the button says it does.
+         */
+        if (Project::usesOwnQuestions($project)) {
+            $cards = MissionMatcher::fromOwnQuestions(
+                MissionMatcher::parseOwnQuestions((string) ($project['own_questions'] ?? '')),
+                (int) $project['cells'],
+                $total
+            );
+        } else {
+            $cards = MissionMatcher::generate(
+                Project::subjects($project),
+                (string) $project['difficulty'],
+                Auth::plan(),
+                (int) $project['cells'],
+                $total,
+                null,
+                Lang::of($project)
+            );
+        }
 
         if (!$cards) {
             Flash::error('No cards could be generated. Please review the question subjects.');

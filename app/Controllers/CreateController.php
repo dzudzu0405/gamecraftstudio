@@ -442,25 +442,65 @@ class CreateController extends Controller
         $project = $this->ownedProject((int) ($params['id'] ?? 0));
         $plan    = Auth::plan();
 
-        $subjects = array_values(array_intersect($request->arr('subjects'), MissionMatcher::subjectKeys()));
-        if (!$subjects) {
-            $subjects = Project::subjects($project);
-        }
-        if ($subjects) {
-            Project::touch((int) $project['id'], ['subjects' => implode(',', $subjects)]);
-        }
-
         $difficulty = (string) $project['difficulty'];
         $cells      = (int) $project['cells'];
         $total      = Difficulty::missionCount($difficulty);
 
-        $cards = MissionMatcher::generate($subjects, $difficulty, $plan, $cells, $total,
-                                          null, Lang::of($project));
+        $source = $request->str('question_source') === Project::QUESTIONS_OWN
+            ? Project::QUESTIONS_OWN
+            : Project::QUESTIONS_LIBRARY;
 
-        if (!$cards) {
-            Flash::error('No mission templates match those subjects. Try adding another subject.');
-            $this->back('/create/' . (int) $project['id'] . '/step/4');
-            return;
+        if ($source === Project::QUESTIONS_OWN) {
+            /*
+             * The buyer's own list. It is kept as they typed it rather than
+             * only as dealt cards, so coming back to step 4 shows their list
+             * again and they can add to it.
+             */
+            $text      = $request->str('own_questions');
+            $questions = MissionMatcher::parseOwnQuestions($text);
+
+            if (!$questions) {
+                Flash::error('Type at least one question, one per line.');
+                Project::touch((int) $project['id'], [
+                    'question_source' => Project::QUESTIONS_OWN,
+                    'own_questions'   => mb_substr($text, 0, 20000),
+                ]);
+                $this->back('/create/' . (int) $project['id'] . '/step/4');
+                return;
+            }
+
+            Project::touch((int) $project['id'], [
+                'question_source' => Project::QUESTIONS_OWN,
+                'own_questions'   => mb_substr($text, 0, 20000),
+            ]);
+
+            $cards = MissionMatcher::fromOwnQuestions($questions, $cells, $total);
+            $note  = count($questions) >= $total
+                ? 'Made ' . count($cards) . ' mission cards from your own questions.'
+                : 'Made ' . count($cards) . ' mission cards from your ' . count($questions)
+                    . ' questions, repeated to fill the game.';
+        } else {
+            $subjects = array_values(array_intersect($request->arr('subjects'), MissionMatcher::subjectKeys()));
+            if (!$subjects) {
+                $subjects = Project::subjects($project);
+            }
+
+            $update = ['question_source' => Project::QUESTIONS_LIBRARY];
+            if ($subjects) {
+                $update['subjects'] = implode(',', $subjects);
+            }
+            Project::touch((int) $project['id'], $update);
+
+            $cards = MissionMatcher::generate($subjects, $difficulty, $plan, $cells, $total,
+                                              null, Lang::of($project));
+
+            if (!$cards) {
+                Flash::error('No mission templates match those subjects. Try adding another subject.');
+                $this->back('/create/' . (int) $project['id'] . '/step/4');
+                return;
+            }
+
+            $note = 'Matched ' . count($cards) . ' mission cards from the library.';
         }
 
         MissionMatcher::saveForProject((int) $project['id'], $cards);
@@ -474,7 +514,7 @@ class CreateController extends Controller
         }
         Project::touch((int) $project['id'], $update);
 
-        Flash::success('Matched ' . count($cards) . ' mission cards from the library.');
+        Flash::success($note);
         Response::redirect('/create/' . (int) $project['id'] . '/step/4');
     }
 

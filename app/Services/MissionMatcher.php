@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Core\Database;
+use App\Models\Project;
 use App\Services\Lang;
 
 /**
@@ -153,6 +154,101 @@ class MissionMatcher
         }
 
         return $total;
+    }
+
+    // ---------------------------------------------------------------
+    //  Questions the buyer wrote themselves
+    // ---------------------------------------------------------------
+
+    /**
+     * Reads a pasted list of questions.
+     *
+     * One question per line. An answer may follow after a tab or a vertical
+     * bar, so a teacher can paste two columns straight out of a spreadsheet:
+     *
+     *     What is 7 x 8?<tab>56
+     *     Name three rivers in France | Any three real rivers
+     *     How do you spell "necessary"?
+     *
+     * Blank lines are skipped, and a line with no answer simply has none -
+     * plenty of good questions are answered out loud by whoever is playing.
+     */
+    public static function parseOwnQuestions(string $text): array
+    {
+        $out = [];
+
+        foreach (preg_split('/\r\n|\r|\n/', $text) ?: [] as $line) {
+            $line = trim($line);
+
+            if ($line === '') {
+                continue;
+            }
+
+            $question = $line;
+            $answer   = '';
+
+            foreach (["\t", '|'] as $separator) {
+                if (str_contains($line, $separator)) {
+                    [$question, $answer] = array_map('trim', explode($separator, $line, 2));
+                    break;
+                }
+            }
+
+            if ($question === '') {
+                continue;
+            }
+
+            $out[] = [
+                'question' => mb_substr($question, 0, 500),
+                'answer'   => mb_substr($answer, 0, 500),
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Deals the buyer's own questions across the map.
+     *
+     * If they wrote fewer than the game needs, the list goes round again -
+     * twenty questions across sixty cards is a perfectly good game, and it is
+     * their choice to make. The stickers rotate so the cards still look varied.
+     */
+    public static function fromOwnQuestions(array $questions, int $cells, int $total): array
+    {
+        if (!$questions) {
+            return self::fallbackCards($cells, $total);
+        }
+
+        $stickers = ['star', 'heart', 'leaf', 'bulb', 'gem', 'key'];
+        $perCell  = (int) max(1, ceil($total / max(1, $cells)));
+        $cards    = [];
+        $i        = 0;
+
+        for ($cell = 1; $cell <= $cells; $cell++) {
+            for ($slot = 1; $slot <= $perCell; $slot++) {
+                if (count($cards) >= $total) {
+                    break 2;
+                }
+
+                $q = $questions[$i % count($questions)];
+
+                $cards[] = [
+                    'template_id' => null,
+                    'subject'     => null,
+                    'source'      => 'custom',
+                    'sticker'     => $stickers[$i % count($stickers)],
+                    'question'    => $q['question'],
+                    'answer'      => $q['answer'],
+                    'cell_no'     => $cell,
+                    'slot_no'     => $slot,
+                ];
+
+                $i++;
+            }
+        }
+
+        return $cards;
     }
 
     /** Levels at or below the one selected */
@@ -434,7 +530,7 @@ class MissionMatcher
                     'project_id'  => $projectId,
                     'cell_no'     => (int) $c['cell_no'],
                     'slot_no'     => (int) $c['slot_no'],
-                    'source'      => 'library',
+                    'source'      => (string) ($c['source'] ?? 'library'),
                     'template_id' => $c['template_id'] ?? null,
                     'subject'     => $c['subject'] ?? null,
                     'question'    => (string) $c['question'],
@@ -454,17 +550,31 @@ class MissionMatcher
             return null;
         }
 
+        $project = Database::first('SELECT * FROM projects WHERE id = ? LIMIT 1',
+                                   [(int) $row['project_id']]) ?: [];
+
+        /*
+         * A game whose questions the buyer wrote has no template to swap for,
+         * and quietly dropping a library question into their list would be
+         * worse than doing nothing. The Studio says so and offers the editor.
+         */
+        if ($project && Project::usesOwnQuestions($project)) {
+            return null;
+        }
+
         $tpl = null;
         if (!empty($row['template_id'])) {
             $tpl = Database::first('SELECT * FROM mission_templates WHERE id = ? LIMIT 1', [(int) $row['template_id']]);
         }
 
-        // No base template left - fall back to any template in the same subject
+        // No base template left - fall back to any template in the same subject,
+        // in this game's own language and at its own level
         if (!$tpl) {
             $candidates = self::matchTemplates(
                 $row['subject'] ? [$row['subject']] : [],
-                Difficulty::STANDARD,
-                $plan
+                (string) ($project['difficulty'] ?? Difficulty::STANDARD),
+                $plan,
+                Lang::of($project)
             );
             if (!$candidates) {
                 return null;
