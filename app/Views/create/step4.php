@@ -105,6 +105,15 @@ $complete = $missionCount >= $expected;
                     <a class="section__link" href="<?= Url::to('/studio/' . $pid) ?>">View and edit all</a>
                 </div>
                 <div class="card__body" style="padding:0">
+
+                    <?php /* The questions are put together by machine, so somebody has to read them */ ?>
+                    <div class="notice notice--info" style="margin:14px 16px 4px">
+                        <?= Icon::get('alert', 17) ?>
+                        <span><b><i>Please read through the mission questions before you print.
+                        They are generated automatically, so a card can come out odd or wrong -
+                        open the Studio to edit or swap any you are not happy with.</i></b></span>
+                    </div>
+
                     <?php foreach ($sample as $m): ?>
                         <div class="mission-row">
                             <span class="mission-row__sticker">
