@@ -109,7 +109,7 @@ class PromptGenerator
     {
         $theme  = (string) ($project['theme'] ?? 'forest');
         $cells  = MapComposer::normalizeCells((int) ($project['cells'] ?? 18));
-        $scene  = trim((string) ($project['setting'] ?? ''));
+        $scene  = Project::sceneFor($project['setting'] ?? null);
         $rescue = trim((string) ($project['rescue_target'] ?? ''));
 
         // Nothing typed -> fall back to the theme's own scene
@@ -260,7 +260,7 @@ class PromptGenerator
         $rescue = trim((string) ($project['rescue_target'] ?? ''))
                ?: (self::RESCUE_EN[$theme] ?? self::RESCUE_EN['forest']);
 
-        $place = trim((string) ($project['setting'] ?? ''));
+        $place = Project::sceneFor($project['setting'] ?? null);
 
         /*
          * Four beats, in the order a read-aloud story wants them: the world and

@@ -4,6 +4,7 @@ use App\Core\Flash;
 use App\Core\Helper as H;
 use App\Core\Icon;
 use App\Core\Url;
+use App\Core\View;
 use App\Models\Project;
 
 $errors = Flash::errors();
@@ -49,12 +50,7 @@ if (!is_array($oldSubjects)) {
                                placeholder="a lost baby dinosaur, ...">
                     </div>
 
-                    <div class="field">
-                        <label class="label" for="setting">Where does the adventure take place?</label>
-                        <input class="input" type="text" id="setting" name="setting" maxlength="120"
-                               value="<?= H::e(Flash::old('setting')) ?>"
-                               placeholder="a prehistoric valley with volcanoes, ...">
-                    </div>
+                    <?= View::partial('partials/setting-field', ['value' => Flash::old('setting')]) ?>
 
                     <div class="form-row">
                         <div class="field">

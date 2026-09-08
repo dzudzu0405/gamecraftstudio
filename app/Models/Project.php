@@ -35,6 +35,61 @@ class Project
     public const THEME_CUSTOM      = 'custom';
 
     /**
+     * The adventures a game can be about, and the place each one happens in.
+     *
+     * The buyer picks a short name off a list, which is quicker than typing
+     * and gives the same phrase every time. The long half is what the picture
+     * prompt and the read-aloud story need: they both talk about a PLACE, and
+     * "all of it happens in Treasure Hunt" is not a sentence.
+     *
+     * Anything not on the list is something the buyer typed themselves, and
+     * is used exactly as written.
+     */
+    public const SETTINGS = [
+        'Treasure Hunt'       => 'a pirate island of hidden coves, palm trees and buried treasure',
+        'Dinosaur Rescue'     => 'a prehistoric valley of giant ferns and steaming volcanoes',
+        'Jungle Adventure'    => 'a deep green jungle of vines, waterfalls and overgrown ruins',
+        'Ocean Rescue'        => 'a bright coral reef under a sunlit ocean',
+        'Space Mission'       => 'a starry stretch of space with small planets and a landing station',
+        'Save the City'       => 'a friendly city of tall buildings, parks and busy streets',
+        'Forest Guardian'     => 'an old forest of tall trees, mossy stones and quiet clearings',
+        'Museum Mystery'      => 'a grand museum of long halls, glass cases and marble stairs',
+        'Safari Expedition'   => 'a wide savanna of golden grass, acacia trees and watering holes',
+        'Lost Island'         => 'a lost island ringed by cliffs, jungle and a still lagoon',
+        'Time Travel Quest'   => 'a land where the ages meet: a castle, a pyramid and a city of the future',
+        'Robot Workshop'      => 'a bright robot workshop of gears, conveyor belts and blinking machines',
+        'Candy Kingdom Quest' => 'a candy kingdom of lollipop trees, chocolate rivers and gingerbread houses',
+        'Arctic Expedition'   => 'a frozen arctic of ice floes, snowy hills and northern lights',
+        'Desert Pyramid Quest'=> 'a golden desert of dunes, palm oases and ancient pyramids',
+        'Circus Adventure'    => 'a colourful circus of striped tents, flags and painted wagons',
+        'Farm Rescue'         => 'a sunny farm of red barns, hay bales and green fields',
+        'Mountain Rescue'     => 'a high mountain of snowy peaks, pine trees and rope bridges',
+        'Storm Chasers'       => 'a wide open plain under a dramatic sky of storm clouds and lightning',
+        'Fairy Tale Kingdom'  => 'a fairy tale kingdom of castle towers, rolling hills and winding paths',
+    ];
+
+    /** The value the select posts when the buyer wants to write their own */
+    public const SETTING_OTHER = '__other__';
+
+    /**
+     * Turns what is stored into a place a sentence can be built around.
+     *
+     * One of ours becomes its scene; anything else is the buyer's own words.
+     */
+    public static function sceneFor(?string $setting): string
+    {
+        $setting = trim((string) $setting);
+
+        return self::SETTINGS[$setting] ?? $setting;
+    }
+
+    /** Is this one of the twenty, rather than something typed? */
+    public static function isListedSetting(?string $setting): bool
+    {
+        return isset(self::SETTINGS[trim((string) $setting)]);
+    }
+
+    /**
      * How a turn moves a player. The two are alternatives, never both: either
      * you roll the paper die, or you draw a move card. Beginner is dice only,
      * because a six-year-old counting pips is enough to be going on with.

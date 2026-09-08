@@ -83,7 +83,7 @@ class CreateController extends Controller
         $v->required('title', 'a game title')->max('title', 160, 'the game title')
           ->in('theme', array_merge(array_keys(Art::THEMES), [Project::THEME_CUSTOM]), 'theme')
           ->in('difficulty', array_keys(Difficulty::all()), 'difficulty')
-          ->max('setting', 120, 'the setting')
+          ->max('setting_other', 120, 'the adventure you described')
           ->max('rescue_target', 120, 'who the game rescues')
           ->between('players_min', Project::MIN_PLAYERS, Project::MAX_PLAYERS, 'the minimum player count')
           ->between('players_max', Project::MIN_PLAYERS, Project::MAX_PLAYERS, 'the maximum player count');
@@ -124,7 +124,7 @@ class CreateController extends Controller
             'background_mode' => $choice['background_mode'] ?? Project::BACKGROUND_THEME,
             'difficulty'  => $difficulty,
             'subjects'    => implode(',', $subjects),
-            'setting'       => mb_substr(trim($request->str('setting')), 0, 120) ?: null,
+            'setting'       => $this->readSetting($request),
             'rescue_target' => mb_substr(trim($request->str('rescue_target')), 0, 120) ?: null,
             'players_min' => $min,
             'players_max' => $max,
@@ -280,7 +280,7 @@ class CreateController extends Controller
             $update['title'] = mb_substr($title, 0, 160);
         }
 
-        $update['setting']       = mb_substr(trim($request->str('setting')), 0, 120) ?: null;
+        $update['setting']       = $this->readSetting($request);
         $update['rescue_target'] = mb_substr(trim($request->str('rescue_target')), 0, 120) ?: null;
 
         $choice = $this->readThemeChoice($request);
@@ -622,6 +622,25 @@ class CreateController extends Controller
 
         return ['theme' => null, 'background_mode' => null];
     }
+    /**
+     * Reads the adventure picker: one of the twenty, or the buyer's own words.
+     *
+     * Both fields are posted every time. The select decides which one counts,
+     * except with JavaScript off, where the box is always on screen - so
+     * anything typed there wins over a select left on "choose an adventure".
+     */
+    private function readSetting(Request $request): ?string
+    {
+        $picked = trim($request->str('setting'));
+        $own    = mb_substr(trim($request->str('setting_other')), 0, 120);
+
+        if ($picked === Project::SETTING_OTHER || $picked === '') {
+            return $own ?: null;
+        }
+
+        return Project::isListedSetting($picked) ? $picked : ($own ?: null);
+    }
+
     private function clampStep(int $step): int
     {
         return max(1, min(self::LAST_STEP, $step));

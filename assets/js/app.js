@@ -260,6 +260,28 @@
   });
 
   /* ----------------------------------------------------------------------
+     The adventure picker: "Other" opens a box to write your own
+     ---------------------------------------------------------------------- */
+
+  document.querySelectorAll('[data-setting]').forEach(function (field) {
+    var select = field.querySelector('[data-setting-select]');
+    var other = field.querySelector('[data-setting-other]');
+    if (!select || !other) return;
+
+    var box = other.querySelector('input');
+
+    function update(focus) {
+      var own = select.value === '__other__';
+      other.hidden = !own;
+      if (own && focus && box) box.focus();
+      if (!own && box) box.value = '';
+    }
+
+    select.addEventListener('change', function () { update(true); });
+    update(false);
+  });
+
+  /* ----------------------------------------------------------------------
      Printing
      ---------------------------------------------------------------------- */
 

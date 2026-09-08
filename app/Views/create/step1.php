@@ -34,12 +34,7 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
                                placeholder="a lost baby dinosaur, ...">
                     </div>
 
-                    <div class="field">
-                        <label class="label" for="setting">Where does the adventure take place?</label>
-                        <input class="input" type="text" id="setting" name="setting" maxlength="120"
-                               value="<?= H::e($project['setting'] ?? '') ?>"
-                               placeholder="a prehistoric valley with volcanoes, ...">
-                    </div>
+                    <?= View::partial('partials/setting-field', ['value' => $project['setting'] ?? '']) ?>
 
                     <div class="form-row">
                         <div class="field">
