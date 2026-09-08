@@ -38,7 +38,7 @@ class Tiers
                 'mission_sets'    => 5,
                 'reward_cards'    => 10,
                 'difficulties'    => ['beginner', 'standard'],
-                'projects_limit'  => 5,
+                'projects_limit'  => 0, // 0 = unlimited
                 'perks' => [
                     '12 maps: 6 with 12 missions, 6 with 18',
                     '10 character sets, 3 poses each',
@@ -46,6 +46,7 @@ class Tiers
                     '5 mission card designs',
                     'Ready-written story and rules',
                     'Print-ready export (PDF / PNG)',
+                    'As many games as you like',
                 ],
                 'locked' => [
                     '24-space maps (Advanced level)',
@@ -81,7 +82,6 @@ class Tiers
                     'Move cards instead of the dice, in 10 designs',
                     'Your character on the mission, move and hero cards',
                     '10 mission card designs',
-                    'Unlimited projects',
                 ],
                 'locked' => [
                     'Selling on Amazon / Etsy',
