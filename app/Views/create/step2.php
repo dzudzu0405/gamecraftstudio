@@ -13,12 +13,13 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
 /**
  * Renders one group of picture choices.
  *
- * $companion lets a group show a second picture per tile. A card style is two
- * designs - the move card and the mission card - and showing only the move
- * card left half the choice invisible.
+ * $extras lets a tile show more than one picture, because some of these
+ * choices are not one picture. A card style is a move card AND a mission
+ * card; a character set is eight drawings of the same character. Showing
+ * the first one and stopping hid half of what was being chosen.
  */
 $renderPicker = function (string $name, array $items, $currentId, string $emptyMsg,
-                          int $variant = 1, ?callable $companion = null) {
+                          int $variant = 1, ?callable $extras = null) {
     if (!$items) {
         echo '<div class="notice notice--warning">' . Icon::get('alert', 17) . '<span>' . H::e($emptyMsg) . '</span></div>';
         return;
@@ -27,7 +28,7 @@ $renderPicker = function (string $name, array $items, $currentId, string $emptyM
     foreach ($items as $item) {
         $checked = (int) $currentId === (int) $item['id'];
         $hasArt  = Library::hasRealImage($item, $variant);
-        $second  = $companion ? $companion($item) : null;
+        $more    = $extras ? array_values(array_filter((array) $extras($item))) : [];
         $locked  = !empty($item['locked']);
 
         // A locked tile is shown, not hidden: the buyer can see what the next
@@ -41,10 +42,15 @@ $renderPicker = function (string $name, array $items, $currentId, string $emptyM
         echo '<input type="radio" name="' . H::e($name) . '" value="' . (int) $item['id'] . '"'
             . ($checked ? ' checked' : '') . ($locked ? ' disabled' : '') . '>';
 
-        echo '<div class="pick__art' . ($second ? ' pick__art--pair' : '') . '">';
+        // two pictures sit side by side; three or more get one large and the rest beside it
+        $layout = '';
+        if (count($more) === 1) { $layout = ' pick__art--pair'; }
+        if (count($more) >= 2)  { $layout = ' pick__art--set'; }
+
+        echo '<div class="pick__art' . $layout . '">';
         echo '<img src="' . H::e(Library::imageFor($item, $variant)) . '" alt="" loading="lazy">';
-        if ($second) {
-            echo '<img src="' . H::e($second) . '" alt="" loading="lazy">';
+        foreach ($more as $extra) {
+            echo '<img src="' . H::e($extra) . '" alt="" loading="lazy">';
         }
         if ($locked) {
             echo '<span class="pick__lock">' . Icon::get('lock', 18) . '</span>';
@@ -64,13 +70,33 @@ $renderPicker = function (string $name, array $items, $currentId, string $emptyM
 };
 
 /** The mission card that belongs to the same set as this move card */
-$missionFrame = function (array $item): ?string {
+$missionFrame = function (array $item): array {
     if (!preg_match('/(\d+)$/', (string) $item['code'], $m)) {
-        return null;
+        return [];
     }
     $rel = Library::framePath('missions', (int) $m[1]);
 
-    return $rel !== null ? Url::upload($rel) : null;
+    return $rel !== null ? [Url::upload($rel)] : [];
+};
+
+/**
+ * The other poses in a character set.
+ *
+ * As many as the buyer's plan prints, capped at three so the tile stays
+ * readable - past that they are thumbnails of thumbnails. Only poses with
+ * real artwork are offered, so a half-drawn set does not show blanks.
+ */
+$otherPoses = function (array $item) use ($plan): array {
+    $wanted = max(1, (int) ($plan['character_poses'] ?? 3));
+    $out    = [];
+
+    for ($pose = 2; $pose <= $wanted && count($out) < 2; $pose++) {
+        if (Library::hasRealImage($item, $pose)) {
+            $out[] = Library::imageFor($item, $pose);
+        }
+    }
+
+    return $out;
 };
 ?>
 
@@ -175,7 +201,7 @@ $missionFrame = function (array $item): ?string {
                         The character you choose appears on the winner hero card.
                     </p>
                     <?php $renderPicker('character_item_id', $characters, $project['character_item_id'],
-                        'No character sets are available on your plan.'); ?>
+                        'No character sets are available on your plan.', 1, $otherPoses); ?>
                 </div>
             </div>
 
