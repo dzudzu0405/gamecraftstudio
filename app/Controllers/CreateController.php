@@ -495,9 +495,59 @@ class CreateController extends Controller
             }
         }
 
+        /*
+         * Nothing moves on until the choices are made. Checked after the loop
+         * so the messages describe what is missing rather than what was
+         * posted, and only for a group that has something to offer: a plan
+         * with no map frame at this space count must not be trapped here.
+         */
+        $missing = [];
+
+        if ($this->hasChoices(Library::KIND_MAP, $plan, (int) $project['cells']) && empty($update['map_item_id'])) {
+            $missing['map_item_id'] = 'Please choose a map frame.';
+        }
+
+        if ($this->hasChoices(Library::KIND_CHARACTER, $plan) && empty($update['character_item_id'])) {
+            $missing['character_item_id'] = 'Please choose a character set.';
+        }
+
+        $usesCards = ($update['movement'] ?? $project['movement']) === Project::MOVE_CARDS;
+
+        if ($usesCards) {
+            if ($this->hasChoices(Library::KIND_MOVE, $plan) && empty($update['move_item_id'])) {
+                $missing['move_item_id'] = 'Please choose a card style.';
+            }
+        } elseif (empty($update['mission_style']) && empty($project['mission_style'])) {
+            $missing['mission_style'] = 'Please choose a mission card design.';
+        }
+
+        if (empty($update['hero_style'])) {
+            $missing['hero_style'] = 'Please choose a winner card.';
+        }
+
+        if ($missing) {
+            Flash::error(reset($missing));
+            $this->backWithErrors($missing, $request->body, '/create/' . (int) $project['id'] . '/step/2');
+            return;
+        }
+
         if ($update) {
             Project::touch((int) $project['id'], $update);
         }
+    }
+
+    /** Does this plan have anything to choose from in this group? */
+    private function hasChoices(string $kind, string $plan, ?int $cells = null): bool
+    {
+        $filters = $cells !== null ? ['cells' => $cells] : [];
+
+        foreach (Library::withLocked($kind, $plan, $filters) as $item) {
+            if (empty($item['locked'])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // -----------------------------------------------------------------

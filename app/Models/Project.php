@@ -388,6 +388,8 @@ class Project
                                        ? ($data['movement'] ?? self::MOVE_DICE)
                                        : self::MOVE_DICE,
             'background_mode'   => $data['background_mode'] ?? self::BACKGROUND_THEME,
+            // Empty, not "medal": the winner card is chosen at step 2, not assumed
+            'hero_style'        => '',
             'language'          => Lang::normalize($data['language'] ?? null),
             'question_count'    => (int) ($data['question_count'] ?? $cfg['mission_cards']),
             'cells'             => (int) $cfg['cells'],

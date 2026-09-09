@@ -40,7 +40,7 @@ $renderPicker = function (string $name, array $items, $currentId, string $emptyM
         echo '>';
 
         echo '<input type="radio" name="' . H::e($name) . '" value="' . (int) $item['id'] . '"'
-            . ($checked ? ' checked' : '') . ($locked ? ' disabled' : '') . '>';
+            . ($checked ? ' checked' : '') . ($locked ? ' disabled' : '') . ' required>';
 
         // a character set picks its own cover pose; everything else uses $variant
         $cover = $item['kind'] === Library::KIND_CHARACTER ? Library::coverPose($item) : $variant;
@@ -220,8 +220,8 @@ $missionFrame = function (array $item): array {
                                 ?>
                                 <label class="pick <?= $locked ? 'pick--locked' : '' ?>"
                                        <?= $locked ? 'title="Available on a higher plan"' : '' ?>>
-                                    <input type="radio" name="mission_style" value="<?= $style ?>"
-                                           <?= $style === $missionStyle ? 'checked' : '' ?>
+                                    <input type="radio" name="mission_style" value="<?= $style ?>" required
+                                           <?= (int) ($project['mission_style'] ?? 0) === $style ? 'checked' : '' ?>
                                            <?= $locked ? 'disabled' : '' ?>>
                                     <div class="pick__art pick__art--frame">
                                         <?php if ($art !== null): ?>
@@ -253,12 +253,14 @@ $missionFrame = function (array $item): array {
                          * stylesheet the printer gets, so nothing here can promise
                          * a look the paper does not deliver.
                          */
-                        $current = Project::heroStyle($project);
+                        // what was stored, not what would print - an unchosen
+                        // winner card must show as unchosen
+                        $current = (string) ($project['hero_style'] ?? '');
                     ?>
                     <div class="pick-grid">
                         <?php foreach (Project::HERO_STYLES as $key => $meta): ?>
                             <label class="pick" title="<?= H::e($meta['hint']) ?>">
-                                <input type="radio" name="hero_style" value="<?= H::e($key) ?>"
+                                <input type="radio" name="hero_style" value="<?= H::e($key) ?>" required
                                        <?= $key === $current ? 'checked' : '' ?>>
                                 <div class="pick__art">
                                     <div class="hero-mini">
