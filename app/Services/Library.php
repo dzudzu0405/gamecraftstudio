@@ -203,9 +203,15 @@ class Library
             $sql .= ' AND theme = ?';
             $params[] = $filters['theme'];
         }
+        /*
+         * A plan, not a label. Choosing "Pro" asks for what the Pro plan can
+         * use, which is the pro items and the starter ones underneath them -
+         * not the dozen rows that happen to carry the pro tag.
+         */
         if (!empty($filters['tier'])) {
-            $sql .= ' AND tier = ?';
-            $params[] = $filters['tier'];
+            $tiers = Tiers::unlockedTiers((string) $filters['tier']);
+            $sql  .= ' AND tier IN (' . implode(', ', array_fill(0, count($tiers), '?')) . ')';
+            $params = array_merge($params, $tiers);
         }
         if (!empty($filters['search'])) {
             $sql .= ' AND name LIKE ?';

@@ -179,6 +179,7 @@ $folders = [
                     <?php endforeach; ?>
                 </select>
                 <select class="select" name="tier" data-autosubmit-select style="width:auto">
+                    <?php /* Reads as "what this plan includes", so it counts the tiers below it too */ ?>
                     <option value="">All plans</option>
                     <?php foreach (Tiers::ORDER as $t): ?>
                         <option value="<?= H::e($t) ?>" <?= $tier === $t ? 'selected' : '' ?>><?= H::e(Tiers::name($t)) ?></option>
