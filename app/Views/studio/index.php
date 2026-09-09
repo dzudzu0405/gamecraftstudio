@@ -122,7 +122,12 @@ $diff   = Difficulty::get((string) $project['difficulty']);
                                     <?php if ($isCustom): ?>
                                         <span class="badge badge--new">Your own</span>
                                     <?php endif; ?>
-                                    <span class="badge badge--tier">Card <?= (int) $idx + 1 ?></span>
+                                    <?php /* The row itself opens the form - this just says so */ ?>
+                                    <span class="btn btn--ghost btn--sm mission-row__edit">
+                                        <?= Icon::get('edit', 14) ?>
+                                        <span class="mission-row__edit-open">Edit</span>
+                                        <span class="mission-row__edit-close">Close</span>
+                                    </span>
                                     <button type="button" class="btn btn--ghost btn--sm"
                                             data-reroll="<?= Url::to('/studio/' . $pid . '/mission/' . (int) $m['id'] . '/reroll') ?>"
                                             title="Swap for a different question">
