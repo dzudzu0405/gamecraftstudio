@@ -153,6 +153,7 @@ return [
         'answer'       => 'Réponds à la question. Si c’est juste, tu restes où tu es.',
         'wrong_cards'  => 'Si c’est faux, recule du nombre de cases inscrit sur la carte déplacement que tu as tirée.',
         'wrong_dice'   => 'Si c’est faux, recule d’une case.',
+        'back_star'    => 'Reculer ne coûte jamais une question : si tu arrives ainsi sur une étoile, tu ne tires pas de carte.',
         'return_cards' => 'Remets la carte mission sous la pioche mission, et la carte déplacement sous la sienne.',
         'return_dice'  => 'Remets la carte mission sous la pioche mission.',
         'win'          => 'Le premier joueur qui atteint la case ARRIVÉE gagne la carte du champion.',

@@ -309,6 +309,61 @@ try {
         }
     }
 
+    /*
+     * The wrong-answer rule gained its exception: stepping back onto a star
+     * does not cost you a card. Without it the rule reads as a trap - answer
+     * wrong, step back, land on a star, get asked again.
+     *
+     * A project keeps its own copy of the rules, so the sentence is added to
+     * those copies. Only where the line is still exactly as it was written,
+     * and only where it is not already there.
+     */
+    if (Database::tableExists('projects')) {
+        $additions = [
+            'Get it wrong and you go back one space.'
+                => 'Going backwards never costs you a question: if you land on a star that way, you do not draw a card.',
+            'Get it wrong and you go back by the penalty printed on the move card you drew.'
+                => 'Going backwards never costs you a question: if you land on a star that way, you do not draw a card.',
+
+            'Si fallas, retrocede una casilla.'
+                => 'Retroceder nunca te cuesta una pregunta: si así caes en una estrella, no robas carta.',
+            'Si fallas, retrocede lo que indique el castigo escrito en la carta de movimiento que robaste.'
+                => 'Retroceder nunca te cuesta una pregunta: si así caes en una estrella, no robas carta.',
+
+            'Si c’est faux, recule d’une case.'
+                => 'Reculer ne coûte jamais une question : si tu arrives ainsi sur une étoile, tu ne tires pas de carte.',
+            'Si c’est faux, recule du nombre de cases inscrit sur la carte déplacement que tu as tirée.'
+                => 'Reculer ne coûte jamais une question : si tu arrives ainsi sur une étoile, tu ne tires pas de carte.',
+
+            'Ist sie falsch, gehst du ein Feld zurück.'
+                => 'Rückwärts kostet dich nie eine Frage: Landest du so auf einem Stern, ziehst du keine Karte.',
+            'Ist sie falsch, gehst du so viele Felder zurück, wie auf deiner gezogenen Zugkarte steht.'
+                => 'Rückwärts kostet dich nie eine Frage: Landest du so auf einem Stern, ziehst du keine Karte.',
+        ];
+
+        $told = 0;
+
+        foreach (Database::all("SELECT id, how_to_play FROM projects WHERE how_to_play IS NOT NULL AND how_to_play <> ''") as $row) {
+            $before = (string) $row['how_to_play'];
+            $after  = $before;
+
+            foreach ($additions as $rule => $exception) {
+                if (str_contains($after, $rule) && !str_contains($after, $exception)) {
+                    $after = str_replace($rule, $rule . ' ' . $exception, $after);
+                }
+            }
+
+            if ($after !== $before) {
+                Database::update('projects', ['how_to_play' => $after], ['id' => (int) $row['id']]);
+                $told++;
+            }
+        }
+
+        if ($told > 0) {
+            step('Added the backwards-onto-a-star rule to ' . $told . ' project' . ($told === 1 ? '' : 's'));
+        }
+    }
+
     if (!$log) {
         step('Everything is already up to date. Nothing needed changing.');
     }

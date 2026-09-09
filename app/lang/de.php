@@ -153,6 +153,7 @@ return [
         'wrong_cards'  => 'Ist sie falsch, gehst du so viele Felder zurück, wie auf deiner gezogenen '
                         . 'Zugkarte steht.',
         'wrong_dice'   => 'Ist sie falsch, gehst du ein Feld zurück.',
+        'back_star'    => 'Rückwärts kostet dich nie eine Frage: Landest du so auf einem Stern, ziehst du keine Karte.',
         'return_cards' => 'Lege die Missionskarte unter den Missionsstapel und die Zugkarte unter den Zugstapel.',
         'return_dice'  => 'Lege die Missionskarte unter den Missionsstapel.',
         'win'          => 'Wer zuerst das ZIEL-Feld erreicht, gewinnt die Siegerkarte.',

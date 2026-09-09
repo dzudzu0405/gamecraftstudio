@@ -152,6 +152,7 @@ return [
         'answer'       => 'Responde la pregunta. Si aciertas, te quedas donde estás.',
         'wrong_cards'  => 'Si fallas, retrocede lo que indique el castigo escrito en la carta de movimiento que robaste.',
         'wrong_dice'   => 'Si fallas, retrocede una casilla.',
+        'back_star'    => 'Retroceder nunca te cuesta una pregunta: si así caes en una estrella, no robas carta.',
         'return_cards' => 'Pon la carta de misión al fondo del montón de misiones, y la de movimiento al fondo de su mazo.',
         'return_dice'  => 'Pon la carta de misión al fondo del montón de misiones.',
         'win'          => 'El primer jugador que llegue a la casilla de META gana la carta de campeón.',

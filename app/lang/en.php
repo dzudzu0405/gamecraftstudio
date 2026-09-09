@@ -129,6 +129,7 @@ return [
         'answer'       => 'Answer the question. Get it right and you stay where you are.',
         'wrong_cards'  => 'Get it wrong and you go back by the penalty printed on the move card you drew.',
         'wrong_dice'   => 'Get it wrong and you go back one space.',
+        'back_star'    => 'Going backwards never costs you a question: if you land on a star that way, you do not draw a card.',
         'return_cards' => 'Put the mission card at the bottom of the mission pile, and the move card '
                         . 'at the bottom of its deck.',
         'return_dice'  => 'Put the mission card at the bottom of the mission pile.',

@@ -360,7 +360,8 @@ class PromptGenerator
             '2. ' . $rule($byCards ? 'move_cards' : 'move_dice'),
             '3. ' . $rule('star'),
             '4. ' . $rule('answer'),
-            '5. ' . $rule($byCards ? 'wrong_cards' : 'wrong_dice'),
+            // The penalty and its one exception belong together, not as two steps
+            '5. ' . $rule($byCards ? 'wrong_cards' : 'wrong_dice') . ' ' . $rule('back_star'),
             '6. ' . $rule($byCards ? 'return_cards' : 'return_dice'),
             '7. ' . $rule('win'),
         ]);
