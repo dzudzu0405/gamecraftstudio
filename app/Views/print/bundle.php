@@ -144,21 +144,33 @@ $qSize = function (string $question): string {
 
     <?php elseif ($section['key'] === 'story'): ?>
         <!-- ===== 2. Story ===== -->
-        <div class="sheet">
-            <?php $head('2', $t('sheet.story'), $project['title']); ?>
-            <div class="sheet__body">
-                <div class="story-hero">
-                    <img src="<?= H::e(Art::dataUri(Art::scene((string) $project['theme'], (string) $project['cover_seed'], 900, 340))) ?>" alt="">
+        <?php /* The picture and the title go on the first sheet only - a long
+                 story runs on, and repeating them would read as a new story
+                 starting rather than the same one continuing. */ ?>
+        <?php foreach ($d['pages'] as $page => $paragraphs): ?>
+            <div class="sheet">
+                <?php $head('2', $t('sheet.story'),
+                    count($d['pages']) > 1
+                        ? $t('sheet.sheet_of', ['page' => $page + 1, 'total' => count($d['pages'])])
+                        : $project['title']); ?>
+                <div class="sheet__body">
+                    <?php if ($page === 0): ?>
+                        <div class="story-hero">
+                            <img src="<?= H::e(Art::dataUri(Art::scene((string) $project['theme'], (string) $project['cover_seed'], 900, 340))) ?>" alt="">
+                        </div>
+                    <?php endif; ?>
+                    <div class="prose">
+                        <?php if ($page === 0): ?>
+                            <h2><?= H::e($project['title']) ?></h2>
+                        <?php endif; ?>
+                        <?php foreach ($paragraphs as $para): ?>
+                            <p><?= nl2br(H::e($para)) ?></p>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
-                <div class="prose">
-                    <h2><?= H::e($project['title']) ?></h2>
-                    <?php foreach (preg_split('/\n\s*\n/', trim((string) $d['text'])) ?: [] as $para): ?>
-                        <p><?= nl2br(H::e(trim($para))) ?></p>
-                    <?php endforeach; ?>
-                </div>
+                <?php $foot(); ?>
             </div>
-            <?php $foot(); ?>
-        </div>
+        <?php endforeach; ?>
 
     <?php elseif ($section['key'] === 'howto'): ?>
         <!-- ===== 3. How to play ===== -->

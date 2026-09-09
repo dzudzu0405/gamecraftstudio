@@ -61,27 +61,33 @@ class PrintBundle
         /*
          * --- 2. Story ---
          *
-         * A game with nothing saved still prints a story. It is drawn from
-         * the project id rather than at random, so the page the buyer sees in
-         * the preview is the page that comes out of the printer.
+         * The buyer's own, written with the prompt at step 3. A game without
+         * one simply has no story page: the app used to invent one, and an
+         * invented story printed in a game somebody is selling is worse than
+         * a game that goes straight from the map to the rules.
+         *
+         * Long stories run to a second sheet. An AI asked for four hundred
+         * words sometimes sends nine hundred, and a page that quietly spilled
+         * over the edge of the paper would take the ending with it.
          */
-        $story = trim((string) ($project['story'] ?? ''));
-        if ($story === '') {
-            $story = PromptGenerator::storySeed($project, [], $projectId)['story'];
+        $story      = trim((string) ($project['story'] ?? ''));
+        $storyPages = self::storyPages($story);
+
+        if ($storyPages) {
+            $sections[] = [
+                'key'         => 'story',
+                'order'       => 2,
+                'title'       => 'The story',
+                'orientation' => 'portrait',
+                'pages'       => count($storyPages),
+                'data'        => ['pages' => $storyPages],
+            ];
         }
-        $sections[] = [
-            'key'         => 'story',
-            'order'       => 2,
-            'title'       => 'The story',
-            'orientation' => 'portrait',
-            'pages'       => 1,
-            'data'        => ['text' => $story],
-        ];
 
         // --- 3. How to play ---
         $howTo = trim((string) ($project['how_to_play'] ?? ''));
         if ($howTo === '') {
-            $howTo = PromptGenerator::storySeed($project, [], $projectId)['how_to_play'];
+            $howTo = PromptGenerator::rules($project);
         }
         $sections[] = [
             'key'         => 'howto',
@@ -185,6 +191,65 @@ class PrintBundle
         }
 
         return $sections;
+    }
+
+    /**
+     * Roughly what a story sheet holds.
+     *
+     * Measured rather than guessed. The first sheet carries the picture and
+     * the title, which leaves a prose column 697px tall - about 490 words.
+     * Every sheet after it is prose from top to bottom, 948px, about 670.
+     *
+     * Both figures here are lower than what was measured, on purpose: line
+     * counts shift with the language, with how long the names are and with
+     * where the paragraphs fall, and a story that runs off the bottom of the
+     * paper takes its ending with it.
+     */
+    public const STORY_WORDS_FIRST_SHEET = 450;
+    public const STORY_WORDS_PER_SHEET   = 620;
+
+    /**
+     * The story, split into printable sheets.
+     *
+     * Split on paragraphs, never inside one: a paragraph carried across a page
+     * break reads as though a line went missing. A single paragraph longer than
+     * a whole sheet gets one of its own and is allowed to overrun - that is one
+     * unbroken block of text, and there is no honest place to cut it.
+     *
+     * @return array[] one list of paragraphs per sheet
+     */
+    public static function storyPages(string $story): array
+    {
+        $paragraphs = preg_split('/\n\s*\n/', trim($story)) ?: [];
+        $paragraphs = array_values(array_filter(array_map('trim', $paragraphs), fn($p) => $p !== ''));
+
+        if (!$paragraphs) {
+            return [];
+        }
+
+        $pages = [];
+        $page  = [];
+        $words = 0;
+
+        foreach ($paragraphs as $paragraph) {
+            $length = str_word_count($paragraph) ?: (int) ceil(mb_strlen($paragraph) / 6);
+            $room   = $pages ? self::STORY_WORDS_PER_SHEET : self::STORY_WORDS_FIRST_SHEET;
+
+            if ($page && $words + $length > $room) {
+                $pages[] = $page;
+                $page    = [];
+                $words   = 0;
+            }
+
+            $page[]  = $paragraph;
+            $words  += $length;
+        }
+
+        if ($page) {
+            $pages[] = $page;
+        }
+
+        return $pages;
     }
 
     /** Answer rows that fit on one sheet, across two columns */
@@ -853,6 +918,12 @@ class PrintBundle
 
         if (empty($project['background_id'])) {
             $issues[] = 'No background image uploaded yet (using a placeholder scene).';
+        }
+
+        // Not a fault - a game can be sold without one - but worth saying once,
+        // because nothing else on the page shows that the sheet is missing
+        if (trim((string) ($project['story'] ?? '')) === '') {
+            $issues[] = 'No story written yet, so the game will print without a story page.';
         }
 
         return $issues;

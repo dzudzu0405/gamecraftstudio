@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Services\Difficulty;
 use App\Services\Library;
 use App\Services\MissionMatcher;
+use App\Services\PrintBundle;
 
 $pid    = (int) $project['id'];
 $status = H::statusBadge((string) $project['status']);
@@ -305,9 +306,16 @@ $extraN = count(MissionMatcher::pairLines($extraQ, $extraA));
                     </div>
 
                     <div class="field">
-                        <label class="label" for="story">Story</label>
-                        <textarea class="textarea" id="story" name="story" maxlength="4000"
-                                  placeholder="The opening that sets up the adventure..."><?= H::e($project['story']) ?></textarea>
+                        <label class="label" for="story">
+                            Story <span class="label__hint">(yours - written with the prompt at step 3)</span>
+                        </label>
+                        <textarea class="textarea" id="story" name="story" maxlength="8000"
+                                  style="min-height:170px"
+                                  data-word-count="#studio-story-words"
+                                  data-word-limit="<?= PrintBundle::STORY_WORDS_PER_SHEET ?>"
+                                  data-word-limit-first="<?= PrintBundle::STORY_WORDS_FIRST_SHEET ?>"
+                                  placeholder="Empty for now. The game prints without a story page until you write one."><?= H::e($project['story']) ?></textarea>
+                        <div class="small muted mt-1" id="studio-story-words"></div>
                     </div>
 
                     <div class="field">
@@ -321,10 +329,15 @@ $extraN = count(MissionMatcher::pairLines($extraQ, $extraA));
                         <button class="btn btn--primary" type="submit">
                             <?= Icon::get('check', 16) ?> Save content
                         </button>
+                        <?php /* The rules can be rebuilt from the game; the story cannot -
+                                 it is the buyer's, written with the prompt at step 3. */ ?>
                         <button class="btn btn--ghost" type="submit" name="use_suggestion" value="1"
-                                data-confirm="Replace the current text with the suggested version?">
-                            <?= Icon::get('sparkles', 16) ?> Use suggested text
+                                data-confirm="Replace the rules with the standard ones for this game?">
+                            <?= Icon::get('refresh', 16) ?> Reset the rules
                         </button>
+                        <a class="btn btn--ghost" href="<?= Url::to('/create/' . $pid . '/step/3') ?>#story">
+                            <?= Icon::get('sparkles', 16) ?> Story prompt
+                        </a>
                     </div>
                 </form>
             </div>

@@ -230,7 +230,8 @@ class StudioController extends Controller
         $pid     = (int) $project['id'];
 
         $update = [
-            'story'       => mb_substr(trim($request->str('story')), 0, 4000),
+            // Room for a story that runs to a second printed sheet
+            'story'       => mb_substr(trim($request->str('story')), 0, 8000),
             'how_to_play' => mb_substr(trim($request->str('how_to_play')), 0, 4000),
             'hero_name'   => mb_substr(trim($request->str('hero_name')), 0, 120),
         ];
@@ -240,14 +241,9 @@ class StudioController extends Controller
             $update['title'] = mb_substr($title, 0, 160);
         }
 
-        // The "use the suggested text" button
+        // The "use the standard rules" button - the story is the buyer's own
         if ($request->bool('use_suggestion')) {
-            $seed = PromptGenerator::storySeed(
-                array_merge($project, ['hero_name' => $update['hero_name']]),
-                PromptGenerator::storiesAlreadyTold($this->userId(), $pid)
-            );
-            $update['story']       = $seed['story'];
-            $update['how_to_play'] = $seed['how_to_play'];
+            $update['how_to_play'] = PromptGenerator::rules($project);
         }
 
         Project::touch($pid, $update);

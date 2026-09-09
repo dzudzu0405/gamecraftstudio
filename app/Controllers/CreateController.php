@@ -14,6 +14,7 @@ use App\Services\Difficulty;
 use App\Services\Lang;
 use App\Services\Library;
 use App\Services\MissionMatcher;
+use App\Services\PrintBundle;
 use App\Services\PromptGenerator;
 use App\Services\Tiers;
 use App\Services\Uploader;
@@ -25,7 +26,7 @@ use App\Services\Uploader;
  *
  *   1. Basics        - title, theme, difficulty, question subjects (FR-23)
  *   2. Library picks - map frame and character set, filtered by plan
- *   3. Map background - copy the prompt (FR-30), generate the image, upload it (FR-31)
+ *   3. Background & story - copy the prompts (FR-30), bring back the picture and the story
  *   4. Mission cards - matched automatically from the library (FR-24, FR-35)
  *   5. Finish        - review, then move on to the Studio
  */
@@ -33,13 +34,10 @@ class CreateController extends Controller
 {
     private const LAST_STEP = 5;
 
-    /** The step a ready-made theme lets you skip */
-    private const BACKGROUND_STEP = 3;
-
     private const STEP_LABELS = [
         1 => 'Basics',
         2 => 'Library picks',
-        3 => 'Map background',
+        3 => 'Background & story',
         4 => 'Mission cards',
         5 => 'Finish',
     ];
@@ -192,6 +190,9 @@ class CreateController extends Controller
                 $style = PromptGenerator::DEFAULT_STYLE;
                 $data['style']        = $style;
                 $data['prompt']       = PromptGenerator::background($project, $style);
+                $data['storyPrompt']  = PromptGenerator::story($project);
+                $data['storyWords']      = PrintBundle::STORY_WORDS_PER_SHEET;
+                $data['storyWordsFirst'] = PrintBundle::STORY_WORDS_FIRST_SHEET;
                 $data['instructions'] = PromptGenerator::instructions();
                 $data['background']   = !empty($project['background_id'])
                     ? Database::first('SELECT * FROM user_assets WHERE id = ?', [(int) $project['background_id']])
@@ -405,6 +406,37 @@ class CreateController extends Controller
     //  Step 3: upload the background (FR-31)
     // -----------------------------------------------------------------
 
+    /**
+     * The story, brought back from wherever the buyer had it written.
+     *
+     * Saved as typed. It is their words - or their AI tool's, which they have
+     * read and accepted - so nothing here rewrites it. The only thing worth
+     * saying back is how long it came out, because that decides whether the
+     * story runs to a second printed sheet.
+     */
+    public function saveStory(Request $request, array $params): void
+    {
+        $project = $this->ownedProject((int) ($params['id'] ?? 0));
+        $pid     = (int) $project['id'];
+
+        $story = trim($request->str('story'));
+        $story = mb_substr($story, 0, 8000);
+
+        Project::touch($pid, ['story' => $story]);
+
+        if ($story === '') {
+            Flash::success('Story cleared. The game will print without a story page.');
+        } else {
+            $words  = str_word_count(strip_tags($story)) ?: (int) ceil(mb_strlen($story) / 6);
+            $sheets = count(PrintBundle::storyPages($story));
+
+            Flash::success('Story saved - ' . number_format($words) . ' words, '
+                . ($sheets === 1 ? 'one printed page.' : $sheets . ' printed pages.'));
+        }
+
+        Response::redirect('/create/' . $pid . '/step/3#story');
+    }
+
     public function upload(Request $request, array $params): void
     {
         $project = $this->ownedProject((int) ($params['id'] ?? 0));
@@ -507,15 +539,14 @@ class CreateController extends Controller
 
         MissionMatcher::saveForProject((int) $project['id'], $cards);
 
-        // Also write the story and rules if they are still empty
+        /*
+         * The rules are written here if the game has none yet. The story is
+         * not: it comes from the prompt at step 3, in the buyer's own words
+         * or their own AI tool, and an invented one would only be in the way.
+         */
         $update = ['question_count' => count($cards)];
-        if (trim((string) $project['story']) === '' || trim((string) $project['how_to_play']) === '') {
-            $seed = PromptGenerator::storySeed(
-                $project,
-                PromptGenerator::storiesAlreadyTold($this->userId(), (int) $project['id'])
-            );
-            if (trim((string) $project['story']) === '')       { $update['story']       = $seed['story']; }
-            if (trim((string) $project['how_to_play']) === '') { $update['how_to_play'] = $seed['how_to_play']; }
+        if (trim((string) $project['how_to_play']) === '') {
+            $update['how_to_play'] = PromptGenerator::rules($project);
         }
         Project::touch((int) $project['id'], $update);
 
@@ -619,15 +650,17 @@ class CreateController extends Controller
      * Picking a ready-made theme means the background is already drawn, so step 3
      * drops out of the wizard: no prompt to copy, nothing to upload.
      */
+    /**
+     * Every step is on every game.
+     *
+     * Step 3 used to be skipped by a game keeping a ready-made theme
+     * background, because the background was all it held. It holds the story
+     * prompt now, and every game needs a story - so the step stays and the
+     * background half of it is what disappears instead.
+     */
     private function stepsFor(array $project): array
     {
-        $steps = array_keys(self::STEP_LABELS);
-
-        if (Project::usesThemeBackground($project)) {
-            $steps = array_values(array_diff($steps, [self::BACKGROUND_STEP]));
-        }
-
-        return $steps;
+        return array_keys(self::STEP_LABELS);
     }
 
     /** The same list as labels, ready for the progress bar */

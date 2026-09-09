@@ -89,6 +89,7 @@ $router->post('/create',               'CreateController@store',      $auth);
 $router->get('/create/{id}/step/{step}',  'CreateController@step',    $auth);
 $router->post('/create/{id}/step/{step}', 'CreateController@saveStep', $auth);
 $router->post('/create/{id}/upload',      'CreateController@upload',   $auth);
+$router->post('/create/{id}/story',       'CreateController@saveStory', $auth);
 $router->post('/create/{id}/generate',    'CreateController@generateMissions', $auth);
 $router->get('/import',                'CreateController@importForm', $auth);
 $router->post('/import',               'CreateController@import',     $auth);

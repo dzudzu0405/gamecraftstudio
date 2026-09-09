@@ -331,6 +331,51 @@
   });
 
   /* ----------------------------------------------------------------------
+     Counting words while a story is pasted in
+
+     The story sheet holds about one page of words. Saying so as it is typed
+     beats finding out at the printer, so the count is live and turns amber
+     once the story needs a second sheet - which is allowed, not an error.
+     ---------------------------------------------------------------------- */
+
+  document.querySelectorAll('[data-word-count]').forEach(function (box) {
+    var out = document.querySelector(box.getAttribute('data-word-count'));
+    if (!out) return;
+
+    var limit = parseInt(box.getAttribute('data-word-limit'), 10) || 0;
+    var first = parseInt(box.getAttribute('data-word-limit-first'), 10) || limit;
+
+    function count() {
+      var text  = box.value.trim();
+      var words = text ? text.split(/\s+/).length : 0;
+
+      if (!words) {
+        out.textContent = '';
+        out.style.color = '';
+        return;
+      }
+
+      // the first sheet carries the picture, so it holds fewer words
+      var sheets = 1;
+      if (limit && words > first) {
+        sheets = 1 + Math.ceil((words - first) / limit);
+      }
+
+      /*
+        * "about", because the printer never splits a paragraph in half and
+        * this count does not know where the paragraphs fall. The exact
+        * number comes back from the server when the story is saved.
+        */
+      out.textContent = words + (words === 1 ? ' word' : ' words')
+        + ' - ' + (sheets < 2 ? 'one printed page' : 'about ' + sheets + ' printed pages');
+      out.style.color = sheets < 2 ? '' : 'var(--amber-ink, #96631A)';
+    }
+
+    box.addEventListener('input', count);
+    count();
+  });
+
+  /* ----------------------------------------------------------------------
      Printing
      ---------------------------------------------------------------------- */
 

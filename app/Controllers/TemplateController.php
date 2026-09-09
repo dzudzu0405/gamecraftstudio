@@ -101,15 +101,11 @@ class TemplateController extends Controller
             array_merge(['map', (int) $cfg['cells'], (string) $tpl['theme']], $tiers)
         );
 
-        $seed = PromptGenerator::storySeed(
-            [
-                'title'    => $tpl['name'],
-                'theme'    => $tpl['theme'],
-                'cells'    => (int) $cfg['cells'],
-                'language' => $language,
-            ],
-            PromptGenerator::storiesAlreadyTold($this->userId())
-        );
+        $rules = PromptGenerator::rules([
+            'theme'    => $tpl['theme'],
+            'cells'    => (int) $cfg['cells'],
+            'language' => $language,
+        ]);
 
         $projectId = Project::create($this->userId(), [
             'title'       => (string) $tpl['name'],
@@ -122,8 +118,7 @@ class TemplateController extends Controller
             'age_min'     => (int) $tpl['age_min'],
             'age_max'     => (int) $tpl['age_max'],
             'map_item_id' => $map['id'] ?? null,
-            'story'       => $seed['story'],
-            'how_to_play' => $seed['how_to_play'],
+            'how_to_play' => $rules,
         ]);
 
         // Generate the mission cards so the project is usable right away

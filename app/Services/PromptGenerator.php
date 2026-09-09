@@ -1,7 +1,6 @@
 <?php
 namespace App\Services;
 
-use App\Core\Database;
 use App\Models\Project;
 use App\Services\Lang;
 
@@ -35,6 +34,20 @@ class PromptGenerator
         'crayon'     => 'wax crayon drawing, slightly uneven strokes, playful hand-made feel',
     ];
 
+    /**
+     * The languages by their English names.
+     *
+     * Lang::LOCALES holds what each language calls itself, which is right for
+     * a picker and wrong inside an English prompt: "Write in Français" reads
+     * like a mistake where "Write in French" reads like an instruction.
+     */
+    private const LANGUAGE_EN = [
+        'en' => 'English',
+        'es' => 'Spanish',
+        'fr' => 'French',
+        'de' => 'German',
+    ];
+
     private const THEME_EN = [
         'forest' => 'a lush enchanted forest with tall friendly trees, mossy rocks and a winding dirt trail',
         'dino'   => 'a prehistoric valley with gentle dinosaurs, giant ferns, volcanoes far in the background',
@@ -48,330 +61,6 @@ class PromptGenerator
         'candy'  => 'a sweet candy land with lollipop trees, chocolate rivers and gumdrop hills',
         'robot'  => 'a friendly robot factory city with pipes, gears and glowing control panels',
         'farm'   => 'a cheerful countryside farm with a red barn, vegetable patches and haystacks',
-    ];
-
-    /** Who needs saving, when the buyer did not say */
-    private const RESCUE_EN = [
-        'forest' => 'the smallest fox cub in the wood',
-        'dino'   => 'a baby dinosaur separated from its herd',
-        'space'  => 'the last keeper of a dying star',
-        'ocean'  => 'a young turtle tangled far from home',
-        'pirate' => 'a shipmate marooned on a nameless island',
-        'magic'  => 'the apprentice who kept the great flame alight',
-        'castle' => 'the bellringer locked in the tallest tower',
-        'desert' => 'a caravan of travellers lost between the dunes',
-        'arctic' => 'a penguin chick adrift on a breaking floe',
-        'candy'  => 'the sugar-plum baker frozen in her own kitchen',
-        'robot'  => 'the little repair robot who kept the city running',
-        'farm'   => 'every animal that vanished in the night',
-    ];
-
-    /**
-     * How the story starts - two ways of opening each theme.
-     *
-     * The first sentence is the one a buyer remembers, so a household making
-     * a second game in the same world should not meet it twice. Every list
-     * here may hold any number of wordings; the one used is drawn per game,
-     * passing over anything their other games already print.
-     */
-    private const OPENING_EN = [
-        'forest' => [
-            'The old forest has fallen silent. Even the golden leaves have stopped falling, caught still in mid-air.',
-            'Every path in the old wood has gone quiet at once, and not one bird will say why.',
-        ],
-        'dino' => [
-            'A great roar rolls up from the valley below. Somewhere down there, a baby dinosaur has lost its way.',
-            'The whole valley has been roaring since dawn, and one of the voices in it is far too small.',
-        ],
-        'space' => [
-            'The space station sends out a distress call: a small planet is about to lose its light forever.',
-            'A signal comes in from the edge of the map, faint and repeating: a small planet is going dark.',
-        ],
-        'ocean' => [
-            'The bright coral reef is fading to grey, and the little fish are calling out for help.',
-            'Something has gone out of the reef overnight - the colour first, and then the noise.',
-        ],
-        'pirate' => [
-            'A weathered map washes ashore inside a bottle, promising a treasure the world forgot.',
-            'A bottle comes in on the tide with half a map inside, and a promise that outlasted the ship it came from.',
-        ],
-        'magic' => [
-            'The magic flame in the old tower has gone out, and the whole kingdom is sinking into mist.',
-            'The old tower has gone cold for the first time in three hundred years, and the mist is coming down the valley to see.',
-        ],
-        'castle' => [
-            'The golden bell of the castle was stolen the night before the great festival.',
-            'The great bell did not ring this morning, and by noon the whole kingdom knew it was gone.',
-        ],
-        'desert' => [
-            'The only oasis in the desert is drying up a little more with every passing day.',
-            'The well came up muddy this morning, then shallow, and the oasis has been shrinking ever since.',
-        ],
-        'arctic' => [
-            'The ice floe the penguins call home is melting far too quickly.',
-            'The ice has begun to talk to itself out in the bay, and the floe the penguins live on is smaller than it was yesterday.',
-        ],
-        'candy' => [
-            'The chocolate river in Candy Land has frozen solid overnight.',
-            'The chocolate river stopped running in the night, and this morning you can walk straight across it.',
-        ],
-        'robot' => [
-            'The robot factory has lost power, and every machine has stopped mid-step.',
-            'Every machine in the factory stopped at the same second, halfway through whatever it was doing.',
-        ],
-        'farm' => [
-            'All the animals on the farm vanished during one very windy night.',
-            'The gate stood open at sunrise, the yard was empty, and not one animal answered when it was called.',
-        ],
-    ];
-
-    /**
-     * One theme phrase in the game's language, falling back to English.
-     *
-     * @param array<string, string> $english the table this class already holds
-     */
-    private static function themePhrase(string $group, string $theme, string $lang, array $english, array $avoid = [], ?int $seed = null): string
-    {
-        $options = self::wordings(Lang::raw('story.' . $group . '.' . $theme, $lang));
-
-        if (!$options) {
-            $options = self::wordings($english[$theme] ?? $english['forest']);
-        }
-
-        return self::pick($options, $avoid, $group . $theme, $seed);
-    }
-
-    // ---------------------------------------------------------------
-    //  Telling it a different way each time
-    // ---------------------------------------------------------------
-
-    /**
-     * The ways of saying one thing.
-     *
-     * A story key holds either one sentence or a list of alternatives, and
-     * both shapes read the same from here. A half-finished translation that
-     * only carries one wording still works - it just has one to choose from.
-     *
-     * @param mixed $value whatever was under the key
-     * @return string[]
-     */
-    private static function wordings($value): array
-    {
-        if (is_string($value)) {
-            return trim($value) === '' ? [] : [$value];
-        }
-
-        if (!is_array($value)) {
-            return [];
-        }
-
-        $out = [];
-        foreach ($value as $one) {
-            if (is_string($one) && trim($one) !== '') {
-                $out[] = $one;
-            }
-        }
-
-        return $out;
-    }
-
-    /**
-     * One wording, preferring one this buyer has not had before.
-     *
-     * $avoid holds the stories their other games already print. A wording is
-     * counted as used if its longest run of fixed words turns up in one of
-     * them - matching on the fixed part rather than the whole sentence,
-     * because the names inside it differ from game to game.
-     *
-     * When every wording has been used - a buyer on their tenth game - it
-     * picks from all of them rather than refusing to tell a story.
-     *
-     * $salt keeps two different slots from making the same choice when a
-     * seed is given, which is what the printed page needs: a game with no
-     * story saved yet must read the same on every render, not shuffle
-     * itself between the preview and the print.
-     */
-    private static function pick(array $options, array $avoid, string $salt, ?int $seed = null): string
-    {
-        if (!$options) {
-            return '';
-        }
-
-        $fresh = [];
-        foreach ($options as $option) {
-            if (!self::alreadyTold($option, $avoid)) {
-                $fresh[] = $option;
-            }
-        }
-
-        $pool = $fresh ?: array_values($options);
-
-        if ($seed === null) {
-            return $pool[array_rand($pool)];
-        }
-
-        return $pool[crc32($salt . ':' . $seed) % count($pool)];
-    }
-
-    /** Fills the {blanks} in one wording */
-    private static function fill(string $text, array $values): string
-    {
-        foreach ($values as $name => $with) {
-            $text = str_replace('{' . $name . '}', (string) $with, $text);
-        }
-
-        return $text;
-    }
-
-    /** Does one of these stories already carry this wording? */
-    private static function alreadyTold(string $wording, array $avoid): bool
-    {
-        if (!$avoid) {
-            return false;
-        }
-
-        // the longest stretch with no {placeholder} in it - the part that
-        // stays the same whoever the hero turns out to be
-        $fixed = '';
-        foreach (preg_split('/\{[a-z_]+\}/i', $wording) ?: [] as $run) {
-            $run = trim($run);
-            if (mb_strlen($run) > mb_strlen($fixed)) {
-                $fixed = $run;
-            }
-        }
-
-        if (mb_strlen($fixed) < 25) {
-            return false;   // too short to be sure it is the same sentence
-        }
-
-        foreach ($avoid as $story) {
-            if (str_contains((string) $story, $fixed)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * The stories this buyer's other games already tell.
-     *
-     * Handed to storySeed() so a household making a second game does not open
-     * it with the sentence the first one opened with.
-     */
-    public static function storiesAlreadyTold(int $userId, ?int $exceptProjectId = null, int $limit = 40): array
-    {
-        if ($userId <= 0) {
-            return [];
-        }
-
-        $sql = "SELECT story FROM projects WHERE user_id = ? AND story IS NOT NULL AND story <> ''";
-        $params = [$userId];
-
-        if ($exceptProjectId !== null) {
-            $sql .= ' AND id <> ?';
-            $params[] = $exceptProjectId;
-        }
-
-        $sql .= ' ORDER BY id DESC LIMIT ' . (int) $limit;
-
-        return array_column(Database::all($sql, $params), 'story');
-    }
-
-    /**
-     * Who comes along.
-     *
-     * A story read to a six-year-old needs somebody beside the hero to talk
-     * to, and the companion is where nearly all the fun lives - so each one
-     * is a small character with an opinion, not a description of an animal.
-     */
-    private const COMPANION_EN = [
-        'forest' => [
-            'An old owl announces that she is coming as far as the second bend and no further. She comes the whole way instead, complaining about the weather at every single stage.',
-            'A hedgehog with a very small lantern insists on coming. He walks so slowly that the whole party learns the names of things it would otherwise have walked straight past.',
-        ],
-        'dino' => [
-            'A small and extremely loud pterosaur appoints itself lookout. It has never once spotted anything useful, but it is never, ever quiet, which turns out to be almost as good.',
-            'A young triceratops attaches herself to the group without being asked. She cannot climb and she cannot swim, and she can shove a fallen tree off a path in under a minute.',
-        ],
-        'space' => [
-            'The station sends along a repair drone with one working eye and a habit of humming. It knows the route to exactly one planet and is fairly sure it is the right one.',
-            'A cargo robot with one squeaking wheel comes along to carry things. It has been to the edge of the map twice, and mentions this roughly every ten minutes.',
-        ],
-        'ocean' => [
-            'A grumpy old crab agrees to come on the strict condition that nobody mentions how slowly he swims. Nobody mentions it. He keeps up far better than anyone expects.',
-            'A very young octopus tags along, changing colour whenever anyone looks at her, which is how the whole party always knows exactly what she is thinking.',
-        ],
-        'pirate' => [
-            'The ship parrot volunteers first, mostly because it has the map by heart and cannot bear to miss the part where somebody reads it out loud.',
-            'The ship cook comes too, bringing a pan, a spoon and a strong opinion about every single decision taken from here on.',
-        ],
-        'magic' => [
-            'A candle stub that refuses to go out bobs along behind, lighting entirely the wrong things at entirely the wrong moments and being enormously proud of itself.',
-            'A frog who used to be something grander offers to guide them. He can remember only half of one spell, but it turns out to be a very useful half.',
-        ],
-        'castle' => [
-            'The castle cat comes too. She has been in every room, under every floor and behind every curtain in the place, and she remembers all of them.',
-            'The kitchen boy comes along carrying the second-best lantern, and turns out to know every back stair and cellar door in the kingdom.',
-        ],
-        'desert' => [
-            'A young camel with strong opinions about walking joins at the gate. She stops when she likes and starts again when she likes, and she has never once been lost.',
-            'A desert fox with enormous ears joins on the second night. She hears water three hills before anybody else does, and is unbearably pleased about it.',
-        ],
-        'arctic' => [
-            'A round little seal follows from the first stage on, sliding ahead on her belly to test the ice and coming back each time to say whether it will hold.',
-            'A puffin who has flown this coast for nine winters comes as navigator, and takes the job more seriously than anyone has ever taken anything.',
-        ],
-        'candy' => [
-            'A gingerbread mouse comes as guide. He nibbles a notch in every signpost so the way home will be easy to find, and eats a good many signposts entirely.',
-            'A marzipan bear rolls along at the back, eating a little of the path as he goes, apologising each time and then doing it again.',
-        ],
-        'robot' => [
-            'A rusty sweeper robot trundles out of a side door and simply joins in. Its map is forty years out of date, but it knows a shortcut, and the shortcut is real.',
-            'A small drone with a cracked lens hovers alongside. It films everything, which nobody needs, and lights the dark corners, which everybody does.',
-        ],
-        'farm' => [
-            'The farm dog needs no invitation whatsoever. He has been waiting at the gate since sunrise with his nose pointed down the road, entirely certain which way to go.',
-            'The oldest goose on the farm comes too. She has escaped from this yard eleven times, and she knows every gap in every fence on the way.',
-        ],
-    ];
-
-    /**
-     * The last stretch: the world answering back, just before the end.
-     *
-     * The picture each one paints is the first sign that the journey worked,
-     * so it echoes that theme's opening - the leaves that stopped falling
-     * start again, the frozen river creaks - and never states the ending.
-     */
-    private const FINAL_EN = [
-        'forest' => 'By the last stage the trees have begun leaning in to listen, and the golden leaves that stopped falling this morning start, very slowly, to fall again.',
-        'dino'   => 'At the last stage the ground goes quiet at last, and from somewhere beyond the ridge comes a small roar - not a frightened one this time, but a hopeful one.',
-        'space'  => 'At the last stage the little planet is close enough to see: one dim light in all that dark, flickering like something trying very hard to stay awake.',
-        'ocean'  => 'At the last stage a thin line of colour creeps back into the coral, and the smallest fish swim out through it to meet the travellers.',
-        'pirate' => 'At the last stage the torn map runs out altogether, and the way ahead has to be worked out from the shape of the coast and nothing else at all.',
-        'magic'  => 'At the last stage the mist thins away to nothing, and the old tower is standing there waiting, dark and patient, with one cold lamp at the very top.',
-        'castle' => 'At the last stage the festival flags are already flying, and the whole kingdom is standing about in the square waiting for a bell that has not rung yet.',
-        'desert' => 'At the last stage the wind drops, the sand settles, and the green of the oasis appears on the horizon exactly where the map promised it would be.',
-        'arctic' => 'At the last stage the daylight comes back for one more hour, and one hour is just enough to make out a small dark shape on a small white floe.',
-        'candy'  => 'At the last stage the frozen chocolate river creaks once, very softly, the way ice does when it has quietly decided to start melting.',
-        'robot'  => 'At the last stage one light comes on deep inside the factory, and then two, and then a whole row of them, as though the building were waking up to watch.',
-        'farm'   => 'At the last stage a single hoofprint appears in the mud, and then another, and they lead somewhere at last instead of everywhere at once.',
-    ];
-
-    /** What stands in the way, to give the middle of the story some weight */
-    private const TROUBLE_EN = [
-        'forest' => 'The paths keep rearranging themselves, and the trees have stopped giving directions.',
-        'dino'   => 'The ground shakes without warning, and the safe crossings change with every tremor.',
-        'space'  => 'Fuel is short, the charts are out of date, and no two stars sit where they should.',
-        'ocean'  => 'The currents run the wrong way, and the deeper water grows darker with every stroke.',
-        'pirate' => 'The map is torn in places, and a rival crew is reading the very same clues.',
-        'magic'  => 'The mist swallows every spell, and magic that used to be reliable now misfires.',
-        'castle' => 'The gates answer only to riddles, and the guards have forgotten all the answers.',
-        'desert' => 'The wind buries each landmark within minutes of finding it.',
-        'arctic' => 'The ice groans underfoot, and the daylight is already beginning to fail.',
-        'candy'  => 'Everything sweet has turned brittle, and the bridges snap if you cross too slowly.',
-        'robot'  => 'Half the machines still run on old instructions, and they do not know the city is broken.',
-        'farm'   => 'The gates were all left open, and the tracks lead in every direction at once.',
     ];
 
     public static function styleKeys(): array
@@ -406,9 +95,14 @@ class PromptGenerator
         $scene  = Project::sceneFor($project['setting'] ?? null);
         $rescue = trim((string) ($project['rescue_target'] ?? ''));
 
-        // Nothing typed -> fall back to the theme's own scene
+        /*
+         * Nothing typed -> fall back to a scene. A buyer drawing their own
+         * background picks the "custom" theme, which has no scene of its own,
+         * so the adventure they chose supplies one rather than every such game
+         * being drawn as a forest.
+         */
         if ($scene === '') {
-            $scene = self::THEME_EN[$theme] ?? self::THEME_EN['forest'];
+            $scene = self::THEME_EN[Project::storyTheme($project)] ?? self::THEME_EN['forest'];
         }
 
         $styleEn = self::STYLE_EN[$style] ?? self::STYLE_EN['storybook'];
@@ -522,96 +216,105 @@ class PromptGenerator
     }
 
     /**
-     * Starter story and rules. This is pre-written content (step 1 of SRS
-     * section 2.3 - the operations team prepares it with a Claude Project);
-     * nothing calls an AI at runtime.
+     * The prompt the buyer runs to get their story.
      *
-     * @param array $avoid Stories this buyer's other games already tell, from
-     *                     storiesAlreadyTold(). Every beat has several ways of
-     *                     being told, and one already used is passed over, so
-     *                     their second game does not read like their first.
-     * @param ?int  $seed  Fixes the draw. Given one, the same project always
-     *                     gets the same story - which is what the print sheet
-     *                     needs for a game that has none saved yet. Left out,
-     *                     the story is drawn fresh.
+     * The app used to write the story itself, out of a few hundred stock
+     * sentences. It read well, but two games in the same world could only ever
+     * be rearrangements of each other - and it could never use the name of the
+     * child at the table, or this term's topic, or the family dog.
+     *
+     * So the story is written the same way the background picture is: the app
+     * writes the brief, the buyer runs it in whichever AI tool they like, and
+     * pastes the result back. Nothing here calls an AI, and no key is needed.
+     *
+     * The prompt is in English whatever the game's language, and asks for the
+     * story in that language. That is how the picture prompts already work,
+     * and it leaves one prompt to look after rather than four.
      */
-    public static function storySeed(array $project, array $avoid = [], ?int $seed = null): array
+    public static function story(array $project): string
     {
         $lang  = Lang::of($project);
-        $theme = Project::storyTheme($project);
-        $title = trim((string) ($project['title'] ?? 'The adventure'));
         $cells = MapComposer::normalizeCells((int) ($project['cells'] ?? 18));
-        $hero  = trim((string) ($project['hero_name'] ?? ''))
-              ?: Lang::get('story.hero_default', $lang);
+        $title = trim((string) ($project['title'] ?? ''));
+        $hero  = trim((string) ($project['hero_name'] ?? ''));
+        $rescue = trim((string) ($project['rescue_target'] ?? ''));
 
-        /*
-         * The phrases that change with the theme. English lives in the tables
-         * above, which the picture prompts also read; the other languages
-         * carry their own in app/lang, and fall back to English if one is
-         * missing rather than leaving a hole in the page.
-         */
-        $opening   = self::themePhrase('opening', $theme, $lang, self::OPENING_EN, $avoid, $seed);
-        $trouble   = self::themePhrase('trouble', $theme, $lang, self::TROUBLE_EN, $avoid, $seed);
-        $companion = self::themePhrase('companion', $theme, $lang, self::COMPANION_EN, $avoid, $seed);
-        $final     = self::themePhrase('final', $theme, $lang, self::FINAL_EN, $avoid, $seed);
-
-        // The rescue has one wording per theme on purpose: it names the same
-        // character three times over, and a game that called them something
-        // else halfway through would be a different game.
-        $rescue = trim((string) ($project['rescue_target'] ?? ''))
-               ?: self::themePhrase('rescue', $theme, $lang, self::RESCUE_EN);
-
-        $place = Project::sceneFor($project['setting'] ?? null, $lang);
-
-        /** One beat, in one of the ways it can be told */
-        $beat = fn (string $key, array $fill = []) => self::fill(
-            self::pick(self::wordings(Lang::raw('story.' . $key, $lang)), $avoid, $key, $seed),
-            $fill
-        );
-
-        /*
-         * Seven beats, in the order a read-aloud story wants them: the world
-         * and what broke, who is waiting to be found, setting out and who
-         * comes along, what makes the journey hard, what a wrong answer
-         * really costs, the last stretch, and what winning means.
-         *
-         * Long enough to be worth reading at bedtime and short enough to fit
-         * the printed page under the picture - about 350 words, which is one
-         * sheet with the story sheet's type size.
-         *
-         * A wrong answer gets a beat of its own on purpose. It is the moment
-         * a six-year-old is most likely to give up, and the story says the
-         * same thing the rules do, in words a child hears rather than reads.
-         */
-        $who = ['hero' => $hero, 'rescue' => rtrim($rescue, '.')];
-
-        $p1 = $opening;
-        if ($place !== '') {
-            $p1 .= ' ' . $beat('place', ['place' => rtrim($place, '.')]);
+        // What the buyer chose at step 1, in their own words where they wrote any
+        $scene = Project::sceneFor($project['setting'] ?? null);
+        if ($scene === '') {
+            $scene = self::THEME_EN[Project::storyTheme($project)] ?? self::THEME_EN['forest'];
         }
 
-        $p2 = $beat('p2', $who);
-        $p3 = $beat('setout', $who) . ' ' . $companion;
-        $p4 = $beat('p3', ['cells' => $cells, 'trouble' => $trouble]);
-        $p5 = $beat('wrong');
-        $p6 = $final . ' ' . $beat('last', $who);
-        $p7 = $beat('p4', $who + ['title' => $title]);
+        $ageMin = (int) ($project['age_min'] ?? 6);
+        $ageMax = (int) ($project['age_max'] ?? 9);
 
-        $story = implode("\n\n", [$p1, $p2, $p3, $p4, $p5, $p6, $p7]);
+        $lines = [];
+        $lines[] = 'Write the story page for a printable children\'s board game.';
+        $lines[] = '';
+        $lines[] = 'THE GAME';
+        $lines[] = '  Title: ' . ($title !== '' ? $title : 'not chosen yet - do not invent one');
+        $lines[] = '  Where it happens: ' . rtrim($scene, '.');
+        $lines[] = '  The hero: ' . ($hero !== ''
+            ? $hero . ' - use this name, and do not change its spelling'
+            : 'not named. Call the hero "our young hero" and never invent a name');
+        $lines[] = '  Who needs rescuing: ' . ($rescue !== ''
+            ? rtrim($rescue, '.')
+            : 'not decided - choose someone small who belongs in this place');
+        $lines[] = '  The journey: ' . $cells . ' stages, each with a question waiting on it';
+        $lines[] = '  Read aloud by an adult to children aged ' . $ageMin . ' to ' . $ageMax;
+        $lines[] = '';
+        $lines[] = 'HOW TO WRITE IT';
+        $language = self::LANGUAGE_EN[$lang] ?? self::LANGUAGE_EN['en'];
+        $lines[] = '- Write in ' . $language . '. Every word of the story must be in ' . $language . '.';
+        $lines[] = '- Between 320 and 400 words. It has to fit one printed page, so do not run over.';
+        $lines[] = '- Six or seven short paragraphs, each separated by a blank line.';
+        $lines[] = '- Plain text only. No title, no headings, no bullet points, no bold, no markdown.';
+        $lines[] = '- Write for the ear, not the eye: short sentences, things a child can picture,';
+        $lines[] = '  and room for a joke or two. It is read out loud.';
+        $lines[] = '';
+        $lines[] = 'WHAT HAS TO HAPPEN, IN THIS ORDER';
+        $lines[] = '1. Something has gone wrong where the story happens. Say it in the first sentence.';
+        $lines[] = '2. The news reaches the hero, who decides to go, because no grown-up will.';
+        $lines[] = '3. The hero sets out, and somebody comes along. Give this companion a personality';
+        $lines[] = '   and one funny habit - this is the character a child will remember afterwards.';
+        $lines[] = '4. The road ahead is ' . $cells . ' stages long, and every stage asks a question.';
+        $lines[] = '   Say what makes the journey hard in this particular place.';
+        $lines[] = '5. One whole paragraph on getting a question wrong: it costs a step, it happens to';
+        $lines[] = '   everybody, and the only way to lose is to stop. Warmly, and without a lecture.';
+        $lines[] = '   This is the paragraph that matters most - a child who gets one wrong hears it.';
+        $lines[] = '6. The last stage. Show the place answering back before anyone says anything.';
+        $lines[] = '7. The rescue succeeds, and the story becomes the hero\'s to tell.';
+        $lines[] = '';
+        $lines[] = 'KEEP OUT';
+        $lines[] = '- Do not explain how the game is played. No cards, no dice, no counting spaces,';
+        $lines[] = '  no turns. A separate printed page does all of that.';
+        $lines[] = '- Nothing frightening: no injury, no death, nobody in real danger.';
+        $lines[] = '- No moral at the end and no lesson spelled out. The story is the point.';
+        $lines[] = '- Do not end on a cliffhanger or promise a sequel.';
+        $lines[] = '';
+        $lines[] = 'OUTPUT: the story and nothing else - no preamble, no notes, no closing remark.';
 
-        /*
-         * The rules follow whichever way this game moves. Only the star spaces
-         * carry a question, and the penalty for getting one wrong is written on
-         * the move card you drew - which is why the dice version needs its own
-         * fixed penalty instead.
-         *
-         * What to prepare is deliberately not here: the sheet prints that under
-         * the rules, counted from the game itself.
-         */
+        return implode("\n", $lines);
+    }
+
+    /**
+     * The numbered rules for this game.
+     *
+     * These stay written by the app rather than by an AI: they have to match
+     * the deck that actually comes out of the printer - whether it moves on
+     * cards or a die, what a wrong answer costs, where a used card goes - and
+     * a story tool cannot be relied on to get that right every time.
+     *
+     * What to prepare is deliberately not here: the sheet prints that under
+     * the rules, counted from the game itself.
+     */
+    public static function rules(array $project): string
+    {
+        $lang    = Lang::of($project);
         $byCards = Project::usesMoveCards($project);
         $rule    = fn (string $key) => Lang::get('rules.' . $key, $lang);
 
-        $howTo = implode("\n", [
+        return implode("\n", [
             '1. ' . $rule('start'),
             '2. ' . $rule($byCards ? 'move_cards' : 'move_dice'),
             '3. ' . $rule('star'),
@@ -620,8 +323,6 @@ class PromptGenerator
             '6. ' . $rule($byCards ? 'return_cards' : 'return_dice'),
             '7. ' . $rule('win'),
         ]);
-
-        return ['story' => $story, 'how_to_play' => $howTo];
     }
 
     /**
@@ -630,11 +331,11 @@ class PromptGenerator
     public static function instructions(): array
     {
         return [
-            'Click "Copy prompt" below.',
-            'Open an image generator such as ChatGPT or Google Gemini, paste the prompt and send it.',
-            'Wait for the image, then download it to your computer.',
-            'Come back here, click "Upload background" and choose that image.',
-            'The system composes your image together with the map frame you picked.',
+            'Open ChatGPT or Google Gemini in another tab.',
+            'Copy the map prompt, paste it there, and download the picture it draws.',
+            'Copy the story prompt into the same chat and let it write the story.',
+            'Come back here: upload the picture, and paste the story into the box.',
+            'The picture is composed with the map frame you picked; the story is printed as it stands.',
         ];
     }
 }
