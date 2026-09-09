@@ -69,6 +69,97 @@ class Project
         'Fairy Tale Kingdom'  => 'a fairy tale kingdom of castle towers, rolling hills and winding paths',
     ];
 
+    /**
+     * Which theme tells the story, for each of the twenty adventures.
+     *
+     * A buyer who draws their own background picks the "custom" theme, and a
+     * custom theme has no story of its own - every one of those games used to
+     * be told as a forest, whatever it was actually about. The adventure they
+     * chose says plenty, so it picks the story instead.
+     *
+     * Some of these are a nearest fit rather than a match: there is no circus
+     * among the twelve themes, and a savanna is told as a desert. Nearest is
+     * still the right story far more often than forest was.
+     */
+    public const SETTING_THEMES = [
+        'Treasure Hunt'        => 'pirate',
+        'Dinosaur Rescue'      => 'dino',
+        'Jungle Adventure'     => 'forest',
+        'Ocean Rescue'         => 'ocean',
+        'Space Mission'        => 'space',
+        'Save the City'        => 'robot',
+        'Forest Guardian'      => 'forest',
+        'Museum Mystery'       => 'castle',
+        'Safari Expedition'    => 'desert',
+        'Lost Island'          => 'pirate',
+        'Time Travel Quest'    => 'magic',
+        'Robot Workshop'       => 'robot',
+        'Candy Kingdom Quest'  => 'candy',
+        'Arctic Expedition'    => 'arctic',
+        'Desert Pyramid Quest' => 'desert',
+        'Circus Adventure'     => 'magic',
+        'Farm Rescue'          => 'farm',
+        'Mountain Rescue'      => 'forest',
+        'Storm Chasers'        => 'desert',
+        'Fairy Tale Kingdom'   => 'castle',
+    ];
+
+    /**
+     * Words to look for when the buyer typed their own adventure.
+     *
+     * Only their own words are searched, and only for a game whose theme is
+     * custom - so a wrong guess costs a story told in the wrong world, which
+     * is what happens anyway when nothing matches.
+     */
+    private const SETTING_WORDS = [
+        'space'  => ['space', 'planet', 'star', 'rocket', 'galaxy', 'astronaut', 'moon'],
+        'ocean'  => ['ocean', 'sea', 'reef', 'underwater', 'fish', 'whale', 'coral', 'mermaid'],
+        'pirate' => ['pirate', 'treasure', 'island', 'ship', 'shipwreck', 'cove'],
+        'dino'   => ['dinosaur', 'dino', 'jurassic', 'prehistoric', 'fossil'],
+        'arctic' => ['arctic', 'antarctic', 'ice', 'snow', 'polar', 'penguin', 'glacier'],
+        'desert' => ['desert', 'dune', 'pyramid', 'oasis', 'sand', 'savanna', 'safari'],
+        'candy'  => ['candy', 'sweet', 'chocolate', 'cake', 'bakery', 'sugar'],
+        'robot'  => ['robot', 'machine', 'factory', 'city', 'workshop', 'engine'],
+        'castle' => ['castle', 'kingdom', 'palace', 'knight', 'princess', 'museum', 'tower'],
+        'magic'  => ['magic', 'wizard', 'witch', 'fairy', 'dragon', 'spell', 'circus'],
+        'farm'   => ['farm', 'barn', 'village', 'garden', 'orchard'],
+        'forest' => ['forest', 'jungle', 'wood', 'tree', 'mountain', 'river', 'valley'],
+    ];
+
+    /**
+     * The theme the printed story is told in.
+     *
+     * Usually the one the buyer chose. A custom theme has no story of its own,
+     * so the adventure they picked supplies one - and if they typed their own
+     * adventure, whichever theme their words point at.
+     */
+    public static function storyTheme(array $project): string
+    {
+        $theme = (string) ($project['theme'] ?? 'forest');
+
+        if ($theme !== self::THEME_CUSTOM) {
+            return $theme;
+        }
+
+        $setting = trim((string) ($project['setting'] ?? ''));
+
+        if (isset(self::SETTING_THEMES[$setting])) {
+            return self::SETTING_THEMES[$setting];
+        }
+
+        $words = mb_strtolower($setting);
+
+        foreach (self::SETTING_WORDS as $candidate => $needles) {
+            foreach ($needles as $needle) {
+                if (str_contains($words, $needle)) {
+                    return $candidate;
+                }
+            }
+        }
+
+        return 'forest';
+    }
+
     /** The value the select posts when the buyer wants to write their own */
     public const SETTING_OTHER = '__other__';
 

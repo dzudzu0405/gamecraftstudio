@@ -242,7 +242,10 @@ class StudioController extends Controller
 
         // The "use the suggested text" button
         if ($request->bool('use_suggestion')) {
-            $seed = PromptGenerator::storySeed(array_merge($project, ['hero_name' => $update['hero_name']]));
+            $seed = PromptGenerator::storySeed(
+                array_merge($project, ['hero_name' => $update['hero_name']]),
+                PromptGenerator::storiesAlreadyTold($this->userId(), $pid)
+            );
             $update['story']       = $seed['story'];
             $update['how_to_play'] = $seed['how_to_play'];
         }

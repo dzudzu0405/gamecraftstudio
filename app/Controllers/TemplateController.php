@@ -101,12 +101,15 @@ class TemplateController extends Controller
             array_merge(['map', (int) $cfg['cells'], (string) $tpl['theme']], $tiers)
         );
 
-        $seed = PromptGenerator::storySeed([
-            'title'    => $tpl['name'],
-            'theme'    => $tpl['theme'],
-            'cells'    => (int) $cfg['cells'],
-            'language' => $language,
-        ]);
+        $seed = PromptGenerator::storySeed(
+            [
+                'title'    => $tpl['name'],
+                'theme'    => $tpl['theme'],
+                'cells'    => (int) $cfg['cells'],
+                'language' => $language,
+            ],
+            PromptGenerator::storiesAlreadyTold($this->userId())
+        );
 
         $projectId = Project::create($this->userId(), [
             'title'       => (string) $tpl['name'],

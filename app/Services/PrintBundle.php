@@ -58,10 +58,16 @@ class PrintBundle
             ],
         ];
 
-        // --- 2. Story ---
+        /*
+         * --- 2. Story ---
+         *
+         * A game with nothing saved still prints a story. It is drawn from
+         * the project id rather than at random, so the page the buyer sees in
+         * the preview is the page that comes out of the printer.
+         */
         $story = trim((string) ($project['story'] ?? ''));
         if ($story === '') {
-            $story = PromptGenerator::storySeed($project)['story'];
+            $story = PromptGenerator::storySeed($project, [], $projectId)['story'];
         }
         $sections[] = [
             'key'         => 'story',
@@ -75,7 +81,7 @@ class PrintBundle
         // --- 3. How to play ---
         $howTo = trim((string) ($project['how_to_play'] ?? ''));
         if ($howTo === '') {
-            $howTo = PromptGenerator::storySeed($project)['how_to_play'];
+            $howTo = PromptGenerator::storySeed($project, [], $projectId)['how_to_play'];
         }
         $sections[] = [
             'key'         => 'howto',

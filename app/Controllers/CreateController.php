@@ -510,7 +510,10 @@ class CreateController extends Controller
         // Also write the story and rules if they are still empty
         $update = ['question_count' => count($cards)];
         if (trim((string) $project['story']) === '' || trim((string) $project['how_to_play']) === '') {
-            $seed = PromptGenerator::storySeed($project);
+            $seed = PromptGenerator::storySeed(
+                $project,
+                PromptGenerator::storiesAlreadyTold($this->userId(), (int) $project['id'])
+            );
             if (trim((string) $project['story']) === '')       { $update['story']       = $seed['story']; }
             if (trim((string) $project['how_to_play']) === '') { $update['how_to_play'] = $seed['how_to_play']; }
         }
