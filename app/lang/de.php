@@ -126,15 +126,26 @@ return [
         'place' => 'Schauplatz der ganzen Geschichte: {place} - ein Ort, der bis zu diesem Morgen '
                  . 'noch niemandem einen Grund zur Sorge gegeben hatte.',
         'p2'    => 'Die Nachricht spricht sich schnell herum und erreicht {hero} zuerst. Irgendwo '
-                 . 'da draußen wartet {rescue} und weiß nicht, ob Hilfe kommt. Keiner der Erwachsenen '
-                 . 'will los. Also packt {hero} einen Rucksack, sagt niemandem etwas und geht, solange '
-                 . 'es noch hell ist.',
+                 . 'da draußen wartet jemand darauf, dass endlich Hilfe kommt: {rescue}. Keiner der '
+                 . 'Erwachsenen will los. Also packt {hero} einen Rucksack, sagt niemandem etwas und '
+                 . 'geht, solange es noch hell ist.',
+        // "außer" bräuchte den Dativ, {rescue} steht aber im Nominativ - darum
+        // wartet die Rettung hier hinter der Frage, statt neben ihr zu stehen.
+        'setout' => 'Zu so einer Reise bricht niemand mit leeren Taschen auf, also nimmt {hero} Brot mit, '
+                  . 'eine Decke, ein Stück Schnur, das sich als das Nützlichste von allem '
+                  . 'herausstellen wird, und deutlich weniger Mut, als die Sache eigentlich verlangt.',
+        'wrong'  => 'Es wird Augenblicke geben, in denen die Antwort einfach nicht kommt. Das ist '
+                  . 'erlaubt. Der Weg nimmt dir einen Schritt zurück, wartet, bis du noch einmal '
+                  . 'nachgedacht hast, und lässt dich dann weitergehen. Niemand wird nach Hause '
+                  . 'geschickt, weil er etwas falsch beantwortet hat - man verliert eine solche '
+                  . 'Reise nur, wenn man aufhört zu gehen.',
+        'last'   => 'Und dann ist auf einmal nur noch eine einzige Frage übrig - und dahinter '
+                  . 'wartet {rescue}.',
         'p3'    => 'Der Weg teilt sich in {cells} Abschnitte, und keiner lässt dich umsonst vorbei. '
                  . '{trouble} An jedem Abschnitt wartet eine Frage, und nur wer gut antwortet, kommt '
-                 . 'weiter. Bei einem Fehler nimmt dir der Weg einen Schritt zurück - aber er schließt '
-                 . 'sich nie ganz.',
-        'p4'    => 'Kommst du ans Ziel, kehrt {rescue} nach Hause zurück, und die Geschichte davon '
-                 . 'gehört von da an {hero}. Diese Geschichte heißt „{title}“.',
+                 . 'weiter.',
+        'p4'    => 'Kommst du ans Ziel, kommt nach Hause, wer dort draußen gewartet hat: {rescue}. '
+                 . 'Die Geschichte davon gehört von da an {hero}, und sie heißt „{title}“.',
 
         'opening' => [
             'forest' => 'Im alten Wald ist es still geworden. Sogar die goldenen Blätter fallen nicht mehr, sie stehen mitten in der Luft.',
@@ -179,6 +190,39 @@ return [
             'candy'  => 'Alles Süße ist brüchig geworden, und die Brücken brechen, wenn man zu langsam geht.',
             'robot'  => 'Die Hälfte der Maschinen folgt noch alten Befehlen und weiß nicht, dass die Stadt kaputt ist.',
             'farm'   => 'Alle Tore blieben offen, und die Spuren führen in alle Richtungen gleichzeitig.',
+        ],
+
+        // Wer mitkommt. Hier steckt fast der ganze Spaß der Geschichte, also
+        // ist jeder eine kleine Figur mit eigenem Kopf, keine Beschreibung.
+        'companion' => [
+            'forest' => 'Eine alte Eule kündigt an, dass sie nur bis zur zweiten Wegbiegung mitkommt. Am Ende geht sie den ganzen Weg mit und beschwert sich an jedem Abschnitt über das Wetter.',
+            'dino'   => 'Ein kleiner, außerordentlich lauter Flugsaurier ernennt sich selbst zum Aufpasser. Er hat noch nie etwas Nützliches entdeckt, aber er ist nie still, und das ist fast genauso gut.',
+            'space'  => 'Die Station schickt eine Reparaturdrohne mit einem funktionierenden Auge mit, die beim Fliegen summt. Sie kennt den Weg zu genau einem Planeten und ist ziemlich sicher, dass es der richtige ist.',
+            'ocean'  => 'Eine alte, mürrische Krabbe kommt mit, aber nur unter einer Bedingung: Niemand redet davon, wie langsam sie schwimmt. Niemand redet davon. Sie hält viel besser mit, als alle gedacht haben.',
+            'pirate' => 'Der Schiffspapagei meldet sich als Erster, vor allem weil er die Karte auswendig kann und die Stelle nicht verpassen will, an der jemand sie laut vorliest.',
+            'magic'  => 'Ein Kerzenstummel, der sich weigert auszugehen, schwebt hinterher. Er leuchtet immer genau das Falsche an, immer im falschen Moment, und ist mächtig stolz auf sich.',
+            'castle' => 'Die Burgkatze kommt auch mit. Sie war in jedem Zimmer, unter jedem Boden und hinter jedem Vorhang, und sie erinnert sich an alle.',
+            'desert' => 'Eine junge Kamelstute mit sehr festen Ansichten übers Gehen schließt sich am Tor an. Sie bleibt stehen, wann sie will, und läuft weiter, wann sie will, und verlaufen hat sie sich noch nie.',
+            'arctic' => 'Ein kleiner runder Seehund folgt ab dem ersten Abschnitt. Er rutscht auf dem Bauch voraus, prüft das Eis und kommt jedes Mal zurück, um zu sagen, ob es hält.',
+            'candy'  => 'Eine Lebkuchenmaus geht als Führerin voran. Sie knabbert in jeden Wegweiser eine Kerbe, damit der Rückweg leicht zu finden ist - und frisst dabei etliche Wegweiser ganz auf.',
+            'robot'  => 'Ein verrosteter Kehrroboter rollt aus einer Seitentür und schließt sich einfach an. Seine Karte ist vierzig Jahre alt, aber er kennt eine Abkürzung, und die Abkürzung gibt es wirklich.',
+            'farm'   => 'Der Hofhund braucht überhaupt keine Einladung. Er wartet seit Sonnenaufgang am Tor, die Nase zur Straße gerichtet, und weiß ganz genau, wo es langgeht.',
+        ],
+
+        // Der letzte Abschnitt: die Welt antwortet, kurz vor dem Ende.
+        'final' => [
+            'forest' => 'Am letzten Abschnitt neigen sich die Bäume zum Zuhören herüber, und die goldenen Blätter, die heute Morgen stehen geblieben sind, fallen ganz langsam wieder.',
+            'dino'   => 'Am letzten Abschnitt wird der Boden endlich ruhig, und hinter dem Hügelkamm ertönt ein kleines Brüllen - diesmal kein ängstliches, sondern ein hoffnungsvolles.',
+            'space'  => 'Am letzten Abschnitt ist der kleine Planet nah genug zu sehen: ein schwaches Licht in all dem Dunkel, das wie eine Kerze kurz vor dem Ausgehen flackert.',
+            'ocean'  => 'Am letzten Abschnitt kehrt eine dünne Linie Farbe in die Korallen zurück, und die kleinsten Fische schwimmen hindurch den Reisenden entgegen.',
+            'pirate' => 'Am letzten Abschnitt hört die zerrissene Karte ganz auf, und der weitere Weg lässt sich nur noch an der Form der Küste ablesen.',
+            'magic'  => 'Am letzten Abschnitt löst sich der Nebel vollständig auf, und der alte Turm steht da und wartet, dunkel und geduldig, mit einer kalten Lampe ganz oben.',
+            'castle' => 'Am letzten Abschnitt wehen schon die Festfahnen, und das ganze Königreich steht auf dem Platz und wartet auf eine Glocke, die noch nicht geläutet hat.',
+            'desert' => 'Am letzten Abschnitt legt sich der Wind, der Sand kommt zur Ruhe, und das Grün der Oase erscheint am Horizont genau dort, wo die Karte es versprochen hat.',
+            'arctic' => 'Am letzten Abschnitt kommt das Tageslicht noch für eine Stunde zurück, und eine Stunde reicht gerade, um einen kleinen dunklen Fleck auf einer kleinen weißen Scholle zu erkennen.',
+            'candy'  => 'Am letzten Abschnitt knackt der gefrorene Schokoladenfluss einmal ganz leise, so wie Eis knackt, wenn es beschlossen hat zu schmelzen.',
+            'robot'  => 'Am letzten Abschnitt geht tief in der Fabrik ein Licht an, dann zwei, dann eine ganze Reihe, als würde das Gebäude aufwachen, um zuzusehen.',
+            'farm'   => 'Am letzten Abschnitt taucht ein einzelner Hufabdruck im Schlamm auf, dann noch einer, und endlich führen sie irgendwohin statt überallhin zugleich.',
         ],
     ],
 

@@ -97,6 +97,50 @@ class PromptGenerator
         return $english[$theme] ?? $english['forest'];
     }
 
+    /**
+     * Who comes along.
+     *
+     * A story read to a six-year-old needs somebody beside the hero to talk
+     * to, and the companion is where nearly all the fun lives - so each one
+     * is a small character with an opinion, not a description of an animal.
+     */
+    private const COMPANION_EN = [
+        'forest' => 'An old owl announces that she is coming as far as the second bend and no further. She comes the whole way instead, complaining about the weather at every single stage.',
+        'dino'   => 'A small and extremely loud pterosaur appoints itself lookout. It has never once spotted anything useful, but it is never, ever quiet, which turns out to be almost as good.',
+        'space'  => 'The station sends along a repair drone with one working eye and a habit of humming. It knows the route to exactly one planet and is fairly sure it is the right one.',
+        'ocean'  => 'A grumpy old crab agrees to come on the strict condition that nobody mentions how slowly he swims. Nobody mentions it. He keeps up far better than anyone expects.',
+        'pirate' => 'The ship parrot volunteers first, mostly because it has the map by heart and cannot bear to miss the part where somebody reads it out loud.',
+        'magic'  => 'A candle stub that refuses to go out bobs along behind, lighting entirely the wrong things at entirely the wrong moments and being enormously proud of itself.',
+        'castle' => 'The castle cat comes too. She has been in every room, under every floor and behind every curtain in the place, and she remembers all of them.',
+        'desert' => 'A young camel with strong opinions about walking joins at the gate. She stops when she likes and starts again when she likes, and she has never once been lost.',
+        'arctic' => 'A round little seal follows from the first stage on, sliding ahead on her belly to test the ice and coming back each time to say whether it will hold.',
+        'candy'  => 'A gingerbread mouse comes as guide. He nibbles a notch in every signpost so the way home will be easy to find, and eats a good many signposts entirely.',
+        'robot'  => 'A rusty sweeper robot trundles out of a side door and simply joins in. Its map is forty years out of date, but it knows a shortcut, and the shortcut is real.',
+        'farm'   => 'The farm dog needs no invitation whatsoever. He has been waiting at the gate since sunrise with his nose pointed down the road, entirely certain which way to go.',
+    ];
+
+    /**
+     * The last stretch: the world answering back, just before the end.
+     *
+     * The picture each one paints is the first sign that the journey worked,
+     * so it echoes that theme's opening - the leaves that stopped falling
+     * start again, the frozen river creaks - and never states the ending.
+     */
+    private const FINAL_EN = [
+        'forest' => 'By the last stage the trees have begun leaning in to listen, and the golden leaves that stopped falling this morning start, very slowly, to fall again.',
+        'dino'   => 'At the last stage the ground goes quiet at last, and from somewhere beyond the ridge comes a small roar - not a frightened one this time, but a hopeful one.',
+        'space'  => 'At the last stage the little planet is close enough to see: one dim light in all that dark, flickering like something trying very hard to stay awake.',
+        'ocean'  => 'At the last stage a thin line of colour creeps back into the coral, and the smallest fish swim out through it to meet the travellers.',
+        'pirate' => 'At the last stage the torn map runs out altogether, and the way ahead has to be worked out from the shape of the coast and nothing else at all.',
+        'magic'  => 'At the last stage the mist thins away to nothing, and the old tower is standing there waiting, dark and patient, with one cold lamp at the very top.',
+        'castle' => 'At the last stage the festival flags are already flying, and the whole kingdom is standing about in the square waiting for a bell that has not rung yet.',
+        'desert' => 'At the last stage the wind drops, the sand settles, and the green of the oasis appears on the horizon exactly where the map promised it would be.',
+        'arctic' => 'At the last stage the daylight comes back for one more hour, and one hour is just enough to make out a small dark shape on a small white floe.',
+        'candy'  => 'At the last stage the frozen chocolate river creaks once, very softly, the way ice does when it has quietly decided to start melting.',
+        'robot'  => 'At the last stage one light comes on deep inside the factory, and then two, and then a whole row of them, as though the building were waking up to watch.',
+        'farm'   => 'At the last stage a single hoofprint appears in the mud, and then another, and they lead somewhere at last instead of everywhere at once.',
+    ];
+
     /** What stands in the way, to give the middle of the story some weight */
     private const TROUBLE_EN = [
         'forest' => 'The paths keep rearranging themselves, and the trees have stopped giving directions.',
@@ -280,8 +324,10 @@ class PromptGenerator
          * languages carry their own in app/lang, and fall back to English if
          * one is missing rather than leaving a hole in the page.
          */
-        $opening = self::themePhrase('opening', $theme, $lang, self::OPENING_EN);
-        $trouble = self::themePhrase('trouble', $theme, $lang, self::TROUBLE_EN);
+        $opening   = self::themePhrase('opening', $theme, $lang, self::OPENING_EN);
+        $trouble   = self::themePhrase('trouble', $theme, $lang, self::TROUBLE_EN);
+        $companion = self::themePhrase('companion', $theme, $lang, self::COMPANION_EN);
+        $final     = self::themePhrase('final', $theme, $lang, self::FINAL_EN);
 
         $rescue = trim((string) ($project['rescue_target'] ?? ''))
                ?: self::themePhrase('rescue', $theme, $lang, self::RESCUE_EN);
@@ -289,9 +335,18 @@ class PromptGenerator
         $place = Project::sceneFor($project['setting'] ?? null, $lang);
 
         /*
-         * Four beats, in the order a read-aloud story wants them: the world and
-         * what broke, who is waiting to be found, what makes the journey hard,
-         * and what winning means. Long enough to be worth reading at bedtime.
+         * Seven beats, in the order a read-aloud story wants them: the world
+         * and what broke, who is waiting to be found, setting out and who
+         * comes along, what makes the journey hard, what a wrong answer
+         * really costs, the last stretch, and what winning means.
+         *
+         * Long enough to be worth reading at bedtime and short enough to fit
+         * the printed page under the picture - about 350 words, which is one
+         * sheet with the story sheet's type size.
+         *
+         * A wrong answer gets a beat of its own on purpose. It is the moment
+         * a six-year-old is most likely to give up, and the story says the
+         * same thing the rules do, in words a child hears rather than reads.
          */
         $p1 = $opening;
         if ($place !== '') {
@@ -299,14 +354,20 @@ class PromptGenerator
         }
 
         $p2 = Lang::get('story.p2', $lang, ['hero' => $hero, 'rescue' => rtrim($rescue, '.')]);
-        $p3 = Lang::get('story.p3', $lang, ['cells' => $cells, 'trouble' => $trouble]);
-        $p4 = Lang::get('story.p4', $lang, [
+        $p3 = Lang::get('story.setout', $lang, ['hero' => $hero]) . ' ' . $companion;
+        $p4 = Lang::get('story.p3', $lang, ['cells' => $cells, 'trouble' => $trouble]);
+        $p5 = Lang::get('story.wrong', $lang);
+        $p6 = $final . ' ' . Lang::get('story.last', $lang, [
+            'hero'   => $hero,
+            'rescue' => rtrim($rescue, '.'),
+        ]);
+        $p7 = Lang::get('story.p4', $lang, [
             'hero'   => $hero,
             'rescue' => rtrim($rescue, '.'),
             'title'  => $title,
         ]);
 
-        $story = implode("\n\n", [$p1, $p2, $p3, $p4]);
+        $story = implode("\n\n", [$p1, $p2, $p3, $p4, $p5, $p6, $p7]);
 
         /*
          * The rules follow whichever way this game moves. Only the star spaces

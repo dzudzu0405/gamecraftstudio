@@ -128,10 +128,18 @@ return [
                  . 'there is {rescue}, waiting, with no idea whether help is coming. Nobody older '
                  . 'is willing to go. So {hero} packs a bag, says nothing to anybody, and leaves '
                  . 'while the light is still good.',
+        'setout' => 'Nobody sets out on a journey like this with empty pockets, so {hero} takes bread, '
+                  . 'a blanket, a length of string that will turn out to be the most useful thing '
+                  . 'of the lot, and rather less courage than the occasion calls for.',
+        'wrong'  => 'There will be moments when the answer simply will not come. That is allowed. '
+                  . 'The road takes one step back, waits while you think it through again, and then '
+                  . 'lets you carry on. Nobody is ever sent home for getting something wrong - the '
+                  . 'only way to lose a journey like this one is to stop walking it.',
+        'last'   => 'And then, all at once, there is nothing left between {hero} and {rescue} but '
+                  . 'one last question.',
         'p3'    => 'The road ahead breaks into {cells} stages, and not one of them lets you pass '
-                 . 'for free. {trouble} At every stage there is a question to answer, and answering '
-                 . 'well is the only way forward. Get one wrong and the road takes a step back from '
-                 . 'you - but it never closes.',
+                 . 'for free. {trouble} At every stage there is a question waiting, and answering it '
+                 . 'well is the only way through.',
         'p4'    => 'Reach the end and {rescue} comes home, and the story of how it happened belongs '
                  . 'to {hero} from then on. That story is called "{title}".',
     ],

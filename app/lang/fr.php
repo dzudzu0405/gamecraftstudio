@@ -127,9 +127,18 @@ return [
                  . 'là-bas se trouve {rescue}, qui attend, sans savoir si quelqu’un viendra. Aucun adulte '
                  . 'ne veut y aller. Alors {hero} prépare un sac, ne dit rien à personne et part pendant '
                  . 'qu’il fait encore jour.',
+        'setout' => 'Personne ne part pour un voyage pareil les poches vides, alors {hero} emporte du pain, '
+                  . 'une couverture, un bout de ficelle qui se révélera la chose la plus utile de '
+                  . 'toutes, et bien moins de courage que la situation n’en demande.',
+        'wrong'  => 'Il y aura des moments où la réponse ne viendra pas. C’est permis. La route te '
+                  . 'fait reculer d’un pas, attend le temps que tu réfléchisses encore, puis te '
+                  . 'laisse repartir. Personne n’a jamais été renvoyé chez lui pour s’être trompé : '
+                  . 'la seule façon de perdre un voyage comme celui-ci, c’est d’arrêter de le faire.',
+        'last'   => 'Et puis, d’un coup, il ne reste plus rien entre {hero} et {rescue} qu’une '
+                  . 'dernière question.',
         'p3'    => 'La route se partage en {cells} étapes, et aucune ne laisse passer gratuitement. '
-                 . '{trouble} À chaque étape il y a une question, et bien répondre est le seul moyen '
-                 . 'd’avancer. Une erreur et la route te fait reculer d’un pas, mais elle ne se ferme jamais.',
+                 . '{trouble} À chaque étape une question attend, et bien y répondre est le seul moyen '
+                 . 'd’avancer.',
         'p4'    => 'Arrive au bout et {rescue} rentre à la maison, et l’histoire de ce jour-là appartient '
                  . 'à {hero} pour toujours. Cette histoire s’appelle « {title} ».',
 
@@ -176,6 +185,39 @@ return [
             'candy'  => 'Tout ce qui est sucré est devenu cassant et les ponts se brisent si on traverse trop lentement.',
             'robot'  => 'La moitié des machines suit encore d’anciennes consignes et ignore que la ville est en panne.',
             'farm'   => 'Toutes les barrières sont restées ouvertes et les traces partent dans tous les sens.',
+        ],
+
+        // Qui vient avec eux. C’est là que se trouve presque tout le plaisir
+        // de l’histoire : chacun est un petit personnage, pas une description.
+        'companion' => [
+            'forest' => 'Une vieille chouette annonce qu’elle ira jusqu’au deuxième virage et pas plus loin. Elle fait finalement tout le chemin, en se plaignant du temps à chaque étape.',
+            'dino'   => 'Un petit ptérosaure extrêmement bruyant se nomme lui-même guetteur. Il n’a jamais rien repéré d’utile, mais il ne se tait jamais, ce qui vaut presque aussi bien.',
+            'space'  => 'La station envoie un drone de réparation avec un seul œil en état de marche et l’habitude de fredonner. Il connaît la route vers exactement une planète et pense que c’est la bonne.',
+            'ocean'  => 'Un vieux crabe grognon accepte de venir, à une seule condition : que personne ne parle de sa lenteur. Personne n’en parle. Il suit bien mieux qu’on ne le croyait.',
+            'pirate' => 'Le perroquet du navire se porte volontaire en premier, surtout parce qu’il connaît la carte par cœur et ne supporte pas de rater le moment où quelqu’un la lit à voix haute.',
+            'magic'  => 'Un bout de bougie qui refuse de s’éteindre flotte derrière eux, éclairant tout ce qu’il ne faut pas au moment où il ne faut pas, et très fier de lui.',
+            'castle' => 'La chatte du château vient aussi. Elle est passée dans chaque pièce, sous chaque plancher et derrière chaque rideau, et elle se souvient de tout.',
+            'desert' => 'Une jeune chamelle qui a ses idées bien à elle sur la marche se joint à eux à la porte. Elle s’arrête quand ça lui plaît et repart quand ça lui plaît, et elle ne s’est jamais perdue.',
+            'arctic' => 'Un petit phoque tout rond les suit dès la première étape, filant devant sur le ventre pour tester la glace et revenant chaque fois dire si elle tiendra.',
+            'candy'  => 'Une souris en pain d’épice sert de guide. Elle grignote une encoche dans chaque panneau pour retrouver le chemin du retour, et mange plusieurs panneaux en entier.',
+            'robot'  => 'Un robot balayeur rouillé sort par une porte de côté et se joint à eux sans rien demander. Sa carte a quarante ans, mais il connaît un raccourci, et le raccourci existe vraiment.',
+            'farm'   => 'Le chien de la ferme n’a besoin d’aucune invitation. Il attend au portail depuis le lever du jour, le nez pointé vers la route, absolument certain du chemin à prendre.',
+        ],
+
+        // La dernière étape : le monde qui répond, juste avant la fin.
+        'final' => [
+            'forest' => 'À la dernière étape, les arbres se penchent pour écouter, et les feuilles dorées qui s’étaient arrêtées ce matin recommencent, très lentement, à tomber.',
+            'dino'   => 'À la dernière étape, le sol se calme enfin, et de derrière la crête monte un petit rugissement : pas un rugissement de peur cette fois, mais d’espoir.',
+            'space'  => 'À la dernière étape, la petite planète est assez proche pour qu’on la voie : une lumière faible dans tout ce noir, qui vacille comme une bougie sur le point de s’éteindre.',
+            'ocean'  => 'À la dernière étape, un fil de couleur revient dans le corail, et les plus petits poissons en sortent pour venir à la rencontre des voyageurs.',
+            'pirate' => 'À la dernière étape, la carte déchirée s’arrête tout à fait, et il faut deviner la suite rien qu’à la forme de la côte.',
+            'magic'  => 'À la dernière étape, la brume se défait complètement, et la vieille tour attend là, sombre et patiente, avec une lampe froide tout en haut.',
+            'castle' => 'À la dernière étape, les drapeaux de la fête sont déjà hissés, et tout le royaume attend sur la place une cloche qui n’a pas encore sonné.',
+            'desert' => 'À la dernière étape, le vent tombe, le sable se pose, et le vert de l’oasis apparaît à l’horizon exactement là où la carte l’avait promis.',
+            'arctic' => 'À la dernière étape, le jour revient pour une heure encore, et une heure suffit à distinguer une petite forme sombre sur un petit glaçon blanc.',
+            'candy'  => 'À la dernière étape, la rivière de chocolat gelée craque une fois, tout doucement, comme craque la glace quand elle a décidé de fondre.',
+            'robot'  => 'À la dernière étape, une lumière s’allume au fond de l’usine, puis deux, puis toute une rangée, comme si le bâtiment se réveillait pour regarder.',
+            'farm'   => 'À la dernière étape, une empreinte de sabot apparaît dans la boue, puis une autre, et elles mènent enfin quelque part au lieu de partout à la fois.',
         ],
     ],
 

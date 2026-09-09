@@ -126,9 +126,17 @@ return [
                  . '{rescue}, esperando, sin saber si alguien vendrá a ayudar. Ninguna persona mayor '
                  . 'quiere ir. Así que {hero} prepara una mochila, no dice nada a nadie y sale mientras '
                  . 'todavía hay luz.',
+        'setout' => 'Nadie sale a un viaje así con los bolsillos vacíos, así que {hero} lleva pan, una manta, '
+                  . 'un trozo de cuerda que acabará siendo lo más útil de todo, y bastante menos '
+                  . 'valor del que hace falta.',
+        'wrong'  => 'Habrá momentos en los que la respuesta no llegue. Está permitido. El camino te '
+                  . 'hace retroceder un paso, espera mientras lo piensas otra vez y luego te deja '
+                  . 'seguir. A nadie lo mandan a casa por equivocarse: la única forma de perder un '
+                  . 'viaje como este es dejar de andarlo.',
+        'last'   => 'Y entonces, de golpe, ya no queda nada entre {hero} y {rescue} salvo una última '
+                  . 'pregunta.',
         'p3'    => 'El camino se divide en {cells} etapas, y ninguna deja pasar gratis. {trouble} En cada '
-                 . 'etapa hay una pregunta que responder, y responder bien es la única forma de avanzar. '
-                 . 'Si fallas, el camino te hace retroceder un paso, pero nunca se cierra.',
+                 . 'etapa espera una pregunta, y responderla bien es la única forma de avanzar.',
         'p4'    => 'Llega al final y {rescue} vuelve a casa, y la historia de cómo ocurrió pertenece a '
                  . '{hero} desde ese día. Esa historia se llama "{title}".',
 
@@ -175,6 +183,39 @@ return [
             'candy'  => 'Todo lo dulce se ha vuelto quebradizo y los puentes se parten si cruzas despacio.',
             'robot'  => 'La mitad de las máquinas sigue con órdenes viejas y no sabe que la ciudad está averiada.',
             'farm'   => 'Todas las puertas quedaron abiertas y las huellas van en todas las direcciones a la vez.',
+        ],
+
+        // Quién los acompaña. Aquí está casi toda la gracia de la historia,
+        // así que cada uno es un personaje con carácter, no una descripción.
+        'companion' => [
+            'forest' => 'Una lechuza vieja anuncia que solo llegará hasta la segunda curva. Al final hace el camino entero, quejándose del tiempo en cada etapa.',
+            'dino'   => 'Un pterosaurio pequeño y muy ruidoso se nombra a sí mismo vigía. Nunca ha visto nada útil, pero no se calla jamás, y eso resulta casi igual de bueno.',
+            'space'  => 'La estación envía un dron de reparación con un solo ojo que funciona y la costumbre de tararear. Conoce la ruta a exactamente un planeta y está casi seguro de que es el correcto.',
+            'ocean'  => 'Un cangrejo viejo y gruñón acepta venir con una condición: que nadie mencione lo despacio que nada. Nadie lo menciona. Aguanta el ritmo mucho mejor de lo que todos esperaban.',
+            'pirate' => 'El loro del barco se apunta el primero, sobre todo porque se sabe el mapa de memoria y no soporta perderse la parte en que alguien lo lee en voz alta.',
+            'magic'  => 'Un cabo de vela que se niega a apagarse va flotando detrás, alumbrando justo lo que no toca en el momento que no toca, y muy orgulloso de sí mismo.',
+            'castle' => 'La gata del castillo también viene. Ha estado en todas las salas, bajo todos los suelos y detrás de todas las cortinas, y se acuerda de cada una.',
+            'desert' => 'Una camella joven con ideas muy firmes sobre caminar se une en la puerta. Para cuando quiere y arranca cuando quiere, y no se ha perdido nunca.',
+            'arctic' => 'Una foca pequeña y redonda los sigue desde la primera etapa, deslizándose por delante sobre la barriga para probar el hielo y volviendo cada vez a decir si aguanta.',
+            'candy'  => 'Un ratón de jengibre hace de guía. Mordisquea una muesca en cada cartel para que la vuelta sea fácil de encontrar, y se come unos cuantos carteles enteros.',
+            'robot'  => 'Un robot barrendero oxidado sale por una puerta lateral y se apunta sin más. Su mapa tiene cuarenta años, pero conoce un atajo, y el atajo existe de verdad.',
+            'farm'   => 'El perro de la granja no necesita ninguna invitación. Lleva esperando en la cancela desde el amanecer con el hocico apuntando al camino, seguro del todo de por dónde hay que ir.',
+        ],
+
+        // La última etapa: el mundo respondiendo, justo antes del final.
+        'final' => [
+            'forest' => 'En la última etapa los árboles se han inclinado a escuchar, y las hojas doradas que dejaron de caer esta mañana empiezan, muy despacio, a caer otra vez.',
+            'dino'   => 'En la última etapa el suelo por fin se queda quieto, y desde detrás de la loma llega un rugido pequeño: esta vez no de miedo, sino de esperanza.',
+            'space'  => 'En la última etapa el planeta pequeño ya se ve: una luz débil en toda esa oscuridad, parpadeando como una vela a punto de apagarse.',
+            'ocean'  => 'En la última etapa vuelve al coral una línea fina de color, y los peces más pequeños salen por ella a recibir a los viajeros.',
+            'pirate' => 'En la última etapa el mapa roto se acaba del todo, y hay que averiguar el camino solo por la forma de la costa.',
+            'magic'  => 'En la última etapa la niebla se deshace hasta desaparecer, y la torre vieja está allí esperando, oscura y paciente, con una lámpara fría en lo más alto.',
+            'castle' => 'En la última etapa ya ondean las banderas de la fiesta, y el reino entero espera en la plaza una campana que todavía no ha sonado.',
+            'desert' => 'En la última etapa el viento cae, la arena se posa y el verde del oasis aparece en el horizonte justo donde el mapa lo prometía.',
+            'arctic' => 'En la última etapa la luz del día vuelve una hora más, y una hora basta para distinguir una forma oscura y pequeña sobre un témpano blanco.',
+            'candy'  => 'En la última etapa el río de chocolate helado cruje una vez, muy bajito, como cruje el hielo cuando ha decidido empezar a derretirse.',
+            'robot'  => 'En la última etapa se enciende una luz en el fondo de la fábrica, y luego dos, y luego una fila entera, como si el edificio despertara para mirar.',
+            'farm'   => 'En la última etapa aparece una huella en el barro, y luego otra, y por fin llevan a algún sitio en vez de a todas partes a la vez.',
         ],
     ],
 
