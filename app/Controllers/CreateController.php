@@ -493,7 +493,9 @@ class CreateController extends Controller
             Project::touch((int) $project['id'], $update);
 
             $cards = MissionMatcher::generate($subjects, $difficulty, $plan, $cells, $total,
-                                              null, Lang::of($project));
+                                              null, Lang::of($project),
+                                              MissionMatcher::questionsAlreadyUsed(
+                                                  $this->userId(), (int) $project['id']));
 
             if (!$cards) {
                 Flash::error('No mission templates match those subjects. Try adding another subject.');

@@ -156,6 +156,36 @@ class MissionMatcher
         return $total;
     }
 
+    /**
+     * Questions this buyer's other games already print.
+     *
+     * A household that makes three games should not find the same card in all
+     * three, so these are handed to generate() as already dealt. Capped: a
+     * buyer with forty games does not need every question they have ever had
+     * excluded, and the most recent ones are the ones they would notice.
+     */
+    public static function questionsAlreadyUsed(int $userId, ?int $exceptProjectId = null, int $limit = 1500): array
+    {
+        if ($userId <= 0) {
+            return [];
+        }
+
+        $sql = 'SELECT m.question
+                  FROM project_missions m
+                  JOIN projects p ON p.id = m.project_id
+                 WHERE p.user_id = ?';
+        $params = [$userId];
+
+        if ($exceptProjectId !== null) {
+            $sql .= ' AND p.id <> ?';
+            $params[] = $exceptProjectId;
+        }
+
+        $sql .= ' ORDER BY m.id DESC LIMIT ' . (int) $limit;
+
+        return array_column(Database::all($sql, $params), 'question');
+    }
+
     // ---------------------------------------------------------------
     //  Questions the buyer wrote themselves
     // ---------------------------------------------------------------
@@ -270,7 +300,7 @@ class MissionMatcher
      * @param int $total  Cards required (60 / 90 / 120)
      * @return array Cards with cell_no, slot_no, question, answer, sticker, subject, template_id
      */
-    public static function generate(array $subjects, string $level, ?string $plan, int $cells, int $total, ?int $randomSeed = null, ?string $locale = null): array
+    public static function generate(array $subjects, string $level, ?string $plan, int $cells, int $total, ?int $randomSeed = null, ?string $locale = null, array $avoid = []): array
     {
         $templates = self::matchTemplates($subjects, $level, $plan, $locale);
 
@@ -280,8 +310,18 @@ class MissionMatcher
 
         mt_srand($randomSeed ?? random_int(1, PHP_INT_MAX));
 
-        // how many times each template has been dealt, so its wordings rotate
+        /*
+         * Where each template starts in its list of wordings.
+         *
+         * Starting them all at the written wording made every game open the
+         * same way: the first maths card was phrased identically in game one,
+         * game two and game three. A random start per game moves that around
+         * while still walking through all the wordings before repeating one.
+         */
         $used = [];
+        foreach ($templates as $i => $tpl) {
+            $used[$i] = mt_rand(0, max(0, count(self::phrasings($tpl)) - 1)) - 1;
+        }
 
         /*
          * The loop below deals the templates in turn, which keeps the subjects
@@ -294,7 +334,16 @@ class MissionMatcher
 
         $perCell = (int) max(1, ceil($total / max(1, $cells)));
         $cards   = [];
-        $seen    = [];      // guards against duplicate questions
+
+        /*
+         * Questions already spoken for. Anything the buyer's other games use
+         * starts in here, so a second game reaches for something else before
+         * it reaches for the same card again.
+         */
+        $seen = [];
+        foreach ($avoid as $question) {
+            $seen[mb_strtolower(trim((string) $question))] = true;
+        }
         $ti      = 0;
         $guard   = 0;
 
@@ -339,9 +388,13 @@ class MissionMatcher
                     }
                 }
 
-                // The whole library really is exhausted - accept a repeat
+                /*
+                 * Everything is spoken for. Rather than leave a blank card,
+                 * take one - and only then, so a repeat is the last resort
+                 * rather than the first thing reached for.
+                 */
                 if ($card === null) {
-                    $card = self::renderTemplate($templates[$start]);
+                    $card = self::renderTemplate($templates[$start], $used[$start] ?? null);
                 }
 
                 $card['cell_no'] = $cell;
@@ -476,6 +529,18 @@ class MissionMatcher
             // Simplest case: just a variable name
             if (array_key_exists($expr, $vars)) {
                 return (string) $vars[$expr];
+            }
+
+            /*
+             * {Thing} is {thing} with its first letter raised, for a blank
+             * that starts a sentence. Only the first letter moves, so
+             * "a lake and a sea" becomes "A lake and a sea" and nothing else
+             * about the drawn words changes.
+             */
+            $lower = mb_strtolower(mb_substr($expr, 0, 1)) . mb_substr($expr, 1);
+            if ($expr !== $lower && array_key_exists($lower, $vars)) {
+                $value = (string) $vars[$lower];
+                return mb_strtoupper(mb_substr($value, 0, 1)) . mb_substr($value, 1);
             }
 
             $value = self::evaluate($expr, $vars);

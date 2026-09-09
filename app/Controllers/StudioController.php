@@ -166,7 +166,8 @@ class StudioController extends Controller
                 (int) $project['cells'],
                 $total,
                 null,
-                Lang::of($project)
+                Lang::of($project),
+                MissionMatcher::questionsAlreadyUsed($this->userId(), (int) $project['id'])
             );
         }
 

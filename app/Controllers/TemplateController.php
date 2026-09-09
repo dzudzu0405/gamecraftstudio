@@ -131,7 +131,8 @@ class TemplateController extends Controller
             (int) $cfg['cells'],
             (int) $cfg['mission_cards'],
             null,
-            $language
+            $language,
+            MissionMatcher::questionsAlreadyUsed($this->userId(), $projectId)
         );
         if ($cards) {
             MissionMatcher::saveForProject($projectId, $cards);
