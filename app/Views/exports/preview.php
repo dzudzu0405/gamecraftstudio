@@ -194,7 +194,7 @@ $poseNo    = 0;
                 <?php else: ?>
                     <p class="small muted mb-2">Showing the first 9. Every card is included in the print file.</p>
                     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">
-                        <?php foreach ($missions as $m): ?>
+                        <?php foreach ($missions as $idx => $m): ?>
                             <div class="card pcard<?= $frames['mission'] ? ' pcard--framed pcard--mission' : '' ?><?= $frames['window'] ? ' pcard--tight' : '' ?>"
                                  style="box-shadow:none">
                                 <?php $pose = $poseCount ? ' hero-' . ($poseNo++ % $poseCount + 1) : ''; ?>
@@ -213,7 +213,7 @@ $poseNo    = 0;
                                             <img src="<?= Url::to('art/sticker/' . rawurlencode($m['sticker']) . '.svg?size=15') ?>"
                                                  alt="" width="15" height="15">
                                         </span>
-                                        <span class="small faint">Space <?= (int) $m['cell_no'] ?></span>
+                                        <span class="small faint">Card <?= (int) $idx + 1 ?></span>
                                     </div>
                                     <div class="small bold" style="flex:1;line-height:1.45"><?= H::e($m['question']) ?></div>
                                     <?php /* Shown to the owner here, but not on the printed card -

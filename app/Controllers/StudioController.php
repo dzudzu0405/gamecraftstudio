@@ -24,6 +24,26 @@ use App\Services\PromptGenerator;
  */
 class StudioController extends Controller
 {
+    /**
+     * How many cards one Studio page lists.
+     *
+     * The pile is not split up in the game - this is only so a browser is not
+     * asked to hold 120 edit forms at once.
+     */
+    private const CARDS_PER_PAGE = 30;
+
+    /** Which page a card is listed on, so editing it comes back to the same place */
+    private static function pageOf(int $projectId, int $missionId): int
+    {
+        foreach (array_values(MissionMatcher::forProject($projectId)) as $i => $m) {
+            if ((int) $m['id'] === $missionId) {
+                return intdiv($i, self::CARDS_PER_PAGE) + 1;
+            }
+        }
+
+        return 1;
+    }
+
     public function index(Request $request, array $params): void
     {
         $project = $this->ownedProject((int) ($params['id'] ?? 0));
@@ -31,19 +51,18 @@ class StudioController extends Controller
 
         $missions = MissionMatcher::forProject($pid);
 
-        // Group the cards by map space so they are easy to scan
-        $byCell = [];
-        foreach ($missions as $m) {
-            $byCell[(int) $m['cell_no']][] = $m;
-        }
-        ksort($byCell);
-
-        // Show one space at a time - a game can hold up to 120 cards
-        $cells       = array_keys($byCell);
-        $currentCell = $request->int('cell', $cells[0] ?? 1);
-        if (!in_array($currentCell, $cells, true)) {
-            $currentCell = $cells[0] ?? 1;
-        }
+        /*
+         * The cards are one pile. They do not belong to a space on the board:
+         * a star space just means "take the top card", so they are listed in
+         * the order they print, numbered from 1.
+         *
+         * Still shown a block at a time, because a game can hold 120 cards and
+         * each one carries an edit form.
+         */
+        $pages = array_chunk($missions, self::CARDS_PER_PAGE, true);
+        $page  = $request->int('page', 1);
+        $page  = max(1, min($page, max(1, count($pages))));
+        $shown = $pages[$page - 1] ?? [];
 
         $players = Database::all(
             'SELECT * FROM project_players WHERE project_id = ? ORDER BY sort_order ASC, id ASC',
@@ -57,9 +76,10 @@ class StudioController extends Controller
             'pageTitle'    => $project['title'],
             'project'      => $project,
             'items'        => Project::libraryItems($project),
-            'missions'     => $byCell[$currentCell] ?? [],
-            'cells'        => $cells,
-            'currentCell'  => $currentCell,
+            'missions'     => $shown,
+            'pageCount'    => count($pages),
+            'currentPage'  => $page,
+            'perPage'      => self::CARDS_PER_PAGE,
             'missionCount' => count($missions),
             'expected'     => Difficulty::missionCount((string) $project['difficulty']),
             'progress'     => Project::progress($project),
@@ -99,7 +119,8 @@ class StudioController extends Controller
         Project::touch((int) $project['id']);
 
         Flash::success('Mission card saved.');
-        Response::redirect('/studio/' . (int) $project['id'] . '?cell=' . (int) $mission['cell_no']);
+        Response::redirect('/studio/' . (int) $project['id']
+            . '?page=' . self::pageOf((int) $project['id'], (int) $mission['id']) . '#missions');
     }
 
     /** FR-26: swap the card for another variation of the same template */
@@ -137,7 +158,8 @@ class StudioController extends Controller
             Flash::success('Swapped in a different question.');
         }
 
-        Response::redirect('/studio/' . (int) $project['id'] . '?cell=' . (int) $mission['cell_no']);
+        Response::redirect('/studio/' . (int) $project['id']
+            . '?page=' . self::pageOf((int) $project['id'], (int) $mission['id']) . '#missions');
     }
 
     /** Regenerates every mission card */

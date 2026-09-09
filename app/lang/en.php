@@ -57,7 +57,7 @@ return [
         'prepare'       => 'What to prepare:',
         'prepare_move'  => ['one' => '{n} move card', 'other' => '{n} move cards'],
         'prepare_dice'  => 'the cut-out die',
-        'prepare_cards' => '{total} mission cards split into {piles} piles ({each} per space)',
+        'prepare_cards' => '{total} mission cards shuffled into one pile',
         'prepare_hero'  => ['one' => '{n} hero card', 'other' => '{n} hero cards'],
         'prepare_token' => 'and one token for each player',
     ],
@@ -115,7 +115,7 @@ return [
     'answers' => [
         'warn'  => '<b>For whoever is running the game.</b> Take these last sheets off the back '
                  . 'of the stack and keep them. The mission cards themselves do not show the answers.',
-        'space' => 'Space {n}',
+        'in_order' => 'In the order the cards are printed',
     ],
     // The story page. {placeholders} are filled in from the project; the three
     // phrases that change with the theme stay in PromptGenerator, which is also
@@ -142,14 +142,14 @@ return [
         'move_cards'   => 'On your turn, draw a move card and go forward the number of spaces on it. '
                         . 'Keep the card in front of you.',
         'move_dice'    => 'On your turn, roll the die and go forward that many spaces.',
-        'star'         => 'Land on a space with a star and you draw a mission card from that space. '
-                        . 'Land anywhere else and your turn simply ends.',
+        'star'         => 'Land on a space with a star and you take the top card from the mission '
+                        . 'pile. Land anywhere else and your turn simply ends.',
         'answer'       => 'Answer the question. Get it right and you stay where you are.',
         'wrong_cards'  => 'Get it wrong and you go back by the penalty printed on the move card you drew.',
         'wrong_dice'   => 'Get it wrong and you go back one space.',
-        'return_cards' => 'Put the mission card back at the bottom of its pile, and the move card at '
-                        . 'the bottom of its deck.',
-        'return_dice'  => 'Put the mission card back at the bottom of its pile.',
+        'return_cards' => 'Put the mission card at the bottom of the mission pile, and the move card '
+                        . 'at the bottom of its deck.',
+        'return_dice'  => 'Put the mission card at the bottom of the mission pile.',
         'win'          => 'The first player to reach the FINISH space wins the hero card.',
     ],
 ];

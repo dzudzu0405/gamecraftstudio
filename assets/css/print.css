@@ -479,8 +479,8 @@ html, body {
 
 /*
  * Two columns, because ninety questions down a single column would run to
- * four sheets. The break-inside rules stop a space heading being orphaned
- * at the foot of a column with its questions overleaf.
+ * four sheets. The break-inside rule keeps a question and its answer on the
+ * same line rather than splitting them across the column break.
  */
 .answer-key {
   column-count: 2;
@@ -488,19 +488,26 @@ html, body {
   font-size: 9.5px;
   line-height: 1.4;
 }
-.answer-key__space {
+
+/* Says how to find a question here: by the number printed on the card */
+.answer-key__order {
   font-weight: 800;
   font-size: 9px;
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--accent);
-  margin: 2.5mm 0 1mm;
+  margin: 0 0 1.5mm;
   padding-bottom: .8mm;
   border-bottom: 1px solid var(--line);
-  break-after: avoid;
-  break-inside: avoid;
 }
-.answer-key__space:first-child { margin-top: 0; }
+
+/* Fixed width so the numbers line up down the column */
+.answer-key__n {
+  flex: 0 0 7mm;
+  color: var(--accent);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
 
 .answer-key__row {
   display: flex;

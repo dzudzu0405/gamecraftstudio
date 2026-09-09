@@ -42,7 +42,7 @@ $ownQuestions = Project::usesOwnQuestions($project);
                         <div class="stat__value" style="color:<?= $complete ? 'var(--green)' : 'var(--amber)' ?>">
                             <?= (int) $missionCount ?>
                         </div>
-                        <div class="stat__sub"><?= (int) $project['cells'] ?> spaces &times; <?= (int) $perCell ?> cards</div>
+                        <div class="stat__sub">one shared pile</div>
                     </div>
                     <div class="stat">
                         <div class="stat__label">Matching templates</div>
@@ -184,7 +184,7 @@ $ownQuestions = Project::usesOwnQuestions($project);
                         open the Studio to edit or swap any you are not happy with.</i></b></span>
                     </div>
 
-                    <?php foreach ($sample as $m): ?>
+                    <?php foreach ($sample as $idx => $m): ?>
                         <div class="mission-row">
                             <span class="mission-row__sticker">
                                 <img src="<?= Url::to('art/sticker/' . rawurlencode($m['sticker']) . '.svg?size=20') ?>"
@@ -197,7 +197,7 @@ $ownQuestions = Project::usesOwnQuestions($project);
                                 <?php endif; ?>
                             </div>
                             <span class="badge badge--tier nowrap">
-                                Space <?= (int) $m['cell_no'] ?>
+                                Card <?= (int) $idx + 1 ?>
                                 <?php if ($m['subject']): ?>
                                     &middot; <?= H::e(MissionMatcher::subjectLabel((string) $m['subject'])) ?>
                                 <?php endif; ?>

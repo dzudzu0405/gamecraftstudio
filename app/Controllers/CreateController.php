@@ -201,7 +201,6 @@ class CreateController extends Controller
             case 4:
                 $data['missionCount'] = MissionMatcher::countForProject((int) $project['id']);
                 $data['expected']     = Difficulty::missionCount((string) $project['difficulty']);
-                $data['perCell']      = Difficulty::MISSIONS_PER_CELL;
                 $data['subjects']     = MissionMatcher::SUBJECTS;
                 $data['chosen']       = Project::subjects($project);
                 $data['templates']    = MissionMatcher::matchTemplates(

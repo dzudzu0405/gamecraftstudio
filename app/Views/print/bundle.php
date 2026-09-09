@@ -390,14 +390,12 @@ $qSize = function (string $question): string {
                         <div class="answer-warn"><?= $t('answers.warn') ?></div>
                     <?php endif; ?>
 
+                    <div class="answer-key__order"><?= H::e($t('answers.in_order')) ?></div>
+
                     <div class="answer-key">
-                        <?php $lastCell = null; ?>
                         <?php foreach ($rows as $r): ?>
-                            <?php if ($r['cell'] !== $lastCell): ?>
-                                <div class="answer-key__space"><?= H::e($t('answers.space', ['n' => (int) $r['cell']])) ?></div>
-                                <?php $lastCell = $r['cell']; ?>
-                            <?php endif; ?>
                             <div class="answer-key__row">
+                                <span class="answer-key__n"><?= (int) $r['n'] ?></span>
                                 <span class="answer-key__q"><?= H::e($r['question']) ?></span>
                                 <span class="answer-key__a"><?= H::e($r['answer']) ?></span>
                             </div>

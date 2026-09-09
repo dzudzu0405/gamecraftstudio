@@ -57,7 +57,7 @@ return [
         'prepare'       => 'Ce qu’il faut préparer :',
         'prepare_move'  => ['one' => '{n} carte déplacement', 'other' => '{n} cartes déplacement'],
         'prepare_dice'  => 'le dé à découper',
-        'prepare_cards' => '{total} cartes mission réparties en {piles} tas ({each} par case)',
+        'prepare_cards' => '{total} cartes mission mélangées en une seule pioche',
         'prepare_hero'  => ['one' => '{n} carte du champion', 'other' => '{n} cartes du champion'],
         'prepare_token' => 'et un pion pour chaque joueur',
     ],
@@ -116,7 +116,7 @@ return [
     'answers' => [
         'warn'  => '<b>Pour la personne qui anime la partie.</b> Retire ces dernières feuilles du bas de '
                  . 'la pile et garde-les. Les cartes mission ne portent pas les réponses.',
-        'space' => 'Case {n}',
+        'in_order' => 'Dans l’ordre où les cartes sont imprimées',
     ],
     // La page de l’histoire. Les {marqueurs} sont remplis avec les données du jeu.
     'story' => [
@@ -208,13 +208,13 @@ return [
         'move_cards'   => 'À ton tour, tire une carte déplacement et avance du nombre de cases indiqué. '
                         . 'Garde la carte devant toi.',
         'move_dice'    => 'À ton tour, lance le dé et avance d’autant de cases.',
-        'star'         => 'Si tu tombes sur une case avec une étoile, tire une carte mission de cette case. '
-                        . 'Sur n’importe quelle autre case, ton tour s’arrête là.',
+        'star'         => 'Si tu tombes sur une case avec une étoile, prends la carte du dessus de la '
+                        . 'pioche mission. Sur n’importe quelle autre case, ton tour s’arrête là.',
         'answer'       => 'Réponds à la question. Si c’est juste, tu restes où tu es.',
         'wrong_cards'  => 'Si c’est faux, recule du nombre de cases inscrit sur la carte déplacement que tu as tirée.',
         'wrong_dice'   => 'Si c’est faux, recule d’une case.',
-        'return_cards' => 'Remets la carte mission sous son tas, et la carte déplacement sous sa pioche.',
-        'return_dice'  => 'Remets la carte mission sous son tas.',
+        'return_cards' => 'Remets la carte mission sous la pioche mission, et la carte déplacement sous la sienne.',
+        'return_dice'  => 'Remets la carte mission sous la pioche mission.',
         'win'          => 'Le premier joueur qui atteint la case ARRIVÉE gagne la carte du champion.',
     ],
 ];

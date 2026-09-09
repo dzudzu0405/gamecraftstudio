@@ -247,6 +247,68 @@ try {
         }
     }
 
+    /*
+     * The rules used to say a mission card belonged to the space you landed
+     * on. It never did: the cards are one shuffled pile, and a star space
+     * means "take the top card". The language files say that now, but each
+     * project keeps its own copy of the rules from the day it was made, so
+     * those copies are corrected here as well.
+     *
+     * Only the sentence exactly as it was written is replaced. A rule the
+     * buyer has reworded does not match it, and is left as they left it.
+     */
+    if (Database::tableExists('projects')) {
+        $rewrites = [
+            ['Land on a space with a star and you draw a mission card from that space.',
+             'Land on a space with a star and you take the top card from the mission pile.'],
+            ['Put the mission card back at the bottom of its pile, and the move card at the bottom of its deck.',
+             'Put the mission card at the bottom of the mission pile, and the move card at the bottom of its deck.'],
+            ['Put the mission card back at the bottom of its pile.',
+             'Put the mission card at the bottom of the mission pile.'],
+
+            ['Si caes en una casilla con estrella, roba una carta de misión de esa casilla.',
+             'Si caes en una casilla con estrella, coge la carta de arriba del montón de misiones.'],
+            ['Devuelve la carta de misión al fondo de su montón, y la carta de movimiento al fondo de su mazo.',
+             'Pon la carta de misión al fondo del montón de misiones, y la de movimiento al fondo de su mazo.'],
+            ['Devuelve la carta de misión al fondo de su montón.',
+             'Pon la carta de misión al fondo del montón de misiones.'],
+
+            ['Si tu tombes sur une case avec une étoile, tire une carte mission de cette case.',
+             'Si tu tombes sur une case avec une étoile, prends la carte du dessus de la pioche mission.'],
+            ['Remets la carte mission sous son tas, et la carte déplacement sous sa pioche.',
+             'Remets la carte mission sous la pioche mission, et la carte déplacement sous la sienne.'],
+            ['Remets la carte mission sous son tas.',
+             'Remets la carte mission sous la pioche mission.'],
+
+            ['Landest du auf einem Feld mit Stern, ziehst du eine Missionskarte von diesem Feld.',
+             'Landest du auf einem Feld mit Stern, nimmst du die oberste Karte vom Missionsstapel.'],
+            ['Lege die Missionskarte unter ihren Stapel und die Zugkarte unter den Zugstapel.',
+             'Lege die Missionskarte unter den Missionsstapel und die Zugkarte unter den Zugstapel.'],
+            ['Lege die Missionskarte unter ihren Stapel.',
+             'Lege die Missionskarte unter den Missionsstapel.'],
+        ];
+
+        $fixed = 0;
+
+        foreach (Database::all("SELECT id, how_to_play FROM projects WHERE how_to_play IS NOT NULL AND how_to_play <> ''") as $row) {
+            $before = (string) $row['how_to_play'];
+            $after  = $before;
+
+            foreach ($rewrites as [$old, $new]) {
+                $after = str_replace($old, $new, $after);
+            }
+
+            if ($after !== $before) {
+                Database::update('projects', ['how_to_play' => $after], ['id' => (int) $row['id']]);
+                $fixed++;
+            }
+        }
+
+        if ($fixed > 0) {
+            step('Corrected the mission-card rule on ' . $fixed . ' project' . ($fixed === 1 ? '' : 's'));
+        }
+    }
+
     if (!$log) {
         step('Everything is already up to date. Nothing needed changing.');
     }

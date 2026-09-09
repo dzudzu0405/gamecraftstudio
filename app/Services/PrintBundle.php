@@ -187,9 +187,10 @@ class PrintBundle
     /**
      * Splits the answers into printable sheets.
      *
-     * Kept in playing order - space 1 first, then its five cards - so the
-     * person checking can find a question by where the child landed rather
-     * than by reading every line.
+     * The cards are one shuffled pile, so there is no place on the board to
+     * look a question up by. They are numbered in the order they are printed
+     * instead: card 41 on the sheets is line 41 here, which is how the person
+     * checking finds it without reading every line.
      */
     public static function answerKey(array $missions): array
     {
@@ -199,6 +200,7 @@ class PrintBundle
             $answer = trim((string) ($m['answer'] ?? ''));
 
             $rows[] = [
+                // kept only to hold the printed order
                 'cell'     => (int) ($m['cell_no'] ?? 0),
                 'slot'     => (int) ($m['slot_no'] ?? 0),
                 'question' => (string) ($m['question'] ?? ''),
@@ -209,6 +211,10 @@ class PrintBundle
         }
 
         usort($rows, fn($a, $b) => [$a['cell'], $a['slot']] <=> [$b['cell'], $b['slot']]);
+
+        foreach ($rows as $i => $row) {
+            $rows[$i]['n'] = $i + 1;
+        }
 
         return array_chunk($rows, self::ANSWERS_PER_SHEET);
     }
@@ -280,8 +286,6 @@ class PrintBundle
                 : Lang::get('howto.prepare_dice', $lang),
             Lang::get('howto.prepare_cards', $lang, [
                 'total' => $cells * Difficulty::MISSIONS_PER_CELL,
-                'piles' => $cells,
-                'each'  => Difficulty::MISSIONS_PER_CELL,
             ]),
             Lang::choose('howto.prepare_hero', Difficulty::HERO_CARDS_PER_GAME, $lang),
             Lang::get('howto.prepare_token', $lang),

@@ -56,7 +56,7 @@ return [
         'prepare'       => 'Das wird gebraucht:',
         'prepare_move'  => ['one' => '{n} Zugkarte', 'other' => '{n} Zugkarten'],
         'prepare_dice'  => 'der ausgeschnittene Würfel',
-        'prepare_cards' => '{total} Missionskarten, aufgeteilt auf {piles} Stapel ({each} pro Feld)',
+        'prepare_cards' => '{total} Missionskarten in einem gemischten Stapel',
         'prepare_hero'  => ['one' => '{n} Siegerkarte', 'other' => '{n} Siegerkarten'],
         'prepare_token' => 'und eine Spielfigur für jeden Spieler',
     ],
@@ -115,7 +115,7 @@ return [
     'answers' => [
         'warn'  => '<b>Für die Person, die das Spiel leitet.</b> Nimm diese letzten Blätter hinten vom '
                  . 'Stapel weg und behalte sie. Auf den Missionskarten selbst stehen die Antworten nicht.',
-        'space' => 'Feld {n}',
+        'in_order' => 'In der Reihenfolge, in der die Karten gedruckt sind',
     ],
     // Die Geschichtenseite. Die {Platzhalter} werden aus dem Spiel gefüllt.
     // Der Schauplatz steht hinter einem Doppelpunkt: welche Präposition davor
@@ -211,14 +211,14 @@ return [
         'move_cards'   => 'Ziehe in deinem Zug eine Zugkarte und rücke so viele Felder vor, wie darauf '
                         . 'steht. Lege die Karte vor dich hin.',
         'move_dice'    => 'Würfle in deinem Zug und rücke so viele Felder vor.',
-        'star'         => 'Landest du auf einem Feld mit Stern, ziehst du eine Missionskarte von diesem '
-                        . 'Feld. Auf jedem anderen Feld endet dein Zug einfach.',
+        'star'         => 'Landest du auf einem Feld mit Stern, nimmst du die oberste Karte vom '
+                        . 'Missionsstapel. Auf jedem anderen Feld endet dein Zug einfach.',
         'answer'       => 'Beantworte die Frage. Ist sie richtig, bleibst du stehen, wo du bist.',
         'wrong_cards'  => 'Ist sie falsch, gehst du so viele Felder zurück, wie auf deiner gezogenen '
                         . 'Zugkarte steht.',
         'wrong_dice'   => 'Ist sie falsch, gehst du ein Feld zurück.',
-        'return_cards' => 'Lege die Missionskarte unter ihren Stapel und die Zugkarte unter den Zugstapel.',
-        'return_dice'  => 'Lege die Missionskarte unter ihren Stapel.',
+        'return_cards' => 'Lege die Missionskarte unter den Missionsstapel und die Zugkarte unter den Zugstapel.',
+        'return_dice'  => 'Lege die Missionskarte unter den Missionsstapel.',
         'win'          => 'Wer zuerst das ZIEL-Feld erreicht, gewinnt die Siegerkarte.',
     ],
 ];

@@ -12,7 +12,9 @@ namespace App\Services;
  *   STANDARD   18-space map    90 mission cards
  *   ADVANCED   24-space map   120 mission cards
  *
- * 60 / 12 = 90 / 18 = 120 / 24 = 5  ->  five cards to draw at each space.
+ * 60 / 12 = 90 / 18 = 120 / 24 = 5. The cards are one shuffled pile - nothing
+ * is stacked on a space - so that five is only the ratio that sizes the deck
+ * against the map: five draws for every star space a game could hold.
  */
 class Difficulty
 {
@@ -24,7 +26,7 @@ class Difficulty
     public const MOVE_CARDS_PER_GAME = 12;
     public const HERO_CARDS_PER_GAME = 1;
 
-    /** Mission cards stacked at each space */
+    /** Mission cards per space on the map - the deck is sized from this, not split by it */
     public const MISSIONS_PER_CELL = 5;
 
     public static function all(): array

@@ -66,7 +66,7 @@ $diff   = Difficulty::get((string) $project['difficulty']);
                 </form>
             </div>
 
-            <?php if (!$cells): ?>
+            <?php if (!$missionCount): ?>
                 <div class="card__body">
                     <div class="empty" style="border:0;padding:26px 10px">
                         <div class="empty__icon"><?= Icon::get('flag', 34) ?></div>
@@ -82,21 +82,29 @@ $diff   = Difficulty::get((string) $project['difficulty']);
                 </div>
             <?php else: ?>
 
-                <!-- Pick a space on the map -->
+                <!-- One shared pile: a star space means "take the top card" -->
                 <div class="card__body" style="padding-bottom:10px">
-                    <div class="small muted mb-1">Choose a space to see the cards stacked on it</div>
-                    <div class="flex flex-wrap gap-1">
-                        <?php foreach ($cells as $c): ?>
-                            <a class="chip <?= $c === $currentCell ? 'chip--active' : '' ?>"
-                               href="<?= Url::to('/studio/' . $pid) ?>?cell=<?= (int) $c ?>#missions">
-                                Space <?= (int) $c ?>
-                            </a>
-                        <?php endforeach; ?>
+                    <div class="small muted mb-1">
+                        All the cards are one pile - landing on a star space means drawing the top card.
                     </div>
+                    <?php if ($pageCount > 1): ?>
+                        <div class="flex flex-wrap gap-1">
+                            <?php for ($p = 1; $p <= $pageCount; $p++): ?>
+                                <?php
+                                    $from = ($p - 1) * $perPage + 1;
+                                    $to   = min($p * $perPage, (int) $missionCount);
+                                ?>
+                                <a class="chip <?= $p === $currentPage ? 'chip--active' : '' ?>"
+                                   href="<?= Url::to('/studio/' . $pid) ?>?page=<?= $p ?>#missions">
+                                    <?= $from ?>-<?= $to ?>
+                                </a>
+                            <?php endfor; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <div style="border-top:1px solid var(--line)">
-                    <?php foreach ($missions as $m): ?>
+                    <?php foreach ($missions as $idx => $m): ?>
                         <?php $isCustom = ($m['source'] ?? '') === 'custom'; ?>
                         <details class="mission-row <?= $isCustom ? 'mission-row--custom' : '' ?>" style="display:block">
                             <summary style="display:flex;gap:11px;align-items:flex-start;cursor:pointer;list-style:none">
@@ -114,7 +122,7 @@ $diff   = Difficulty::get((string) $project['difficulty']);
                                     <?php if ($isCustom): ?>
                                         <span class="badge badge--new">Your own</span>
                                     <?php endif; ?>
-                                    <span class="badge badge--tier">Card <?= (int) $m['slot_no'] ?></span>
+                                    <span class="badge badge--tier">Card <?= (int) $idx + 1 ?></span>
                                     <button type="button" class="btn btn--ghost btn--sm"
                                             data-reroll="<?= Url::to('/studio/' . $pid . '/mission/' . (int) $m['id'] . '/reroll') ?>"
                                             title="Swap for a different question">

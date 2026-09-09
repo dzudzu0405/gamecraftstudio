@@ -56,7 +56,7 @@ return [
         'prepare'       => 'Qué hay que preparar:',
         'prepare_move'  => ['one' => '{n} carta de movimiento', 'other' => '{n} cartas de movimiento'],
         'prepare_dice'  => 'el dado recortable',
-        'prepare_cards' => '{total} cartas de misión repartidas en {piles} montones ({each} por casilla)',
+        'prepare_cards' => '{total} cartas de misión barajadas en un solo montón',
         'prepare_hero'  => ['one' => '{n} carta de campeón', 'other' => '{n} cartas de campeón'],
         'prepare_token' => 'y una ficha para cada jugador',
     ],
@@ -115,7 +115,7 @@ return [
     'answers' => [
         'warn'  => '<b>Para quien dirige el juego.</b> Separa estas últimas hojas del final del '
                  . 'montón y guárdalas. Las cartas de misión no llevan la respuesta.',
-        'space' => 'Casilla {n}',
+        'in_order' => 'En el orden en que se imprimen las cartas',
     ],
     // La página de la historia. Los {marcadores} se rellenan con los datos del juego.
     'story' => [
@@ -207,13 +207,13 @@ return [
         'move_cards'   => 'En tu turno, roba una carta de movimiento y avanza las casillas que indique. '
                         . 'Deja la carta delante de ti.',
         'move_dice'    => 'En tu turno, tira el dado y avanza ese número de casillas.',
-        'star'         => 'Si caes en una casilla con estrella, roba una carta de misión de esa casilla. '
-                        . 'Si caes en cualquier otra, tu turno termina sin más.',
+        'star'         => 'Si caes en una casilla con estrella, coge la carta de arriba del montón '
+                        . 'de misiones. Si caes en cualquier otra, tu turno termina sin más.',
         'answer'       => 'Responde la pregunta. Si aciertas, te quedas donde estás.',
         'wrong_cards'  => 'Si fallas, retrocede lo que indique el castigo escrito en la carta de movimiento que robaste.',
         'wrong_dice'   => 'Si fallas, retrocede una casilla.',
-        'return_cards' => 'Devuelve la carta de misión al fondo de su montón, y la carta de movimiento al fondo de su mazo.',
-        'return_dice'  => 'Devuelve la carta de misión al fondo de su montón.',
+        'return_cards' => 'Pon la carta de misión al fondo del montón de misiones, y la de movimiento al fondo de su mazo.',
+        'return_dice'  => 'Pon la carta de misión al fondo del montón de misiones.',
         'win'          => 'El primer jugador que llegue a la casilla de META gana la carta de campeón.',
     ],
 ];
