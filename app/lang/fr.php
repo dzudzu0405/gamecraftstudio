@@ -111,6 +111,7 @@ return [
         'player' => 'Joueur {n}',
         'note' => 'Chaque joueur reçoit deux pions : un pour jouer et un de rechange. Colle-les sur du '
                 . 'carton épais et découpe autour du cercle pour qu’ils tiennent debout sur le plateau.',
+        'models' => 'Encore mieux : prends une petite figurine pour marquer où tu es. Tout ce qui tient sur une case fait l’affaire - une figurine, un bouton, une perle ou une pièce.',
     ],
 
     'answers' => [

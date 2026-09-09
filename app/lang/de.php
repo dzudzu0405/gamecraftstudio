@@ -110,6 +110,7 @@ return [
         'player' => 'Spieler {n}',
         'note' => 'Jeder Spieler bekommt zwei Figuren: eine zum Spielen und eine als Ersatz. Klebe sie '
                 . 'auf festen Karton und schneide rund um den Kreis aus, damit sie auf dem Plan stehen.',
+        'models' => 'Noch besser: Nimm eine kleine Spielfigur, um zu zeigen, wo du stehst. Alles, was auf ein Feld passt, geht - eine Figur, ein Knopf, eine Perle oder eine Münze.',
     ],
 
     'answers' => [

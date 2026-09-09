@@ -545,23 +545,34 @@ html, body {
    Player tokens
    -------------------------------------------------------------------------- */
 
+/*
+ * Sized against the board, not against the page.
+ *
+ * A mission space prints 15.6mm across - 92px of a 1600px map laid over an
+ * A4 landscape sheet. The token used to be cut at 32mm, more than twice
+ * that, so it covered the space it stood on and both its neighbours. At
+ * 14mm it sits inside a space with the coloured ring still showing round it.
+ *
+ * Six across rather than four: the discs are less than half the width now,
+ * and twelve of them (six players, two each) fit on two rows.
+ */
 .tokens {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8mm 6mm;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 7mm 4mm;
   padding-top: 6mm;
 }
 .token-cut { text-align: center; }
 .token-cut__circle {
-  width: 32mm; height: 32mm;
-  margin: 0 auto 3mm;
+  width: 14mm; height: 14mm;
+  margin: 0 auto 2mm;
   border: 1px dashed var(--cut);
   border-radius: 50%;
   display: grid; place-items: center;
-  padding: 2mm;
+  padding: 0.8mm;
 }
 .token-cut__circle img { width: 100%; height: 100%; display: block; }
-.token-cut__name { font-size: 10px; font-weight: 700; }
+.token-cut__name { font-size: 8.5px; font-weight: 700; }
 
 /* --------------------------------------------------------------------------
    Actual printing

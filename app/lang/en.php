@@ -110,6 +110,7 @@ return [
         'player' => 'Player {n}',
         'note' => 'Each player gets two tokens - one to use and one spare. Glue them onto thick '
                 . 'card and cut around the circle so they stand up on the map.',
+        'models' => 'Even better: use a small toy figure to mark where you are. Anything that stands on one space will do - a mini figure, a button, a bead or a coin.',
     ],
 
     'answers' => [

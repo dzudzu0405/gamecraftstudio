@@ -385,6 +385,7 @@ $qSize = function (string $question): string {
 
                 <div class="callout" style="margin-top:10mm">
                     <?= H::e($t('tokens.note')) ?>
+                    <div style="margin-top:6px"><b><?= H::e($t('tokens.models')) ?></b></div>
                 </div>
             </div>
             <?php $foot(); ?>

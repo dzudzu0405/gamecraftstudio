@@ -5,7 +5,7 @@
  */
 
 define('GC_ROOT', dirname(__DIR__));
-define('GC_VERSION', '1.1.2');
+define('GC_VERSION', '1.1.3');
 
 // --- Namespace autoloader (no Composer needed) ---
 spl_autoload_register(function (string $class): void {

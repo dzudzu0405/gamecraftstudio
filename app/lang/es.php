@@ -110,6 +110,7 @@ return [
         'player' => 'Jugador {n}',
         'note' => 'Cada jugador recibe dos fichas: una para jugar y otra de repuesto. Pégalas sobre '
                 . 'cartulina gruesa y recorta alrededor del círculo para que se sostengan en el tablero.',
+        'models' => 'Mejor aún: usa una figurita para marcar dónde estás. Sirve cualquier cosa que quepa en una casilla: un muñequito, un botón, una cuenta o una moneda.',
     ],
 
     'answers' => [
