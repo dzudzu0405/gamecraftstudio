@@ -6,6 +6,7 @@ use App\Core\Icon;
 use App\Core\Url;
 use App\Core\View;
 use App\Models\Project;
+use App\Services\Difficulty;
 use App\Services\Library;
 
 echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
@@ -87,14 +88,33 @@ $missionFrame = function (array $item): array {
 
             <!-- Map frame -->
             <div class="card mb-2">
+                <?php
+                    $cells    = (int) $project['cells'];
+                    $yours    = count(array_filter($maps, fn($m) => empty($m['locked'])));
+                    $allSizes = Library::countForPlan(Library::KIND_MAP, $planKey);
+                    $level    = Difficulty::name((string) $project['difficulty']);
+                ?>
                 <div class="card__head">
                     <h3>Map frame</h3>
-                    <span class="small muted"><?= count($maps) ?> frames with <?= (int) $project['cells'] ?> spaces</span>
+                    <span class="small muted">
+                        <?= $yours ?> of your <?= $allSizes ?> frames have <?= $cells ?> spaces
+                    </span>
                 </div>
                 <div class="card__body">
                     <p class="small muted mb-2">
-                        The frame decides how the <?= (int) $project['cells'] ?> mission spaces are laid out on the
-                        printed page. Your background image goes behind it at the next step.
+                        The frame decides how the <?= $cells ?> mission spaces are laid out on the
+                        printed page, and your background image goes behind it at the next step.
+                    </p>
+                    <?php /* The plan card promises a total across all three sizes; this
+                             page can only offer the size this game plays on. Saying so
+                             here saves the buyer counting and coming to the wrong
+                             conclusion about what their plan includes. */ ?>
+                    <p class="small muted mb-2">
+                        Your plan has <b><?= $allSizes ?> map frames</b> in all, across the three board
+                        sizes. Only the <?= $cells ?>-space ones are shown, because that is what the
+                        <b><?= H::e($level) ?></b> level plays on -
+                        <a href="<?= Url::to('/create/' . (int) $project['id'] . '/step/1') ?>">change the level at step 1</a>
+                        to use the others.
                     </p>
 
                     <?php $renderPicker('map_item_id', $maps, $project['map_item_id'],
