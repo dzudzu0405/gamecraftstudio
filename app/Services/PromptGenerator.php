@@ -48,19 +48,27 @@ class PromptGenerator
         'de' => 'German',
     ];
 
+    /**
+     * The scene for each theme, when the buyer left the place blank.
+     *
+     * Empty landscapes, every one of them: no creatures and nothing glowing.
+     * The backdrop prompt asks for scenery with nobody in it, and these are
+     * the words it hands over - a line here that mentions playful penguins is
+     * an instruction to draw playful penguins, whatever the rest of it says.
+     */
     private const THEME_EN = [
-        'forest' => 'a lush enchanted forest with tall friendly trees, mossy rocks and a winding dirt trail',
-        'dino'   => 'a prehistoric valley with gentle dinosaurs, giant ferns, volcanoes far in the background',
-        'space'  => 'a colourful outer-space scene with planets, drifting asteroids and a starry nebula',
-        'ocean'  => 'a bright underwater world with coral reefs, friendly fish and rays of sunlight',
-        'pirate' => 'a sunny tropical pirate cove with a wooden ship, palm trees and a sandy beach',
-        'magic'  => 'a whimsical wizard realm with floating crystals, glowing mushrooms and starlight',
-        'castle' => 'a storybook kingdom with a fairytale castle, rolling green hills and banners',
-        'desert' => 'a warm desert canyon with cacti, sandstone arches and a hidden oasis',
-        'arctic' => 'an icy polar landscape with snow drifts, icebergs and playful penguins',
-        'candy'  => 'a sweet candy land with lollipop trees, chocolate rivers and gumdrop hills',
-        'robot'  => 'a friendly robot factory city with pipes, gears and glowing control panels',
-        'farm'   => 'a cheerful countryside farm with a red barn, vegetable patches and haystacks',
+        'forest' => 'a quiet old forest of tall trees, mossy rocks and a winding dirt trail',
+        'dino'   => 'a prehistoric valley of giant ferns, fallen logs and volcanoes far away',
+        'space'  => 'an open stretch of space with distant planets and drifting asteroids',
+        'ocean'  => 'a shallow underwater scene of coral, rippled sand and seagrass',
+        'pirate' => 'a tropical cove with palm trees, a wooden jetty and a sandy beach',
+        'magic'  => 'a wizard realm of floating rocks, tall toadstools and pale drifting mist',
+        'castle' => 'a storybook kingdom of castle towers, rolling green hills and banners',
+        'desert' => 'a desert canyon of cacti, sandstone arches and a quiet oasis pool',
+        'arctic' => 'a polar landscape of snow drifts, icebergs and long low hills',
+        'candy'  => 'a candy land of lollipop trees, a chocolate river and gumdrop hills',
+        'robot'  => 'a factory city of pipes, gantries, gears and quiet empty walkways',
+        'farm'   => 'a countryside farm of red barns, vegetable patches and haystacks',
     ];
 
     public static function styleKeys(): array
@@ -76,24 +84,30 @@ class PromptGenerator
     /**
      * The main prompt for generating a map background image.
      *
-     * The scene comes from what the buyer typed - the place, and who they are
-     * setting out to rescue. The theme only supplies the colours and a fallback
-     * scene for when they left the place blank, so the picture follows their
-     * words while still matching the frame and cards printed alongside it.
+     * The scene comes from the place the buyer chose. The theme only supplies
+     * the colours and a fallback scene for when they left the place blank, so
+     * the picture follows their words while still matching the frame and the
+     * cards printed alongside it.
      *
-     * Everything here pushes towards a PALE picture. A game board with white
-     * squares and bold outlines gets laid on top, and a vivid background wins
-     * that fight every time.
+     * Two things this prompt is built around, both learned from a real one:
      *
-     * @param array  $project Project record (setting, rescue_target, theme, cells)
+     * It used to offer to hint at the rescue somewhere in the scenery, and
+     * came back with an owl and a rabbit looking at the camera - beside the
+     * printed characters, which are drawn in a different hand entirely. It
+     * asks for empty scenery now, and says so four ways.
+     *
+     * And everything here pushes towards a PALE, even picture. A board with
+     * white spaces and bold outlines is laid over the whole thing, and a
+     * vivid backdrop wins that fight every time.
+     *
+     * @param array  $project Project record (setting, theme, cells)
      * @param string $style   A key from STYLES
      */
     public static function background(array $project, string $style = 'storybook'): string
     {
-        $theme  = (string) ($project['theme'] ?? 'forest');
-        $cells  = MapComposer::normalizeCells((int) ($project['cells'] ?? 18));
-        $scene  = Project::sceneFor($project['setting'] ?? null);
-        $rescue = trim((string) ($project['rescue_target'] ?? ''));
+        $theme = (string) ($project['theme'] ?? 'forest');
+        $cells = MapComposer::normalizeCells((int) ($project['cells'] ?? 18));
+        $scene = Project::sceneFor($project['setting'] ?? null);
 
         /*
          * Nothing typed -> fall back to a scene. A buyer drawing their own
@@ -109,27 +123,32 @@ class PromptGenerator
         $palette = Art::palette($theme);
 
         $lines = [];
-        $lines[] = 'Create a horizontal BACKDROP illustration for a printable children\'s board game.';
+        $lines[] = 'Draw an EMPTY LANDSCAPE to print behind a children\'s board game.';
         $lines[] = '';
-        $lines[] = 'SCENE: ' . rtrim($scene, '.') . '.';
-
-        if ($rescue !== '') {
-            $lines[] = 'STORY: the players are travelling to rescue ' . rtrim($rescue, '.')
-                     . '. You may hint at this somewhere in the scenery, but keep it small';
-            $lines[] = '       and off to one side - it must not become the subject of the picture.';
-        }
-
+        $lines[] = 'PLACE: ' . rtrim($scene, '.') . '.';
         $lines[] = 'STYLE: ' . $styleEn . '.';
         $lines[] = 'ASPECT RATIO: 16:11 landscape (about 1600 x 1100 pixels).';
         $lines[] = '';
-        $lines[] = 'THIS IS THE MOST IMPORTANT INSTRUCTION - KEEP IT PALE:';
-        $lines[] = 'A printed game board will be laid on top of this image and will cover almost';
-        $lines[] = 'all of it. That board has white squares, bright green squares and bold black';
-        $lines[] = 'outlines, and it has to stay perfectly readable over whatever you draw.';
-        $lines[] = '- Draw everything as a soft, faded wash, like a watercolour left in the sun.';
-        $lines[] = '- Use pale, desaturated tints only. Nothing darker than a light mid-tone.';
+        $lines[] = 'NOBODY IS IN IT';
+        $lines[] = 'This is scenery and nothing else. Empty countryside, with no one in sight.';
+        $lines[] = '- No people, no children, no faces, no figures of any kind.';
+        $lines[] = '- No animals, no birds, no fish, no creatures, no toys, no dolls.';
+        $lines[] = '- Nothing with eyes, and nothing that looks back at the viewer.';
+        $lines[] = 'The characters are printed on top as separate artwork. Anything alive that you';
+        $lines[] = 'draw will end up sitting next to them, and the two never match.';
+        $lines[] = '';
+        $lines[] = 'THIS IS THE MOST IMPORTANT INSTRUCTION - IT MUST SINK BACK';
+        $lines[] = 'The board is printed over the whole of this picture: ' . $cells . ' white and coloured';
+        $lines[] = 'spaces, bold outlines, numbers, a title. Every one of those has to be the first';
+        $lines[] = 'thing the eye finds. Your picture is the paper they are printed on, not a scene';
+        $lines[] = 'to be looked at. A white wash is laid over it before printing, so anything you';
+        $lines[] = 'draw at full strength arrives at about half strength anyway.';
+        $lines[] = '- Draw everything as a soft, faded wash, like a watercolour left out in the sun.';
+        $lines[] = '- Pale, desaturated tints only. Nothing darker than a light mid-tone.';
         $lines[] = '- No black, no strong outlines, no heavy shadows, no deep saturated colour.';
-        $lines[] = '- Low contrast throughout. Two neighbouring areas should differ only slightly.';
+        $lines[] = '- No glow, no sparkles, no lanterns, no sunbeams, no bright light sources.';
+        $lines[] = '  A bright spot survives the wash and pulls the eye straight off the board.';
+        $lines[] = '- Low contrast everywhere. Two neighbouring areas should differ only slightly.';
         $lines[] = '- If in doubt, make it lighter. An almost-empty picture is the right answer.';
         $lines[] = '';
         $lines[] = 'COLOUR: tint the picture towards this palette, using only its palest versions:';
@@ -137,15 +156,23 @@ class PromptGenerator
         $lines[] = 'The darker entries are the colours printed on top, so never use them at full';
         $lines[] = 'strength in the backdrop - they are listed so your tints belong to the same family.';
         $lines[] = '';
-        $lines[] = 'COMPOSITION:';
-        $lines[] = '- The board sits across the whole picture, so keep the WHOLE picture quiet.';
-        $lines[] = '  There is no safe area in the middle - ' . $cells . ' game spaces run corner to corner.';
-        $lines[] = '- Put what little detail there is in the outermost 5% of the edges, and keep';
-        $lines[] = '  the top 15% almost empty for the game title.';
+        $lines[] = 'ONE EVEN PICTURE, EDGE TO EDGE';
+        $lines[] = 'The board covers the middle and reaches the corners, so there is no quiet corner';
+        $lines[] = 'to hide the interesting part in. Spread the same soft, quiet texture across the';
+        $lines[] = 'whole sheet instead.';
+        $lines[] = '- No subject and no focal point. Nothing the eye lands on, anywhere.';
+        $lines[] = '- Do not make one side busy and the other empty, and do not leave a bright open';
+        $lines[] = '  middle - the middle is where most of the spaces sit.';
+        $lines[] = '- No hard horizon and no sharp line running across the picture. It reads as a';
+        $lines[] = '  seam once the board is laid over it.';
+        $lines[] = '- Keep the top 15% the emptiest part of all: the game title is printed there.';
+        $lines[] = '- Carry the picture right to all four edges. No border, no frame, no vignette,';
+        $lines[] = '  no dark corners, no paper texture, no rounded corners - the game prints its';
+        $lines[] = '  own frame on top and a drawn one comes out as a fragment underneath it.';
         $lines[] = '- Do NOT draw any game board, path, stepping stones, numbered circles or squares.';
         $lines[] = '- Do NOT include any text, letters, numbers, logos or watermarks.';
         $lines[] = '';
-        $lines[] = 'OUTPUT: one single image, full bleed, no borders, no frame, no margins.';
+        $lines[] = 'OUTPUT: one single image, full bleed, no margins.';
 
         return implode("\n", $lines);
     }

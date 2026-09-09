@@ -65,11 +65,23 @@ class MapComposer
 
         $svg .= '<defs>';
         $svg .= '<clipPath id="frame' . $id . '"><rect x="0" y="0" width="' . $w . '" height="' . $h . '" rx="34"/></clipPath>';
-        // A soft veil so text and spaces stand out against the background
+        /*
+         * A wash over the background, so the board is the thing you look at.
+         *
+         * It used to be a gradient - stronger top and bottom, almost nothing
+         * across the middle - which left the picture at full strength exactly
+         * where the spaces sit, and made the two look like two pictures rather
+         * than one board. It is flat now, and heavier: at 55% a vivid uploaded
+         * scene still reads, and every white space and every number on top of
+         * it reads first. Compared side by side on a real uploaded background,
+         * 50% was not quite enough and 65% washed the picture out.
+         *
+         * Flat also matters for the joins: one even wash over the whole sheet
+         * is what makes the board and the picture look like one printed thing.
+         */
         $svg .= '<linearGradient id="veil' . $id . '" x1="0" y1="0" x2="0" y2="1">';
-        $svg .= '<stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.30"/>';
-        $svg .= '<stop offset="55%" stop-color="#FFFFFF" stop-opacity="0.10"/>';
-        $svg .= '<stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.34"/>';
+        $svg .= '<stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.55"/>';
+        $svg .= '<stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.55"/>';
         $svg .= '</linearGradient>';
         $svg .= '</defs>';
 
