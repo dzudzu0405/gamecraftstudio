@@ -431,23 +431,36 @@ class CreateController extends Controller
         }
 
         /*
-         * The mission frame, for a game with no move card to pair with. It is
-         * artwork rather than a library row, so it is a number - checked
-         * against the plan here, because a disabled radio is only a hint.
+         * The card design. One number for both cards: mission-07 and move-07
+         * are the same drawing on two different cards, so choosing one has
+         * always decided the other.
+         *
+         * Checked against the plan here, because a disabled radio is a hint
+         * rather than a lock.
          */
         $missionStyle = $request->int('mission_style', 0);
         if ($missionStyle > 0) {
             if ($missionStyle <= Tiers::missionSets($plan)) {
                 $update['mission_style'] = $missionStyle;
+
+                /*
+                 * The matching move card row, kept in step so the Studio's
+                 * component list and older code still find one. A plan with
+                 * no move cards - Starter plays with the die - simply has no
+                 * row to point at, which is correct rather than missing.
+                 */
+                $moveItem = Library::findByCode(Library::KIND_MOVE, sprintf('move-%02d', $missionStyle));
+                $update['move_item_id'] = ($moveItem && Library::unlocked($moveItem, $plan))
+                    ? (int) $moveItem['id']
+                    : null;
             } else {
-                Flash::warning('That mission card design is not on your plan, so it was ignored.');
+                Flash::warning('That card design is not on your plan, so it was ignored.');
             }
         }
 
         $fields = [
             'map_item_id'       => Library::KIND_MAP,
             'character_item_id' => Library::KIND_CHARACTER,
-            'move_item_id'      => Library::KIND_MOVE,
         ];
 
         foreach ($fields as $column => $kind) {
@@ -511,14 +524,8 @@ class CreateController extends Controller
             $missing['character_item_id'] = 'Please choose a character set.';
         }
 
-        $usesCards = ($update['movement'] ?? $project['movement']) === Project::MOVE_CARDS;
-
-        if ($usesCards) {
-            if ($this->hasChoices(Library::KIND_MOVE, $plan) && empty($update['move_item_id'])) {
-                $missing['move_item_id'] = 'Please choose a card style.';
-            }
-        } elseif (empty($update['mission_style']) && empty($project['mission_style'])) {
-            $missing['mission_style'] = 'Please choose a mission card design.';
+        if (empty($update['mission_style']) && empty($project['mission_style'])) {
+            $missing['mission_style'] = 'Please choose a card style.';
         }
 
         if (empty($update['hero_style'])) {

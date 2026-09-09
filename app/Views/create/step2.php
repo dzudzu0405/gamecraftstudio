@@ -68,16 +68,6 @@ $renderPicker = function (string $name, array $items, $currentId, string $emptyM
     echo '</div>';
 };
 
-/** The mission card that belongs to the same set as this move card */
-$missionFrame = function (array $item): array {
-    if (!preg_match('/(\d+)$/', (string) $item['code'], $m)) {
-        return [];
-    }
-    $rel = Library::framePath('missions', (int) $m[1]);
-
-    return $rel !== null ? [Url::upload($rel)] : [];
-};
-
 ?>
 
 <form method="post" action="<?= Url::to('/create/' . (int) $project['id'] . '/step/2') ?>">
@@ -204,61 +194,55 @@ $missionFrame = function (array $item): array {
                 </div>
             </div>
 
-            <?php if ($movement === App\Models\Project::MOVE_CARDS): ?>
-
-                <!-- Move cards, and the mission card that belongs to the same set -->
-                <div class="card mb-2">
-                    <div class="card__head">
-                        <h3>Card style</h3>
-                        <span class="small muted">Move card on the left, mission card on the right</span>
-                    </div>
-                    <div class="card__body">
-                        <?php $renderPicker('move_item_id', $moves, $project['move_item_id'],
-                            'No move card designs are available on your plan.', 1, $missionFrame); ?>
-                    </div>
+            <!-- Card style: one design, printed on both kinds of card -->
+            <?php $usesCards = $movement === App\Models\Project::MOVE_CARDS; ?>
+            <div class="card mb-2">
+                <div class="card__head">
+                    <h3>Card style</h3>
+                    <span class="small muted">
+                        <?= (int) $missionSets ?> of <?= (int) $cardStyles ?> designs on your plan
+                    </span>
                 </div>
-
-            <?php else: ?>
-
-                <!-- No move cards to pair with, so the mission card is chosen on its own -->
-                <div class="card mb-2">
-                    <div class="card__head">
-                        <h3>Mission card design</h3>
-                        <span class="small muted"><?= (int) $missionSets ?> designs on your plan</span>
-                    </div>
-                    <div class="card__body">
-                        <p class="small muted mb-2">
+                <div class="card__body">
+                    <p class="small muted mb-2">
+                        <?php if ($usesCards): ?>
+                            One design, drawn on both cards - the mission card on the left of each
+                            tile, the move card that belongs with it on the right.
+                        <?php else: ?>
                             This game plays with the die, so there are no move cards - but every
                             game has mission cards, and this is the frame they print on.
-                        </p>
+                        <?php endif; ?>
+                    </p>
 
-                        <div class="pick-grid">
-                            <?php for ($style = 1; $style <= $cardStyles; $style++): ?>
-                                <?php
-                                    $art    = Library::framePath('missions', $style);
-                                    $locked = $style > $missionSets;
-                                ?>
-                                <label class="pick <?= $locked ? 'pick--locked' : '' ?>"
-                                       <?= $locked ? 'title="Available on a higher plan"' : '' ?>>
-                                    <input type="radio" name="mission_style" value="<?= $style ?>" required
-                                           <?= (int) ($project['mission_style'] ?? 0) === $style ? 'checked' : '' ?>
-                                           <?= $locked ? 'disabled' : '' ?>>
-                                    <div class="pick__art pick__art--frame">
-                                        <?php if ($art !== null): ?>
-                                            <img src="<?= H::e(Url::upload($art)) ?>" alt="" loading="lazy">
-                                        <?php endif; ?>
-                                        <?php if ($locked): ?>
-                                            <span class="pick__lock"><?= Icon::get('lock', 18) ?></span>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="pick__label">Design <?= $style ?></div>
-                                </label>
-                            <?php endfor; ?>
-                        </div>
+                    <div class="pick-grid">
+                        <?php for ($style = 1; $style <= $cardStyles; $style++): ?>
+                            <?php
+                                $mission = Library::framePath('missions', $style);
+                                $move    = $usesCards ? Library::framePath('moves', $style) : null;
+                                $locked  = $style > $missionSets;
+                            ?>
+                            <label class="pick <?= $locked ? 'pick--locked' : '' ?>"
+                                   <?= $locked ? 'title="Available on a higher plan"' : '' ?>>
+                                <input type="radio" name="mission_style" value="<?= $style ?>" required
+                                       <?= (int) ($project['mission_style'] ?? 0) === $style ? 'checked' : '' ?>
+                                       <?= $locked ? 'disabled' : '' ?>>
+                                <div class="pick__art pick__art--frame<?= $move ? ' pick__art--pair' : '' ?>">
+                                    <?php if ($mission !== null): ?>
+                                        <img src="<?= H::e(Url::upload($mission)) ?>" alt="" loading="lazy">
+                                    <?php endif; ?>
+                                    <?php if ($move !== null): ?>
+                                        <img src="<?= H::e(Url::upload($move)) ?>" alt="" loading="lazy">
+                                    <?php endif; ?>
+                                    <?php if ($locked): ?>
+                                        <span class="pick__lock"><?= Icon::get('lock', 18) ?></span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="pick__label">Design <?= $style ?></div>
+                            </label>
+                        <?php endfor; ?>
                     </div>
                 </div>
-
-            <?php endif; ?>
+            </div>
 
             <!-- Winner card -->
             <div class="card mb-2">

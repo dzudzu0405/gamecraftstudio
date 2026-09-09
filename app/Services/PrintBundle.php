@@ -799,22 +799,26 @@ class PrintBundle
      */
     public static function cardStyle(array $project): int
     {
-        if (Project::usesMoveCards($project)) {
-            $itemId = (int) ($project['move_item_id'] ?? 0);
-
-            if ($itemId > 0) {
-                $item = Library::find($itemId);
-                if ($item && preg_match('/(\d+)$/', (string) $item['code'], $m)) {
-                    return (int) $m[1];
-                }
-            }
-
-            return 1;   // nothing chosen yet - the first set
-        }
-
         $style = (int) ($project['mission_style'] ?? 0);
 
-        return $style >= 1 && $style <= self::CARD_STYLES ? $style : 1;
+        if ($style >= 1 && $style <= self::CARD_STYLES) {
+            return $style;
+        }
+
+        /*
+         * A game made before the two pickers became one stored its design as
+         * the move card it chose, so the number is read back off that row.
+         */
+        $itemId = (int) ($project['move_item_id'] ?? 0);
+
+        if ($itemId > 0) {
+            $item = Library::find($itemId);
+            if ($item && preg_match('/(\d+)$/', (string) $item['code'], $m)) {
+                return (int) $m[1];
+            }
+        }
+
+        return 1;   // nothing chosen yet - the first design
     }
 
     /**
