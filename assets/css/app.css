@@ -652,21 +652,6 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
 }
 .pick__art--pair img { object-fit: contain; }
 
-/*
- * A character set: the pose that goes on the winner card, large, with two
- * more beside it. Equal thumbnails would have said "three characters" when
- * it is one character three times - the size difference is what makes it
- * read as a set with a lead pose.
- */
-.pick__art--set {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 2px;
-  padding: 2px;
-}
-.pick__art--set img { object-fit: contain; width: 100%; height: 100%; }
-.pick__art--set img:first-child { grid-row: span 2; }
 .pick__label { padding: 7px 9px; font-size: 12px; font-weight: 600; }
 
 /* Second line on a tile whose label needs a word of explanation */

@@ -42,13 +42,11 @@ $renderPicker = function (string $name, array $items, $currentId, string $emptyM
         echo '<input type="radio" name="' . H::e($name) . '" value="' . (int) $item['id'] . '"'
             . ($checked ? ' checked' : '') . ($locked ? ' disabled' : '') . '>';
 
-        // two pictures sit side by side; three or more get one large and the rest beside it
-        $layout = '';
-        if (count($more) === 1) { $layout = ' pick__art--pair'; }
-        if (count($more) >= 2)  { $layout = ' pick__art--set'; }
+        // a character set picks its own cover pose; everything else uses $variant
+        $cover = $item['kind'] === Library::KIND_CHARACTER ? Library::coverPose($item) : $variant;
 
-        echo '<div class="pick__art' . $layout . '">';
-        echo '<img src="' . H::e(Library::imageFor($item, $variant)) . '" alt="" loading="lazy">';
+        echo '<div class="pick__art' . ($more ? ' pick__art--pair' : '') . '">';
+        echo '<img src="' . H::e(Library::imageFor($item, $cover)) . '" alt="" loading="lazy">';
         foreach ($more as $extra) {
             echo '<img src="' . H::e($extra) . '" alt="" loading="lazy">';
         }
@@ -79,25 +77,6 @@ $missionFrame = function (array $item): array {
     return $rel !== null ? [Url::upload($rel)] : [];
 };
 
-/**
- * The other poses in a character set.
- *
- * As many as the buyer's plan prints, capped at three so the tile stays
- * readable - past that they are thumbnails of thumbnails. Only poses with
- * real artwork are offered, so a half-drawn set does not show blanks.
- */
-$otherPoses = function (array $item) use ($plan): array {
-    $wanted = max(1, (int) ($plan['character_poses'] ?? 3));
-    $out    = [];
-
-    for ($pose = 2; $pose <= $wanted && count($out) < 2; $pose++) {
-        if (Library::hasRealImage($item, $pose)) {
-            $out[] = Library::imageFor($item, $pose);
-        }
-    }
-
-    return $out;
-};
 ?>
 
 <form method="post" action="<?= Url::to('/create/' . (int) $project['id'] . '/step/2') ?>">
@@ -201,7 +180,7 @@ $otherPoses = function (array $item) use ($plan): array {
                         The character you choose appears on the winner hero card.
                     </p>
                     <?php $renderPicker('character_item_id', $characters, $project['character_item_id'],
-                        'No character sets are available on your plan.', 1, $otherPoses); ?>
+                        'No character sets are available on your plan.'); ?>
                 </div>
             </div>
 

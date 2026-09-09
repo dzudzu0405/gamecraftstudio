@@ -42,6 +42,40 @@ class Library
     /** Mission card frames: artwork only, with no library row behind them */
     public const KIND_MISSION   = 'mission';
 
+    /**
+     * The pose that stands for a character set.
+     *
+     * Every set is eight drawings, and pose 1 is whatever the artist drew
+     * first - a puppy sprawled on its front, a bunny in profile behind a
+     * lightning bolt. Read at thumbnail size those say very little about the
+     * character. Pose 8 is the celebration in almost every set: front on,
+     * whole body, arms up, sparkles. That is the one to choose from, and the
+     * one that goes on the winner card.
+     *
+     * Two sets number theirs differently, so they are named here. Anything
+     * missing that pose falls back to the first drawing rather than a gap.
+     */
+    private const COVER_POSE = 8;
+
+    private const COVER_POSE_BY_CODE = [
+        'char-01' => 7,   // pose 8 is the bunny beside a plank
+        'char-04' => 7,   // pose 8 is the bear cub behind a rock
+    ];
+
+    /** Which pose represents this set, given what artwork actually exists */
+    public static function coverPose(array $item): int
+    {
+        if ((string) ($item['kind'] ?? '') !== self::KIND_CHARACTER) {
+            return 1;
+        }
+
+        $code = trim((string) ($item['code'] ?? ''));
+        $pose = self::COVER_POSE_BY_CODE[$code] ?? self::COVER_POSE;
+
+        // A set drawn only as far as pose 3 still needs a picture
+        return self::hasRealImage($item, $pose) ? $pose : 1;
+    }
+
     /** Sub-folder inside uploads/library/ for each kind */
     private const FOLDERS = [
         self::KIND_MAP       => 'maps',

@@ -854,7 +854,8 @@ class PrintBundle
         if ($itemId > 0) {
             $item = Library::find($itemId);
             if ($item) {
-                $real = Library::realImagePath($item, 1);
+                // the same pose the picker showed, so the card is no surprise
+                $real = Library::realImagePath($item, Library::coverPose($item));
                 if ($real !== null) {
                     $full = dirname(__DIR__, 2) . '/uploads/' . $real;
                     if (is_file($full)) {
