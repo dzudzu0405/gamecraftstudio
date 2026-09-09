@@ -30,7 +30,7 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
                     <div class="field">
                         <label class="label" for="rescue_target">Who does the game rescue?</label>
                         <input class="input" type="text" id="rescue_target" name="rescue_target" maxlength="120"
-                               value="<?= H::e($project['rescue_target'] ?? '') ?>"
+                               value="<?= H::e($project['rescue_target'] ?? '') ?>" required
                                placeholder="a lost baby dinosaur, ...">
                     </div>
 
@@ -41,7 +41,7 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
                     <div class="form-row">
                         <div class="field">
                             <label class="label" for="players_min">Minimum players</label>
-                            <select class="select" id="players_min" name="players_min">
+                            <select class="select" id="players_min" name="players_min" required>
                                 <?php for ($i = Project::MIN_PLAYERS; $i <= Project::MAX_PLAYERS; $i++): ?>
                                     <option value="<?= $i ?>" <?= (int) $project['players_min'] === $i ? 'selected' : '' ?>><?= $i ?></option>
                                 <?php endfor; ?>
@@ -49,7 +49,7 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
                         </div>
                         <div class="field">
                             <label class="label" for="players_max">Maximum players</label>
-                            <select class="select" id="players_max" name="players_max">
+                            <select class="select" id="players_max" name="players_max" required>
                                 <?php for ($i = Project::MIN_PLAYERS; $i <= Project::MAX_PLAYERS; $i++): ?>
                                     <option value="<?= $i ?>" <?= (int) $project['players_max'] === $i ? 'selected' : '' ?>><?= $i ?></option>
                                 <?php endfor; ?>
@@ -77,7 +77,7 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
                         <?php foreach ($difficulties as $key => $d): ?>
                             <?php $locked = !in_array($key, $allowed, true); ?>
                             <label class="choice">
-                                <input type="radio" name="difficulty" value="<?= H::e($key) ?>"
+                                <input type="radio" name="difficulty" value="<?= H::e($key) ?>" required
                                        <?= $project['difficulty'] === $key ? 'checked' : '' ?>
                                        <?= $locked ? 'disabled' : '' ?>>
                                 <div class="choice__inner">
@@ -124,7 +124,7 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
                         <?php /* First, because it is the one choice that changes the rest of
                                  the flow: no ready-made scene, and the background step comes back */ ?>
                         <label class="pick pick--custom">
-                            <input type="radio" name="theme" value="<?= H::e(Project::THEME_CUSTOM) ?>"
+                            <input type="radio" name="theme" value="<?= H::e(Project::THEME_CUSTOM) ?>" required
                                    <?= !Project::usesThemeBackground($project) ? 'checked' : '' ?>>
                             <div class="pick__art pick__art--custom">
                                 <?= Icon::get('wand', 26) ?>
@@ -134,7 +134,7 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
 
                         <?php foreach ($themes as $key => $label): ?>
                             <label class="pick">
-                                <input type="radio" name="theme" value="<?= H::e($key) ?>"
+                                <input type="radio" name="theme" value="<?= H::e($key) ?>" required
                                        <?= Project::usesThemeBackground($project) && $project['theme'] === $key ? 'checked' : '' ?>>
                                 <div class="pick__art">
                                     <img src="<?= Url::to('art/scene/' . rawurlencode($key) . '/theme-' . rawurlencode($key) . '.svg?w=300&h=225') ?>"

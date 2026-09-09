@@ -10,13 +10,20 @@
 use App\Core\Helper as H;
 use App\Services\Lang;
 
-$value = Lang::normalize($value ?? null);
+/*
+ * Nothing is pre-selected on a new game: the buyer picks the language rather
+ * than finding English already chosen for them. An existing project keeps
+ * whatever it was saved with.
+ */
+$chosen = trim((string) ($value ?? ''));
+$chosen = Lang::supported($chosen) ? Lang::normalize($chosen) : '';
 ?>
 <div class="field">
     <label class="label" for="language">What language is the game printed in?</label>
-    <select class="select" id="language" name="language">
+    <select class="select" id="language" name="language" required>
+        <option value="">Choose a language ...</option>
         <?php foreach (Lang::LOCALES as $code => $name): ?>
-            <option value="<?= H::e($code) ?>" <?= $value === $code ? 'selected' : '' ?>>
+            <option value="<?= H::e($code) ?>" <?= $chosen === $code ? 'selected' : '' ?>>
                 <?= H::e($name) ?>
             </option>
         <?php endforeach; ?>

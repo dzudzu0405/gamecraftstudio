@@ -78,15 +78,38 @@ class CreateController extends Controller
             return;
         }
 
+        /*
+         * Everything is asked for, and nothing is assumed. The two that used to
+         * be optional - the adventure and who it rescues - are the two that go
+         * into the story and the picture prompt, so a blank one showed up in
+         * the printed game rather than staying quietly empty.
+         */
         $v = new Validator($request->body);
         $v->required('title', 'a game title')->max('title', 160, 'the game title')
+          ->required('rescue_target', 'who the game rescues')
+          ->max('rescue_target', 120, 'who the game rescues')
+          ->max('setting_other', 120, 'the adventure you described')
           ->in('theme', array_merge(array_keys(Art::THEMES), [Project::THEME_CUSTOM]), 'theme')
           ->in('difficulty', array_keys(Difficulty::all()), 'difficulty')
           ->in('language', array_keys(Lang::LOCALES), 'language')
-          ->max('setting_other', 120, 'the adventure you described')
-          ->max('rescue_target', 120, 'who the game rescues')
           ->between('players_min', Project::MIN_PLAYERS, Project::MAX_PLAYERS, 'the minimum player count')
           ->between('players_max', Project::MIN_PLAYERS, Project::MAX_PLAYERS, 'the maximum player count');
+
+        // A choice is chosen, not entered, so these say so in their own words
+        foreach ([
+            'theme'       => 'Please choose a background for the map.',
+            'difficulty'  => 'Please choose a level.',
+            'language'    => 'Please choose the language the game is printed in.',
+            'players_min' => 'Please choose the smallest number of players.',
+            'players_max' => 'Please choose the largest number of players.',
+        ] as $field => $message) {
+            $v->rule($field, trim($request->str($field)) !== '', $message);
+        }
+
+        // The select and the "write my own" box are two halves of one answer
+        if ($this->readSetting($request) === null) {
+            $v->rule('setting', false, 'Please choose the kind of adventure this is.');
+        }
 
         $difficulty = $request->str('difficulty', Difficulty::STANDARD);
 
@@ -118,13 +141,17 @@ class CreateController extends Controller
 
         $choice = $this->readThemeChoice($request);
 
+        $setting = $this->readSetting($request);
+
         $projectId = Project::create($this->userId(), [
             'title'       => $request->str('title'),
-            'theme'       => $choice['theme'] ?? 'forest',
+            // No ready-made theme: the adventure decides the colours instead
+            'theme'       => $choice['theme']
+                          ?? Project::artTheme(['theme' => Project::THEME_CUSTOM, 'setting' => $setting]),
             'background_mode' => $choice['background_mode'] ?? Project::BACKGROUND_THEME,
             'difficulty'  => $difficulty,
             'subjects'    => implode(',', $subjects),
-            'setting'       => $this->readSetting($request),
+            'setting'       => $setting,
             'language'      => $request->str('language'),
             'rescue_target' => mb_substr(trim($request->str('rescue_target')), 0, 120) ?: null,
             'players_min' => $min,
@@ -286,6 +313,40 @@ class CreateController extends Controller
         $id     = (int) $project['id'];
         $update = [];
 
+        /*
+         * The same answers the first screen asks for, and the same rule: none
+         * of them may be left empty. Sending the form back is better than
+         * silently emptying a field that was filled in before.
+         */
+        $v = new Validator($request->body);
+        $v->required('title', 'a game title')->max('title', 160, 'the game title')
+          ->required('rescue_target', 'who the game rescues')
+          ->max('rescue_target', 120, 'who the game rescues')
+          ->in('language', array_keys(Lang::LOCALES), 'language');
+
+        foreach ([
+            'difficulty'  => 'Please choose a level.',
+            'language'    => 'Please choose the language the game is printed in.',
+            'players_min' => 'Please choose the smallest number of players.',
+            'players_max' => 'Please choose the largest number of players.',
+        ] as $field => $message) {
+            $v->rule($field, trim($request->str($field)) !== '', $message);
+        }
+
+        if ($this->readSetting($request) === null) {
+            $v->rule('setting', false, 'Please choose the kind of adventure this is.');
+        }
+
+        if (!$request->arr('subjects')) {
+            $v->rule('subjects', false, 'Please choose at least one question subject.');
+        }
+
+        if ($v->fails()) {
+            Flash::error($v->firstError() ?? 'Please check the details you entered.');
+            $this->backWithErrors($v->errors(), $request->body, '/create/' . $id . '/step/1');
+            return;
+        }
+
         $title = trim($request->str('title'));
         if ($title !== '') {
             $update['title'] = mb_substr($title, 0, 160);
@@ -298,6 +359,17 @@ class CreateController extends Controller
         $choice = $this->readThemeChoice($request);
         if ($choice['theme'] !== null) {
             $update['theme'] = $choice['theme'];
+        } elseif (empty($project['map_item_id'])) {
+            /*
+             * They will make their own background, so there is no theme to
+             * store - the adventure supplies one. Skipped once a map frame is
+             * chosen: a frame drawn for one world is the more particular
+             * answer, and step 2 has already written it here.
+             */
+            $update['theme'] = Project::artTheme([
+                'theme'   => Project::THEME_CUSTOM,
+                'setting' => $update['setting'],
+            ]);
         }
         if ($choice['background_mode'] !== null) {
             $update['background_mode'] = $choice['background_mode'];

@@ -322,8 +322,17 @@
     function update(focus) {
       var own = select.value === '__other__';
       other.hidden = !own;
-      if (own && focus && box) box.focus();
-      if (!own && box) box.value = '';
+
+      /*
+       * required follows the box in and out of view. A hidden field that is
+       * still required blocks the form with a message pointing at something
+       * nobody can see.
+       */
+      if (box) {
+        box.required = own;
+        if (own && focus) box.focus();
+        if (!own) box.value = '';
+      }
     }
 
     select.addEventListener('change', function () { update(true); });

@@ -21,7 +21,7 @@ $custom = $listed ? '' : $value;
 <div class="field" data-setting>
     <label class="label" for="setting">What kind of adventure is it?</label>
 
-    <select class="select" id="setting" name="setting" data-setting-select>
+    <select class="select" id="setting" name="setting" data-setting-select required>
         <option value="">Choose an adventure ...</option>
         <?php foreach (array_keys(Project::SETTINGS) as $name): ?>
             <option value="<?= H::e($name) ?>" <?= $value === $name ? 'selected' : '' ?>>
@@ -34,8 +34,10 @@ $custom = $listed ? '' : $value;
     </select>
 
     <div class="field mt-1" data-setting-other <?= $custom !== '' ? '' : 'hidden' ?>>
+        <?php /* required is switched on and off with the box, so a hidden one
+                 cannot block the form - see the setting toggle in app.js */ ?>
         <input class="input" type="text" name="setting_other" maxlength="120"
-               value="<?= H::e($custom) ?>"
+               value="<?= H::e($custom) ?>" <?= $custom !== '' ? 'required' : '' ?>
                placeholder="a prehistoric valley with volcanoes, ...">
         <div class="field__hint">Describe where your adventure happens, in your own words.</div>
     </div>

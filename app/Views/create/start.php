@@ -46,7 +46,7 @@ if (!is_array($oldSubjects)) {
                     <div class="field">
                         <label class="label" for="rescue_target">Who does the game rescue?</label>
                         <input class="input" type="text" id="rescue_target" name="rescue_target" maxlength="120"
-                               value="<?= H::e(Flash::old('rescue_target')) ?>"
+                               value="<?= H::e(Flash::old('rescue_target')) ?>" required
                                placeholder="a lost baby dinosaur, ...">
                     </div>
 
@@ -57,17 +57,19 @@ if (!is_array($oldSubjects)) {
                     <div class="form-row">
                         <div class="field">
                             <label class="label" for="players_min">Minimum players</label>
-                            <select class="select" id="players_min" name="players_min">
+                            <select class="select" id="players_min" name="players_min" required>
+                                <option value="">-</option>
                                 <?php for ($i = Project::MIN_PLAYERS; $i <= Project::MAX_PLAYERS; $i++): ?>
-                                    <option value="<?= $i ?>" <?= (int) Flash::old('players_min', 2) === $i ? 'selected' : '' ?>><?= $i ?></option>
+                                    <option value="<?= $i ?>" <?= (string) Flash::old('players_min') === (string) $i ? 'selected' : '' ?>><?= $i ?></option>
                                 <?php endfor; ?>
                             </select>
                         </div>
                         <div class="field">
                             <label class="label" for="players_max">Maximum players</label>
-                            <select class="select" id="players_max" name="players_max">
+                            <select class="select" id="players_max" name="players_max" required>
+                                <option value="">-</option>
                                 <?php for ($i = Project::MIN_PLAYERS; $i <= Project::MAX_PLAYERS; $i++): ?>
-                                    <option value="<?= $i ?>" <?= (int) Flash::old('players_max', 4) === $i ? 'selected' : '' ?>><?= $i ?></option>
+                                    <option value="<?= $i ?>" <?= (string) Flash::old('players_max') === (string) $i ? 'selected' : '' ?>><?= $i ?></option>
                                 <?php endfor; ?>
                             </select>
                         </div>
@@ -87,8 +89,8 @@ if (!is_array($oldSubjects)) {
                         <?php foreach ($difficulties as $key => $d): ?>
                             <?php $locked = !in_array($key, $allowed, true); ?>
                             <label class="choice">
-                                <input type="radio" name="difficulty" value="<?= H::e($key) ?>"
-                                       <?= Flash::old('difficulty', 'standard') === $key ? 'checked' : '' ?>
+                                <input type="radio" name="difficulty" value="<?= H::e($key) ?>" required
+                                       <?= Flash::old('difficulty') === $key ? 'checked' : '' ?>
                                        <?= $locked ? 'disabled' : '' ?>>
                                 <div class="choice__inner">
                                     <div class="choice__title">
@@ -149,8 +151,8 @@ if (!is_array($oldSubjects)) {
                         <?php /* First, because it is the one choice that changes the rest of
                                  the flow: no ready-made scene, and the background step comes back */ ?>
                         <label class="pick pick--custom">
-                            <input type="radio" name="theme" value="<?= H::e(Project::THEME_CUSTOM) ?>"
-                                   <?= Flash::old('theme') === Project::THEME_CUSTOM ? 'checked' : '' ?>>
+                            <input type="radio" name="theme" value="<?= H::e(Project::THEME_CUSTOM) ?>" required
+                                   <?= Flash::old('theme', Project::THEME_CUSTOM) === Project::THEME_CUSTOM ? 'checked' : '' ?>>
                             <div class="pick__art pick__art--custom">
                                 <?= Icon::get('wand', 26) ?>
                             </div>
@@ -159,8 +161,8 @@ if (!is_array($oldSubjects)) {
 
                         <?php foreach ($themes as $key => $label): ?>
                             <label class="pick">
-                                <input type="radio" name="theme" value="<?= H::e($key) ?>"
-                                       <?= Flash::old('theme', 'forest') === $key ? 'checked' : '' ?>>
+                                <input type="radio" name="theme" value="<?= H::e($key) ?>" required
+                                       <?= Flash::old('theme') === $key ? 'checked' : '' ?>>
                                 <div class="pick__art">
                                     <img src="<?= Url::to('art/scene/' . rawurlencode($key) . '/theme-' . rawurlencode($key) . '.svg?w=300&h=225') ?>"
                                          alt="" loading="lazy" width="300" height="225">
