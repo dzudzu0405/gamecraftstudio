@@ -121,6 +121,17 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
                 </div>
                 <div class="card__body">
                     <div class="pick-grid">
+                        <?php /* First, because it is the one choice that changes the rest of
+                                 the flow: no ready-made scene, and the background step comes back */ ?>
+                        <label class="pick pick--custom">
+                            <input type="radio" name="theme" value="<?= H::e(Project::THEME_CUSTOM) ?>"
+                                   <?= !Project::usesThemeBackground($project) ? 'checked' : '' ?>>
+                            <div class="pick__art pick__art--custom">
+                                <?= Icon::get('wand', 26) ?>
+                            </div>
+                            <div class="pick__label">Background I make myself<br><span class="pick__note">with the prompt given in a later step</span></div>
+                        </label>
+
                         <?php foreach ($themes as $key => $label): ?>
                             <label class="pick">
                                 <input type="radio" name="theme" value="<?= H::e($key) ?>"
@@ -132,16 +143,6 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
                                 <div class="pick__label"><?= H::e($label) ?></div>
                             </label>
                         <?php endforeach; ?>
-
-                        <?php /* No ready-made scene: this is what brings the background step back */ ?>
-                        <label class="pick pick--custom">
-                            <input type="radio" name="theme" value="<?= H::e(Project::THEME_CUSTOM) ?>"
-                                   <?= !Project::usesThemeBackground($project) ? 'checked' : '' ?>>
-                            <div class="pick__art pick__art--custom">
-                                <?= Icon::get('wand', 26) ?>
-                            </div>
-                            <div class="pick__label">Background I make myself<br><span class="pick__note">with the prompt given in a later step</span></div>
-                        </label>
                     </div>
                 </div>
             </div>
