@@ -184,6 +184,11 @@ class CreateController extends Controller
                 $data['moves']      = Library::withLocked(Library::KIND_MOVE, $plan);
                 // the portrait the winner card previews are drawn around
                 $data['heroCharacter'] = PrintBundle::characterUrl($project);
+
+                // a game with no move cards picks its mission frame directly
+                $data['missionSets']   = Tiers::missionSets($plan);
+                $data['missionStyle']  = PrintBundle::cardStyle($project);
+                $data['cardStyles']    = PrintBundle::CARD_STYLES;
                 break;
 
             case 3:
@@ -351,6 +356,20 @@ class CreateController extends Controller
         $heroStyle = $request->str('hero_style');
         if (isset(Project::HERO_STYLES[$heroStyle])) {
             $update['hero_style'] = $heroStyle;
+        }
+
+        /*
+         * The mission frame, for a game with no move card to pair with. It is
+         * artwork rather than a library row, so it is a number - checked
+         * against the plan here, because a disabled radio is only a hint.
+         */
+        $missionStyle = $request->int('mission_style', 0);
+        if ($missionStyle > 0) {
+            if ($missionStyle <= Tiers::missionSets($plan)) {
+                $update['mission_style'] = $missionStyle;
+            } else {
+                Flash::warning('That mission card design is not on your plan, so it was ignored.');
+            }
         }
 
         $fields = [

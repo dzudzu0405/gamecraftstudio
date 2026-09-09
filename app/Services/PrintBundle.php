@@ -783,22 +783,38 @@ class PrintBundle
         return $out;
     }
 
+    /** How many designs the artwork folder holds */
+    public const CARD_STYLES = 15;
+
     /**
-     * Which card style the project uses. The move card chosen at step 2 picks it,
-     * because the mission frame is the matching half of the same set.
+     * Which card design the project prints.
+     *
+     * A game with move cards takes it from the move card chosen at step 2,
+     * because the mission frame is the matching half of the same set - one
+     * choice, two cards that belong together.
+     *
+     * A game that plays with the die has no move card to pair with, and used
+     * to get design 1 whatever it was about. There is nothing to pair with,
+     * so it chooses the mission design on its own.
      */
     public static function cardStyle(array $project): int
     {
-        $itemId = (int) ($project['move_item_id'] ?? 0);
+        if (Project::usesMoveCards($project)) {
+            $itemId = (int) ($project['move_item_id'] ?? 0);
 
-        if ($itemId > 0) {
-            $item = Library::find($itemId);
-            if ($item && preg_match('/(\d+)$/', (string) $item['code'], $m)) {
-                return (int) $m[1];
+            if ($itemId > 0) {
+                $item = Library::find($itemId);
+                if ($item && preg_match('/(\d+)$/', (string) $item['code'], $m)) {
+                    return (int) $m[1];
+                }
             }
+
+            return 1;   // nothing chosen yet - the first set
         }
 
-        return 1;   // nothing chosen yet - the first set
+        $style = (int) ($project['mission_style'] ?? 0);
+
+        return $style >= 1 && $style <= self::CARD_STYLES ? $style : 1;
     }
 
     /**

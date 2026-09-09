@@ -184,17 +184,61 @@ $missionFrame = function (array $item): array {
                 </div>
             </div>
 
-            <!-- Move cards -->
-            <div class="card mb-2">
-                <div class="card__head">
-                    <h3>Card style</h3>
-                    <span class="small muted">Move card on the left, mission card on the right</span>
+            <?php if ($movement === App\Models\Project::MOVE_CARDS): ?>
+
+                <!-- Move cards, and the mission card that belongs to the same set -->
+                <div class="card mb-2">
+                    <div class="card__head">
+                        <h3>Card style</h3>
+                        <span class="small muted">Move card on the left, mission card on the right</span>
+                    </div>
+                    <div class="card__body">
+                        <?php $renderPicker('move_item_id', $moves, $project['move_item_id'],
+                            'No move card designs are available on your plan.', 1, $missionFrame); ?>
+                    </div>
                 </div>
-                <div class="card__body">
-                    <?php $renderPicker('move_item_id', $moves, $project['move_item_id'],
-                        'No move card designs are available on your plan.', 1, $missionFrame); ?>
+
+            <?php else: ?>
+
+                <!-- No move cards to pair with, so the mission card is chosen on its own -->
+                <div class="card mb-2">
+                    <div class="card__head">
+                        <h3>Mission card design</h3>
+                        <span class="small muted"><?= (int) $missionSets ?> designs on your plan</span>
+                    </div>
+                    <div class="card__body">
+                        <p class="small muted mb-2">
+                            This game plays with the die, so there are no move cards - but every
+                            game has mission cards, and this is the frame they print on.
+                        </p>
+
+                        <div class="pick-grid">
+                            <?php for ($style = 1; $style <= $cardStyles; $style++): ?>
+                                <?php
+                                    $art    = Library::framePath('missions', $style);
+                                    $locked = $style > $missionSets;
+                                ?>
+                                <label class="pick <?= $locked ? 'pick--locked' : '' ?>"
+                                       <?= $locked ? 'title="Available on a higher plan"' : '' ?>>
+                                    <input type="radio" name="mission_style" value="<?= $style ?>"
+                                           <?= $style === $missionStyle ? 'checked' : '' ?>
+                                           <?= $locked ? 'disabled' : '' ?>>
+                                    <div class="pick__art pick__art--frame">
+                                        <?php if ($art !== null): ?>
+                                            <img src="<?= H::e(Url::upload($art)) ?>" alt="" loading="lazy">
+                                        <?php endif; ?>
+                                        <?php if ($locked): ?>
+                                            <span class="pick__lock"><?= Icon::get('lock', 18) ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="pick__label">Design <?= $style ?></div>
+                                </label>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
                 </div>
-            </div>
+
+            <?php endif; ?>
 
             <!-- Winner card -->
             <div class="card mb-2">

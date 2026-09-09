@@ -184,6 +184,18 @@ class Tiers
         return (int) self::get($plan)['character_poses'];
     }
 
+    /**
+     * Mission card designs this plan may print.
+     *
+     * Separate from the move card sets on purpose: the Starter plan has no
+     * move cards at all - it plays with the die - but every game has mission
+     * cards, so every plan gets designs for them.
+     */
+    public static function missionSets(?string $plan): int
+    {
+        return (int) self::get($plan)['mission_sets'];
+    }
+
     /** Map allowance broken down by space count */
     public static function mapQuota(?string $plan): array
     {
