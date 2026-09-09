@@ -70,16 +70,16 @@ class Project
     ];
 
     /**
-     * Which theme tells the story, for each of the twenty adventures.
+     * Which theme each of the twenty adventures belongs to.
      *
-     * A buyer who draws their own background picks the "custom" theme, and a
-     * custom theme has no story of its own - every one of those games used to
-     * be told as a forest, whatever it was actually about. The adventure they
-     * chose says plenty, so it picks the story instead.
+     * A buyer who draws their own background picks the "custom" theme, which
+     * is not a theme at all - so their game used to come out as a forest in
+     * every place keyed by one: the story, the palette, the cover, the drawn
+     * scene. The adventure they chose says plenty, so it decides instead.
      *
      * Some of these are a nearest fit rather than a match: there is no circus
-     * among the twelve themes, and a savanna is told as a desert. Nearest is
-     * still the right story far more often than forest was.
+     * among the twelve, and a savanna is told as a desert. Nearest is still
+     * right far more often than forest was.
      */
     public const SETTING_THEMES = [
         'Treasure Hunt'        => 'pirate',
@@ -127,13 +127,20 @@ class Project
     ];
 
     /**
-     * The theme the printed story is told in.
+     * Which of the twelve themes this game looks and sounds like.
      *
-     * Usually the one the buyer chose. A custom theme has no story of its own,
-     * so the adventure they picked supplies one - and if they typed their own
-     * adventure, whichever theme their words point at.
+     * Usually the one the buyer chose. "custom" is not a theme - it is the
+     * tile meaning "I will draw my own background" - so it has no palette, no
+     * scene and no story of its own, and everything keyed by theme used to
+     * miss on it and land on forest. The adventure they picked supplies one
+     * instead, and if they typed their own adventure, whichever theme their
+     * words point at.
+     *
+     * Used for the story, the picture prompts, the colours and the drawn
+     * scenery. Art::palette() and the rest stay plain lookups by theme name;
+     * this is what decides which name to hand them.
      */
-    public static function storyTheme(array $project): string
+    public static function artTheme(array $project): string
     {
         $theme = (string) ($project['theme'] ?? 'forest');
 
@@ -483,7 +490,7 @@ class Project
             }
         }
 
-        $theme = (string) ($project['theme'] ?? 'forest');
+        $theme = self::artTheme($project);
         $seed  = (string) ($project['cover_seed'] ?? ($project['slug'] ?? 'cover'));
         return Url::to('art/scene/' . rawurlencode($theme) . '/' . rawurlencode($seed) . '.svg?w=' . $w . '&h=' . $h);
     }

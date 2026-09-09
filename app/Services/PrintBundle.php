@@ -41,7 +41,7 @@ class PrintBundle
     {
         $projectId = (int) $project['id'];
         $cells     = MapComposer::normalizeCells((int) ($project['cells'] ?? 18));
-        $theme     = (string) ($project['theme'] ?? 'forest');
+        $theme     = Project::artTheme($project);
 
         $sections = [];
 
@@ -842,7 +842,7 @@ class PrintBundle
         }
 
         // Nothing uploaded yet - use the generated scene
-        $theme = (string) ($project['theme'] ?? 'forest');
+        $theme = Project::artTheme($project);
         $seed  = (string) ($project['cover_seed'] ?? ($project['slug'] ?? 'map'));
         return Art::dataUri(Art::scene($theme, $seed, MapComposer::WIDTH, MapComposer::HEIGHT));
     }

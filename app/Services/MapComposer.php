@@ -18,6 +18,7 @@ namespace App\Services;
  *   - It stays small and can be adjusted at any time.
  */
 use App\Core\Url;
+use App\Models\Project;
 use App\Services\Lang;
 
 class MapComposer
@@ -41,7 +42,7 @@ class MapComposer
     public static function render(array $project, ?string $backgroundUrl = null, array $options = []): string
     {
         $cells  = self::normalizeCells((int) ($project['cells'] ?? 18));
-        $theme  = (string) ($project['theme'] ?? 'forest');
+        $theme  = Project::artTheme($project);
         $title  = (string) ($project['title'] ?? 'Adventure Map');
 
         $w = (int) ($options['width']  ?? self::WIDTH);

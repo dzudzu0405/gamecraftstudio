@@ -105,18 +105,13 @@ class PromptGenerator
      */
     public static function background(array $project, string $style = 'storybook'): string
     {
-        $theme = (string) ($project['theme'] ?? 'forest');
+        $theme = Project::artTheme($project);
         $cells = MapComposer::normalizeCells((int) ($project['cells'] ?? 18));
         $scene = Project::sceneFor($project['setting'] ?? null);
 
-        /*
-         * Nothing typed -> fall back to a scene. A buyer drawing their own
-         * background picks the "custom" theme, which has no scene of its own,
-         * so the adventure they chose supplies one rather than every such game
-         * being drawn as a forest.
-         */
+        // Nothing typed -> fall back to the theme's own scene
         if ($scene === '') {
-            $scene = self::THEME_EN[Project::storyTheme($project)] ?? self::THEME_EN['forest'];
+            $scene = self::THEME_EN[$theme] ?? self::THEME_EN['forest'];
         }
 
         $styleEn = self::STYLE_EN[$style] ?? self::STYLE_EN['storybook'];
@@ -184,7 +179,7 @@ class PromptGenerator
     public static function character(array $project, ?string $plan, string $style = 'storybook'): string
     {
         $poses   = Tiers::characterPoses($plan);
-        $theme   = (string) ($project['theme'] ?? 'forest');
+        $theme   = Project::artTheme($project);
         $styleEn = self::STYLE_EN[$style] ?? self::STYLE_EN['storybook'];
         $scene   = self::THEME_EN[$theme] ?? self::THEME_EN['forest'];
 
@@ -215,7 +210,7 @@ class PromptGenerator
      */
     public static function cardBack(array $project, string $kind, string $style = 'storybook'): string
     {
-        $theme   = (string) ($project['theme'] ?? 'forest');
+        $theme   = Project::artTheme($project);
         $styleEn = self::STYLE_EN[$style] ?? self::STYLE_EN['storybook'];
         $scene   = self::THEME_EN[$theme] ?? self::THEME_EN['forest'];
 
@@ -274,7 +269,7 @@ class PromptGenerator
         // What the buyer chose at step 1, in their own words where they wrote any
         $scene = Project::sceneFor($project['setting'] ?? null);
         if ($scene === '') {
-            $scene = self::THEME_EN[Project::storyTheme($project)] ?? self::THEME_EN['forest'];
+            $scene = self::THEME_EN[Project::artTheme($project)] ?? self::THEME_EN['forest'];
         }
 
         $ageMin = (int) ($project['age_min'] ?? 6);
