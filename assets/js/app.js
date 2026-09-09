@@ -343,7 +343,6 @@
     if (!out) return;
 
     var limit = parseInt(box.getAttribute('data-word-limit'), 10) || 0;
-    var first = parseInt(box.getAttribute('data-word-limit-first'), 10) || limit;
 
     function count() {
       var text  = box.value.trim();
@@ -355,11 +354,7 @@
         return;
       }
 
-      // the first sheet carries the picture, so it holds fewer words
-      var sheets = 1;
-      if (limit && words > first) {
-        sheets = 1 + Math.ceil((words - first) / limit);
-      }
+      var sheets = limit ? Math.ceil(words / limit) : 1;
 
       /*
         * "about", because the printer never splits a paragraph in half and

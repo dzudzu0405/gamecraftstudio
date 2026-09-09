@@ -144,9 +144,12 @@ $qSize = function (string $question): string {
 
     <?php elseif ($section['key'] === 'story'): ?>
         <!-- ===== 2. Story ===== -->
-        <?php /* The picture and the title go on the first sheet only - a long
-                 story runs on, and repeating them would read as a new story
-                 starting rather than the same one continuing. */ ?>
+        <?php /* No picture here. It used to carry a scene drawn from the theme
+                 palette, which had nothing to do with the game's own artwork
+                 and took a third of the page from the words. The title goes on
+                 the first sheet only - a long story runs on, and repeating it
+                 would read as a new story starting rather than the same one
+                 continuing. */ ?>
         <?php foreach ($d['pages'] as $page => $paragraphs): ?>
             <div class="sheet">
                 <?php $head('2', $t('sheet.story'),
@@ -154,11 +157,6 @@ $qSize = function (string $question): string {
                         ? $t('sheet.sheet_of', ['page' => $page + 1, 'total' => count($d['pages'])])
                         : $project['title']); ?>
                 <div class="sheet__body">
-                    <?php if ($page === 0): ?>
-                        <div class="story-hero">
-                            <img src="<?= H::e(Art::dataUri(Art::scene((string) $project['theme'], (string) $project['cover_seed'], 900, 340))) ?>" alt="">
-                        </div>
-                    <?php endif; ?>
                     <div class="prose">
                         <?php if ($page === 0): ?>
                             <h2><?= H::e($project['title']) ?></h2>

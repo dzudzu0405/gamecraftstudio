@@ -313,7 +313,6 @@ $extraN = count(MissionMatcher::pairLines($extraQ, $extraA));
                                   style="min-height:170px"
                                   data-word-count="#studio-story-words"
                                   data-word-limit="<?= PrintBundle::STORY_WORDS_PER_SHEET ?>"
-                                  data-word-limit-first="<?= PrintBundle::STORY_WORDS_FIRST_SHEET ?>"
                                   placeholder="Empty for now. The game prints without a story page until you write one."><?= H::e($project['story']) ?></textarea>
                         <div class="small muted mt-1" id="studio-story-words"></div>
                     </div>

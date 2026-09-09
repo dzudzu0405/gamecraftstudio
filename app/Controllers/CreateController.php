@@ -191,8 +191,7 @@ class CreateController extends Controller
                 $data['style']        = $style;
                 $data['prompt']       = PromptGenerator::background($project, $style);
                 $data['storyPrompt']  = PromptGenerator::story($project);
-                $data['storyWords']      = PrintBundle::STORY_WORDS_PER_SHEET;
-                $data['storyWordsFirst'] = PrintBundle::STORY_WORDS_FIRST_SHEET;
+                $data['storyWords']   = PrintBundle::STORY_WORDS_PER_SHEET;
                 $data['instructions'] = PromptGenerator::instructions();
                 $data['background']   = !empty($project['background_id'])
                     ? Database::first('SELECT * FROM user_assets WHERE id = ?', [(int) $project['background_id']])

@@ -174,9 +174,7 @@ $pid = (int) $project['id'];
                         </label>
                         <textarea class="textarea" id="story-text" name="story" maxlength="8000"
                                   style="min-height:200px"
-                                  data-word-count="#story-words"
-                                  data-word-limit="<?= (int) $storyWords ?>"
-                                  data-word-limit-first="<?= (int) $storyWordsFirst ?>"
+                                  data-word-count="#story-words" data-word-limit="<?= (int) $storyWords ?>"
                                   placeholder="Paste what the AI wrote, or write your own story straight into this box."><?= H::e($project['story']) ?></textarea>
                     </div>
 
@@ -191,8 +189,8 @@ $pid = (int) $project['id'];
                         <b><i>Read it through before you print.</i></b> An AI can drift off the
                         subject or write something that does not suit the age you chose - and
                         this is the page a child hears first. Anything over
-                        <?= (int) $storyWordsFirst ?> words runs on to a second printed sheet, which
-                        is allowed. Leave the box empty and the game simply prints without a story page.
+                        <?= (int) $storyWords ?> words runs on to a second printed sheet, which is
+                        allowed. Leave the box empty and the game simply prints without a story page.
                     </p>
                 </form>
             </div>

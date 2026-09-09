@@ -196,17 +196,16 @@ class PrintBundle
     /**
      * Roughly what a story sheet holds.
      *
-     * Measured rather than guessed. The first sheet carries the picture and
-     * the title, which leaves a prose column 697px tall - about 490 words.
-     * Every sheet after it is prose from top to bottom, 948px, about 670.
+     * Measured rather than guessed: 948px of prose column, which took about
+     * 740 words of real sentences to fill. Every sheet is the same now - the
+     * first one used to carry a picture and hold only 490.
      *
-     * Both figures here are lower than what was measured, on purpose: line
-     * counts shift with the language, with how long the names are and with
-     * where the paragraphs fall, and a story that runs off the bottom of the
-     * paper takes its ending with it.
+     * The figure is lower than what was measured, on purpose. Line counts
+     * shift with the language, with how long the names are and with where
+     * the paragraphs fall, and a story that runs off the bottom of the paper
+     * takes its ending with it.
      */
-    public const STORY_WORDS_FIRST_SHEET = 450;
-    public const STORY_WORDS_PER_SHEET   = 620;
+    public const STORY_WORDS_PER_SHEET = 650;
 
     /**
      * The story, split into printable sheets.
@@ -233,9 +232,8 @@ class PrintBundle
 
         foreach ($paragraphs as $paragraph) {
             $length = str_word_count($paragraph) ?: (int) ceil(mb_strlen($paragraph) / 6);
-            $room   = $pages ? self::STORY_WORDS_PER_SHEET : self::STORY_WORDS_FIRST_SHEET;
 
-            if ($page && $words + $length > $room) {
+            if ($page && $words + $length > self::STORY_WORDS_PER_SHEET) {
                 $pages[] = $page;
                 $page    = [];
                 $words   = 0;
