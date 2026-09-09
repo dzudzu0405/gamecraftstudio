@@ -131,16 +131,25 @@ $qSize = function (string $question): string {
 
     <?php if ($section['key'] === 'map'): ?>
         <!-- ===== 1. Game map ===== -->
-        <div class="sheet sheet--landscape">
-            <?php $head('1', $t('sheet.map'), $tn('sheet.map_sub', (int) $project['cells'])); ?>
+        <?php /*
+               * The one sheet with no heading, no footer and no margin: the
+               * board is the page. A sheet number printed above a game board
+               * is a label on something that goes on a table, and the white
+               * edge it sat in was paper the picture could have used.
+               *
+               * Rendered at the paper's own proportions - 1600 x 1131 is
+               * 297:210 - so it fills the sheet without being cropped or
+               * stretched to get there.
+               */ ?>
+        <div class="sheet sheet--landscape sheet--map">
             <div class="sheet__body map-wrap">
                 <?= MapComposer::render($project, $d['background'], [
                     'width'    => MapComposer::WIDTH,
-                    'height'   => MapComposer::HEIGHT,
+                    'height'   => MapComposer::PAPER_HEIGHT,
+                    'bleed'    => true,
                     'frameUrl' => PrintBundle::mapFrameUrl($project),
                 ]) ?>
             </div>
-            <?php $foot(); ?>
         </div>
 
     <?php elseif ($section['key'] === 'story'): ?>

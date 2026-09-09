@@ -148,6 +148,30 @@ html, body {
   border-radius: 6px;
 }
 
+/*
+ * The map sheet is the board and nothing else.
+ *
+ * No padding, no heading, no footer: it is laid on a table and played on,
+ * and a sheet number in the corner is a label on the game rather than part
+ * of it. The margin goes with them - see the @page rule for landscape.
+ *
+ * A printer still keeps its own unprintable edge, usually 3-4mm, so a thin
+ * white border survives on most home machines whatever this says.
+ */
+.sheet--map { padding: 0; }
+.sheet--map .sheet__head,
+.sheet--map .sheet__foot { display: none; }
+.sheet--map .map-wrap { display: block; }
+.sheet--map .map-wrap svg,
+.sheet--map .map-wrap img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  display: block;
+  border-radius: 0;
+}
+
 /* --------------------------------------------------------------------------
    Text sheets (story, rules)
    -------------------------------------------------------------------------- */
@@ -584,8 +608,10 @@ html, body {
     margin: 8mm;
   }
 
+  /* The map page keeps no margin of its own - the board fills the paper */
   @page landscape {
     size: A4 landscape;
+    margin: 0;
   }
 
   html, body { background: #fff; }
@@ -606,6 +632,19 @@ html, body {
   .sheet--landscape { page: landscape; width: auto; }
 
   .map-wrap img, .map-wrap svg { max-height: 175mm; }
+
+  /*
+   * On paper the map sheet has to claim the whole page. Everywhere else the
+   * sheet is sized by its content and the @page margin holds it in; here the
+   * sheet is the page, so it is given the page's measurements outright.
+   */
+  .sheet--map {
+    width: 297mm;
+    height: 210mm;
+    min-height: 210mm;
+  }
+  .sheet--map .map-wrap svg,
+  .sheet--map .map-wrap img { max-height: none; }
 
   .card-cut { min-height: 78mm; }
 

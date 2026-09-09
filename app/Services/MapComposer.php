@@ -27,6 +27,16 @@ class MapComposer
     public const WIDTH  = 1600;
     public const HEIGHT = 1100;
 
+    /**
+     * The height that matches a sheet of A4 landscape exactly.
+     *
+     * 297:210 is 1.41429, and 1600 x 1100 is 1.45455 - close enough to look
+     * right in a preview and wrong on paper, where the difference has to go
+     * somewhere: a crop off the board, a stretch, or a white strip. At 1131
+     * the map is the shape of the page it prints on.
+     */
+    public const PAPER_HEIGHT = 1131;
+
     /** Column count per space total - chosen so the grid stays balanced */
     private const GRID = [
         12 => ['cols' => 4, 'rows' => 3],
@@ -52,6 +62,9 @@ class MapComposer
         $showPath    = $options['showPath']    ?? true;
         $showTitle   = $options['showTitle']   ?? true;
 
+        // Printed to the edge of the paper: no rounded corners, no frame
+        $bleed = (bool) ($options['bleed'] ?? false);
+
         // A frame with real artwork brings its own path and spaces
         $frameUrl = self::frameArtwork($project, $options);
 
@@ -65,7 +78,8 @@ class MapComposer
         $svg .= ' role="img" aria-label="' . self::esc($title) . '">';
 
         $svg .= '<defs>';
-        $svg .= '<clipPath id="frame' . $id . '"><rect x="0" y="0" width="' . $w . '" height="' . $h . '" rx="34"/></clipPath>';
+        $svg .= '<clipPath id="frame' . $id . '"><rect x="0" y="0" width="' . $w . '" height="' . $h . '" rx="'
+              . ($bleed ? 0 : 34) . '"/></clipPath>';
         /*
          * A wash over the background, so the board is the thing you look at.
          *
@@ -123,9 +137,11 @@ class MapComposer
 
         $svg .= '</g>';
 
-        // Outer border
-        $svg .= '<rect x="6" y="6" width="' . ($w - 12) . '" height="' . ($h - 12) . '" rx="30" fill="none" stroke="'
-              . $palette[3] . '" stroke-width="8" opacity="0.75"/>';
+        // Outer border - left off when the map runs to the edge of the paper
+        if (!$bleed) {
+            $svg .= '<rect x="6" y="6" width="' . ($w - 12) . '" height="' . ($h - 12) . '" rx="30" fill="none" stroke="'
+                  . $palette[3] . '" stroke-width="8" opacity="0.75"/>';
+        }
 
         $svg .= '</svg>';
         return $svg;
