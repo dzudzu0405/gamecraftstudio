@@ -218,6 +218,11 @@ class PromptGenerator
     /**
      * The prompt the buyer runs to get their story.
      *
+     * What it asks for is the OPENING - why the journey is being made - and
+     * not the journey. The journey is the game: it happens at the table, and
+     * a story that has already crossed the last stage and brought everybody
+     * home has told the children how their own afternoon turns out.
+     *
      * The app used to write the story itself, out of a few hundred stock
      * sentences. It read well, but two games in the same world could only ever
      * be rearrangements of each other - and it could never use the name of the
@@ -249,7 +254,7 @@ class PromptGenerator
         $ageMax = (int) ($project['age_max'] ?? 9);
 
         $lines = [];
-        $lines[] = 'Write the story page for a printable children\'s board game.';
+        $lines[] = 'Write the opening of a story for a printable children\'s board game.';
         $lines[] = '';
         $lines[] = 'THE GAME';
         $lines[] = '  Title: ' . ($title !== '' ? $title : 'not chosen yet - do not invent one');
@@ -266,33 +271,47 @@ class PromptGenerator
         $lines[] = 'HOW TO WRITE IT';
         $language = self::LANGUAGE_EN[$lang] ?? self::LANGUAGE_EN['en'];
         $lines[] = '- Write in ' . $language . '. Every word of the story must be in ' . $language . '.';
-        $lines[] = '- Between 320 and 400 words. It has to fit one printed page, so do not run over.';
-        $lines[] = '- Six or seven short paragraphs, each separated by a blank line.';
+        $lines[] = '- Between 280 and 380 words. It has to fit one printed page, so do not run over.';
+        $lines[] = '- Five or six short paragraphs, each separated by a blank line.';
         $lines[] = '- Plain text only. No title, no headings, no bullet points, no bold, no markdown.';
         $lines[] = '- Write for the ear, not the eye: short sentences, things a child can picture,';
         $lines[] = '  and room for a joke or two. It is read out loud.';
         $lines[] = '';
-        $lines[] = 'WHAT HAS TO HAPPEN, IN THIS ORDER';
+        $lines[] = 'THIS IS THE MOST IMPORTANT INSTRUCTION';
+        $lines[] = 'Write the OPENING of the adventure, not the adventure. This page is read out';
+        $lines[] = 'once, before anybody moves, and it exists to explain why the journey is being';
+        $lines[] = 'made at all. The journey itself is what the children then play, so it has not';
+        $lines[] = 'happened yet and you must not tell it. Stop at the moment the hero leaves.';
+        $lines[] = '';
+        $lines[] = 'WHAT THE OPENING COVERS, IN THIS ORDER';
         $lines[] = '1. Something has gone wrong where the story happens. Say it in the first sentence.';
-        $lines[] = '2. The news reaches the hero, who decides to go, because no grown-up will.';
-        $lines[] = '3. The hero sets out, and somebody comes along. Give this companion a personality';
-        $lines[] = '   and one funny habit - this is the character a child will remember afterwards.';
-        $lines[] = '4. The road ahead is ' . $cells . ' stages long, and every stage asks a question.';
-        $lines[] = '   Say what makes the journey hard in this particular place.';
-        $lines[] = '5. One whole paragraph on getting a question wrong: it costs a step, it happens to';
-        $lines[] = '   everybody, and the only way to lose is to stop. Warmly, and without a lecture.';
-        $lines[] = '   This is the paragraph that matters most - a child who gets one wrong hears it.';
-        $lines[] = '6. The last stage. Show the place answering back before anyone says anything.';
-        $lines[] = '7. The rescue succeeds, and the story becomes the hero\'s to tell.';
+        $lines[] = '2. What that means for this place, and for whoever lives in it. Make it matter,';
+        $lines[] = '   without making it frightening.';
+        $lines[] = '3. Who is waiting to be found - out there somewhere, not knowing if anyone is';
+        $lines[] = '   coming. The news reaches the hero, and no grown-up will go.';
+        $lines[] = '4. The hero decides to go, and somebody comes along. Give this companion a';
+        $lines[] = '   personality and one funny habit - this is the character a child remembers.';
+        $lines[] = '5. What is known about the road ahead, and only what is known before setting';
+        $lines[] = '   off: that it runs in ' . $cells . ' stages, that a question waits at each of them,';
+        $lines[] = '   and what makes this particular place hard to cross. Mention, warmly and in';
+        $lines[] = '   passing, that getting a question wrong costs a step and nothing more - the';
+        $lines[] = '   only way to lose is to stop. A child who gets one wrong will remember this.';
+        $lines[] = '6. The last line is the hero setting off, and it hands the story over to whoever';
+        $lines[] = '   is about to play. What happens next is theirs.';
         $lines[] = '';
         $lines[] = 'KEEP OUT';
+        $lines[] = '- Do not travel the road. No stages crossed, no questions answered, no obstacles';
+        $lines[] = '  overcome, nothing found along the way. None of that has happened yet.';
+        $lines[] = '- Do not say how it ends. Whether the rescue works is decided at the table, and';
+        $lines[] = '  a story that gives the ending away takes the game with it.';
+        $lines[] = '- No homecoming, no celebration, no "and from that day". The story stops at the';
+        $lines[] = '  gate, on the way out.';
         $lines[] = '- Do not explain how the game is played. No cards, no dice, no counting spaces,';
         $lines[] = '  no turns. A separate printed page does all of that.';
         $lines[] = '- Nothing frightening: no injury, no death, nobody in real danger.';
-        $lines[] = '- No moral at the end and no lesson spelled out. The story is the point.';
-        $lines[] = '- Do not end on a cliffhanger or promise a sequel.';
+        $lines[] = '- No moral and no lesson spelled out. The story is the point.';
         $lines[] = '';
-        $lines[] = 'OUTPUT: the story and nothing else - no preamble, no notes, no closing remark.';
+        $lines[] = 'OUTPUT: the opening and nothing else - no preamble, no notes, no closing remark.';
 
         return implode("\n", $lines);
     }
