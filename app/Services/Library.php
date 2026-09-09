@@ -43,23 +43,34 @@ class Library
     public const KIND_MISSION   = 'mission';
 
     /**
-     * The pose that stands for a character set.
+     * The drawing that stands for a character set.
      *
-     * Every set is eight drawings, and pose 1 is whatever the artist drew
-     * first - a puppy sprawled on its front, a bunny in profile behind a
-     * lightning bolt. Read at thumbnail size those say very little about the
-     * character. Pose 8 is the celebration in almost every set: front on,
-     * whole body, arms up, sparkles. That is the one to choose from, and the
-     * one that goes on the winner card.
+     * Every set is eight drawings, and pose 1 is whatever the artist happened
+     * to draw first: a puppy sprawled flat on its front, a bunny in profile
+     * behind a lightning bolt, a hedgehog crouched over some berries. At
+     * thumbnail size those say almost nothing about the character, and a
+     * grid of them all framed differently is hard to choose from.
      *
-     * Two sets number theirs differently, so they are named here. Anything
-     * missing that pose falls back to the first drawing rather than a gap.
+     * So each set names its own, picked by looking at all thirty of them.
+     *
+     * NEVER ABOVE THREE
+     * -----------------
+     * The Starter plan prints three poses per set, so poses four to eight
+     * exist in the folder but that buyer never receives them. A cover pose
+     * above three would put a drawing in the picker, and on the winner card,
+     * that most buyers cannot have. Three is the smallest allowance any plan
+     * gives, so every pose here is within reach of every plan - and
+     * coverPose() will not return one that is not.
      */
-    private const COVER_POSE = 8;
+    private const MAX_COVER_POSE = 3;
 
-    private const COVER_POSE_BY_CODE = [
-        'char-01' => 7,   // pose 8 is the bunny beside a plank
-        'char-04' => 7,   // pose 8 is the bear cub behind a rock
+    private const COVER_POSE = [
+        'char-01' => 3,  'char-02' => 3,  'char-03' => 2,  'char-04' => 1,  'char-05' => 2,
+        'char-06' => 1,  'char-07' => 1,  'char-08' => 2,  'char-09' => 2,  'char-10' => 1,
+        'char-11' => 3,  'char-12' => 1,  'char-13' => 1,  'char-14' => 3,  'char-15' => 1,
+        'char-16' => 1,  'char-17' => 3,  'char-18' => 2,  'char-19' => 2,  'char-20' => 1,
+        'char-21' => 3,  'char-22' => 1,  'char-23' => 2,  'char-24' => 2,  'char-25' => 1,
+        'char-26' => 2,  'char-27' => 2,  'char-28' => 3,  'char-29' => 2,  'char-30' => 3,
     ];
 
     /** Which pose represents this set, given what artwork actually exists */
@@ -70,9 +81,10 @@ class Library
         }
 
         $code = trim((string) ($item['code'] ?? ''));
-        $pose = self::COVER_POSE_BY_CODE[$code] ?? self::COVER_POSE;
+        $pose = self::COVER_POSE[$code] ?? 1;
+        $pose = max(1, min(self::MAX_COVER_POSE, $pose));
 
-        // A set drawn only as far as pose 3 still needs a picture
+        // A set drawn only as far as pose 1 still needs a picture
         return self::hasRealImage($item, $pose) ? $pose : 1;
     }
 
