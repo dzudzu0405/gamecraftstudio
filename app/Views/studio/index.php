@@ -12,6 +12,11 @@ use App\Services\MissionMatcher;
 $pid    = (int) $project['id'];
 $status = H::statusBadge((string) $project['status']);
 $diff   = Difficulty::get((string) $project['difficulty']);
+
+// The questions the buyer has added themselves, on top of the dealt game
+$extraQ = (string) ($project['extra_questions'] ?? '');
+$extraA = (string) ($project['extra_answers'] ?? '');
+$extraN = count(MissionMatcher::pairLines($extraQ, $extraA));
 ?>
 
 <div class="section__head">
@@ -55,10 +60,19 @@ $diff   = Difficulty::get((string) $project['difficulty']);
         <div class="card mb-2" id="missions">
             <div class="card__head">
                 <h3>Mission cards</h3>
-                <span class="small muted"><?= (int) $missionCount ?> of <?= (int) $expected ?></span>
+                <?php /* "63 of 60" would look like a fault - the 3 are the buyer's own */ ?>
+                <span class="small muted">
+                    <?php if ($missionCount < $expected): ?>
+                        <?= (int) $missionCount ?> of <?= (int) $expected ?>
+                    <?php elseif ($extraN): ?>
+                        <?= (int) $expected ?> + <?= (int) $extraN ?> of your own
+                    <?php else: ?>
+                        <?= (int) $missionCount ?> of <?= (int) $expected ?>
+                    <?php endif; ?>
+                </span>
                 <span class="spacer" style="flex:1"></span>
                 <form method="post" action="<?= Url::to('/studio/' . $pid . '/regenerate') ?>"
-                      data-confirm="Regenerate every mission card? Anything you edited yourself will be replaced.">
+                      data-confirm="Regenerate every mission card? Anything you edited yourself will be replaced. The questions you added below are kept.">
                     <?= Csrf::field() ?>
                     <button class="btn btn--ghost btn--sm" type="submit">
                         <?= Icon::get('shuffle', 14) ?> Regenerate all
@@ -87,6 +101,19 @@ $diff   = Difficulty::get((string) $project['difficulty']);
                     <div class="small muted mb-1">
                         All the cards are one pile - landing on a star space means drawing the top card.
                     </div>
+
+                    <?php /* The one thing on this page worth interrupting the buyer for */ ?>
+                    <div class="notice notice--warning mb-2">
+                        <?= Icon::get('sparkles', 17) ?>
+                        <span>
+                            <b><i>Add a few questions of your own - it is the surest way to keep this
+                            game from resembling anybody else's.</i></b>
+                            The library deals different questions to every game, but your own -
+                            this week's spelling words, the names in your class, a joke only your
+                            family gets - can never turn up in someone else's copy.
+                            <a href="#own-questions">Add your questions below</a>.
+                        </span>
+                    </div>
                     <?php if ($pageCount > 1): ?>
                         <div class="flex flex-wrap gap-1">
                             <?php for ($p = 1; $p <= $pageCount; $p++): ?>
@@ -106,6 +133,36 @@ $diff   = Difficulty::get((string) $project['difficulty']);
                 <div style="border-top:1px solid var(--line)">
                     <?php foreach ($missions as $idx => $m): ?>
                         <?php $isCustom = ($m['source'] ?? '') === 'custom'; ?>
+                        <?php $isOwn    = ($m['source'] ?? '') === 'extra'; ?>
+
+                        <?php if ($isOwn): ?>
+                            <?php /*
+                                   * A card the buyer typed in the box below. The box is where it
+                                   * lives, so it is not editable here - two places to change the
+                                   * same words is how one of them ends up wrong.
+                                   */ ?>
+                            <div class="mission-row mission-row--custom"
+                                 style="display:flex;gap:11px;align-items:flex-start">
+                                <span class="mission-row__sticker">
+                                    <img src="<?= Url::to('art/sticker/' . rawurlencode($m['sticker']) . '.svg?size=20') ?>"
+                                         alt="" width="20" height="20">
+                                </span>
+                                <span class="mission-row__body">
+                                    <span class="mission-row__q"><?= H::e($m['question']) ?></span>
+                                    <span class="mission-row__a">
+                                        <?= trim((string) $m['answer']) !== '' ? 'Answer: ' . H::e($m['answer']) : '' ?>
+                                    </span>
+                                </span>
+                                <span class="mission-row__tools">
+                                    <span class="badge badge--new">Your own</span>
+                                    <a class="btn btn--ghost btn--sm" href="#own-questions">
+                                        <?= Icon::get('edit', 14) ?> Edit
+                                    </a>
+                                </span>
+                            </div>
+                            <?php continue; ?>
+                        <?php endif; ?>
+
                         <details class="mission-row <?= $isCustom ? 'mission-row--custom' : '' ?>" style="display:block">
                             <summary style="display:flex;gap:11px;align-items:flex-start;cursor:pointer;list-style:none">
                                 <span class="mission-row__sticker">
@@ -178,6 +235,53 @@ $diff   = Difficulty::get((string) $project['difficulty']);
                 </div>
 
             <?php endif; ?>
+        </div>
+
+        <!-- ===== Questions the buyer adds themselves ===== -->
+        <div class="card mb-2" id="own-questions">
+            <div class="card__head">
+                <h3>Add your own questions</h3>
+                <?php if ($extraN): ?>
+                    <span class="small muted"><?= $extraN ?> in the pile</span>
+                <?php endif; ?>
+            </div>
+            <div class="card__body">
+
+                <form method="post" action="<?= Url::to('/studio/' . $pid . '/questions') ?>">
+                    <?= Csrf::field() ?>
+
+                    <div class="form-row">
+                        <div class="field">
+                            <label class="label" for="extra_questions">
+                                Questions <span class="label__hint">(one per line)</span>
+                            </label>
+                            <textarea class="textarea" id="extra_questions" name="extra_questions"
+                                      style="min-height:190px;line-height:1.9"
+                                      placeholder="How do you spell &quot;necessary&quot;?&#10;What is 7 x 8?&#10;Name three rivers in France"><?= H::e($extraQ) ?></textarea>
+                        </div>
+                        <div class="field">
+                            <label class="label" for="extra_answers">
+                                Answers <span class="label__hint">(one per line, same order)</span>
+                            </label>
+                            <textarea class="textarea" id="extra_answers" name="extra_answers"
+                                      style="min-height:190px;line-height:1.9"
+                                      placeholder="necessary&#10;56&#10;Any three real rivers"><?= H::e($extraA) ?></textarea>
+                        </div>
+                    </div>
+
+                    <p class="small muted mb-2">
+                        The third line of the answers box answers the third line of the questions
+                        box, and so on. Leave an answer line empty for a question that is answered
+                        out loud. These cards are <b>added</b> to the mission pile, so nothing you
+                        have already edited is replaced, and they print with everything else -
+                        answers on the key at the back. Up to <?= MissionMatcher::MAX_EXTRA_QUESTIONS ?> questions.
+                    </p>
+
+                    <button class="btn btn--primary" type="submit">
+                        <?= Icon::get('check', 16) ?> Save my questions
+                    </button>
+                </form>
+            </div>
         </div>
 
         <!-- ===== Story and rules ===== -->

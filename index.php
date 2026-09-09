@@ -99,6 +99,7 @@ $router->post('/studio/{id}/mission/{mid}',        'StudioController@saveMission
 $router->post('/studio/{id}/mission/{mid}/reroll', 'StudioController@rerollMission', $auth);
 $router->post('/studio/{id}/regenerate',  'StudioController@regenerate', $auth);
 $router->post('/studio/{id}/content',     'StudioController@saveContent', $auth);
+$router->post('/studio/{id}/questions',   'StudioController@saveQuestions', $auth);
 $router->post('/studio/{id}/players',     'StudioController@savePlayers', $auth);
 
 // --- Preview and export (FR-26, FR-27) ---

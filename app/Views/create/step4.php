@@ -42,7 +42,13 @@ $ownQuestions = Project::usesOwnQuestions($project);
                         <div class="stat__value" style="color:<?= $complete ? 'var(--green)' : 'var(--amber)' ?>">
                             <?= (int) $missionCount ?>
                         </div>
-                        <div class="stat__sub">one shared pile</div>
+                        <?php $ownAdded = count(MissionMatcher::pairLines(
+                            (string) ($project['extra_questions'] ?? ''),
+                            (string) ($project['extra_answers'] ?? '')
+                        )); ?>
+                        <div class="stat__sub">
+                            <?= $ownAdded ? 'one pile, ' . $ownAdded . ' of them yours' : 'one shared pile' ?>
+                        </div>
                     </div>
                     <div class="stat">
                         <div class="stat__label">Matching templates</div>

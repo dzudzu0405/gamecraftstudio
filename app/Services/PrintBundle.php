@@ -280,13 +280,21 @@ class PrintBundle
         $lang  = Lang::of($project);
         $cells = MapComposer::normalizeCells((int) ($project['cells'] ?? 18));
 
+        /*
+         * Counted from the cards themselves, not from the difficulty: a buyer
+         * who adds questions of their own has more cards to lay out than the
+         * preset says, and this line is what tells them how many.
+         */
+        $missions = isset($project['id'])
+            ? MissionMatcher::countForProject((int) $project['id'])
+            : 0;
+        $missions = $missions ?: $cells * Difficulty::MISSIONS_PER_CELL;
+
         $parts = [
             Project::usesMoveCards($project)
                 ? Lang::choose('howto.prepare_move', Difficulty::MOVE_CARDS_PER_GAME, $lang)
                 : Lang::get('howto.prepare_dice', $lang),
-            Lang::get('howto.prepare_cards', $lang, [
-                'total' => $cells * Difficulty::MISSIONS_PER_CELL,
-            ]),
+            Lang::get('howto.prepare_cards', $lang, ['total' => $missions]),
             Lang::choose('howto.prepare_hero', Difficulty::HERO_CARDS_PER_GAME, $lang),
             Lang::get('howto.prepare_token', $lang),
         ];

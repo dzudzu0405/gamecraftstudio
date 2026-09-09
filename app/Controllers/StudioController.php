@@ -97,6 +97,17 @@ class StudioController extends Controller
         $project = $this->ownedProject((int) ($params['id'] ?? 0));
         $mission = $this->ownedMission((int) ($params['mid'] ?? 0), (int) $project['id']);
 
+        /*
+         * A card the buyer added themselves belongs to the box they typed it
+         * in: editing it here would be overwritten the next time they save
+         * that box, so they are sent to the one place that holds the words.
+         */
+        if (($mission['source'] ?? '') === 'extra') {
+            Flash::error('That is one of your own questions - edit it in the box below the cards.');
+            Response::redirect('/studio/' . (int) $project['id'] . '#own-questions');
+            return;
+        }
+
         $question = trim($request->str('question'));
         if ($question === '') {
             Flash::error('The question cannot be empty.');
@@ -129,12 +140,18 @@ class StudioController extends Controller
         $project = $this->ownedProject((int) ($params['id'] ?? 0));
         $mission = $this->ownedMission((int) ($params['mid'] ?? 0), (int) $project['id']);
 
-        $new = MissionMatcher::reroll((int) $mission['id'], Auth::plan());
+        $new = ($mission['source'] ?? '') === 'extra'
+            ? null      // one of theirs - the library has nothing to swap in for it
+            : MissionMatcher::reroll((int) $mission['id'], Auth::plan());
 
         // There is nothing to swap for on a game built from the buyer's own list
-        $why = Project::usesOwnQuestions($project)
-            ? 'This game uses your own questions, so there is nothing to swap in. Edit the card instead.'
-            : 'No base template is available to swap this card.';
+        if (($mission['source'] ?? '') === 'extra') {
+            $why = 'That is one of your own questions - change it in the box below the cards.';
+        } elseif (Project::usesOwnQuestions($project)) {
+            $why = 'This game uses your own questions, so there is nothing to swap in. Edit the card instead.';
+        } else {
+            $why = 'No base template is available to swap this card.';
+        }
 
         if ($request->isAjax()) {
             if (!$new) {
@@ -234,6 +251,53 @@ class StudioController extends Controller
 
         Flash::success('Game content saved.');
         Response::redirect('/studio/' . $pid . '#content');
+    }
+
+    /**
+     * The questions the buyer adds themselves, from the two boxes in the
+     * Studio: questions in one, answers in the other, line for line.
+     *
+     * These are added to the pile rather than dealt in place of anything, so
+     * saving here leaves every other card exactly as it was.
+     */
+    public function saveQuestions(Request $request, array $params): void
+    {
+        $project = $this->ownedProject((int) ($params['id'] ?? 0));
+        $pid     = (int) $project['id'];
+
+        $questions = mb_substr(trim($request->str('extra_questions')), 0, 20000);
+        $answers   = mb_substr(trim($request->str('extra_answers')), 0, 20000);
+
+        Project::touch($pid, [
+            'extra_questions' => $questions,
+            'extra_answers'   => $answers,
+        ]);
+
+        $added = MissionMatcher::applyExtras(array_merge($project, [
+            'extra_questions' => $questions,
+            'extra_answers'   => $answers,
+        ]));
+
+        if ($added === 0) {
+            Flash::success('Your own questions have been cleared from the pile.');
+        } else {
+            Flash::success($added === 1
+                ? 'Your question was added to the mission pile.'
+                : 'Your ' . $added . ' questions were added to the mission pile.');
+        }
+
+        // Say so rather than silently keeping the first two hundred of a long paste
+        $typed = count(array_filter(
+            preg_split('/\r\n|\r|\n/', $questions) ?: [],
+            fn($line) => trim($line) !== ''
+        ));
+
+        if ($typed > $added) {
+            Flash::warning('Only the first ' . $added . ' were used - a game takes at most '
+                . MissionMatcher::MAX_EXTRA_QUESTIONS . ' questions of your own.');
+        }
+
+        Response::redirect('/studio/' . $pid . '#own-questions');
     }
 
     /** The player list and their token colours */

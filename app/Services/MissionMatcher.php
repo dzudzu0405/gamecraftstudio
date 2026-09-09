@@ -187,6 +187,96 @@ class MissionMatcher
     }
 
     // ---------------------------------------------------------------
+    //  Questions the buyer adds on top of a dealt game
+    // ---------------------------------------------------------------
+
+    /** Most questions one buyer can add to a single game */
+    public const MAX_EXTRA_QUESTIONS = 200;
+
+    /**
+     * Reads the two boxes in the Studio: questions in one, answers in the
+     * other, line for line.
+     *
+     * Line 3 of the answers box answers line 3 of the questions box, so the
+     * two boxes are read together and blank lines are kept while pairing -
+     * dropping an empty line early would shunt every answer below it up by
+     * one and quietly attach it to the wrong question.
+     *
+     * A question with no answer beside it is fine: plenty are answered out
+     * loud by whoever is running the game, so the answers box may be short
+     * or empty. A blank question line is dropped once the pairing is done.
+     */
+    public static function pairLines(string $questions, string $answers): array
+    {
+        $qLines = preg_split('/\r\n|\r|\n/', $questions) ?: [];
+        $aLines = preg_split('/\r\n|\r|\n/', $answers) ?: [];
+
+        $out = [];
+
+        foreach ($qLines as $i => $question) {
+            $question = trim($question);
+
+            if ($question === '') {
+                continue;
+            }
+
+            $out[] = [
+                'question' => mb_substr($question, 0, 500),
+                'answer'   => mb_substr(trim((string) ($aLines[$i] ?? '')), 0, 500),
+            ];
+
+            if (count($out) >= self::MAX_EXTRA_QUESTIONS) {
+                break;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Cards for the questions the buyer typed themselves.
+     *
+     * These are ADDED to the pile, not swapped in for cards already dealt:
+     * nothing they wrote is quietly dropped, and a game they have already
+     * tidied up by hand stays as they left it. The pile simply gets bigger,
+     * which costs a printed sheet and nothing else - the cards are shuffled
+     * together anyway, so there is no place on the board to run out of.
+     *
+     * cell_no only orders the deck now, so these sit after everything dealt.
+     */
+    public static function extraCards(array $pairs, int $afterCell): array
+    {
+        $stickers = ['star', 'heart', 'leaf', 'bulb', 'gem', 'key'];
+        $cards    = [];
+
+        foreach (array_values($pairs) as $i => $pair) {
+            $cards[] = [
+                'template_id' => null,
+                'subject'     => null,
+                'source'      => 'extra',
+                'sticker'     => $stickers[$i % count($stickers)],
+                'question'    => $pair['question'],
+                'answer'      => $pair['answer'],
+                'cell_no'     => $afterCell + 1,
+                'slot_no'     => $i + 1,
+            ];
+        }
+
+        return $cards;
+    }
+
+    /** The cards a project's own added questions come to, ready to save */
+    public static function extraCardsFor(array $project): array
+    {
+        $pairs = self::pairLines(
+            (string) ($project['extra_questions'] ?? ''),
+            (string) ($project['extra_answers'] ?? '')
+        );
+
+        return self::extraCards($pairs, (int) ($project['cells'] ?? 18));
+    }
+
+    // ---------------------------------------------------------------
     //  Questions the buyer wrote themselves
     // ---------------------------------------------------------------
 
@@ -651,9 +741,21 @@ class MissionMatcher
     //  Saving to a project
     // ---------------------------------------------------------------
 
-    /** Replaces every mission card on a project with a freshly generated set */
+    /**
+     * Replaces every mission card on a project with a freshly generated set.
+     *
+     * Questions the buyer added themselves ride along: they are theirs, not
+     * something the dealer produced, so re-dealing a game must not throw them
+     * away. Every path that fills a deck goes through here, which is why they
+     * are picked up here rather than at each of those call sites.
+     */
     public static function saveForProject(int $projectId, array $cards): void
     {
+        $project = Database::first('SELECT * FROM projects WHERE id = ? LIMIT 1', [$projectId]);
+        if ($project) {
+            $cards = array_merge($cards, self::extraCardsFor($project));
+        }
+
         Database::transaction(function () use ($projectId, $cards) {
             Database::delete('project_missions', ['project_id' => $projectId]);
             $now = date('Y-m-d H:i:s');
@@ -672,6 +774,44 @@ class MissionMatcher
                 ]);
             }
         });
+    }
+
+    /**
+     * Puts the buyer's added questions on a deck that already exists.
+     *
+     * Only their own cards are touched: the dealt ones keep whatever has been
+     * done to them, so editing the list of added questions never costs the
+     * buyer a card they swapped or reworded earlier.
+     *
+     * @return int how many cards their list now comes to
+     */
+    public static function applyExtras(array $project): int
+    {
+        $projectId = (int) $project['id'];
+        $cards     = self::extraCardsFor($project);
+
+        Database::transaction(function () use ($projectId, $cards) {
+            Database::delete('project_missions', ['project_id' => $projectId, 'source' => 'extra']);
+
+            $now = date('Y-m-d H:i:s');
+
+            foreach ($cards as $c) {
+                Database::insert('project_missions', [
+                    'project_id'  => $projectId,
+                    'cell_no'     => (int) $c['cell_no'],
+                    'slot_no'     => (int) $c['slot_no'],
+                    'source'      => 'extra',
+                    'template_id' => null,
+                    'subject'     => null,
+                    'question'    => (string) $c['question'],
+                    'answer'      => (string) ($c['answer'] ?? ''),
+                    'sticker'     => (string) ($c['sticker'] ?? 'star'),
+                    'created_at'  => $now,
+                ]);
+            }
+        });
+
+        return count($cards);
     }
 
     /** Swaps one card for another variation of the same template (FR-26 "swap a card") */

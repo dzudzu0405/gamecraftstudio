@@ -113,6 +113,10 @@ class Project
      * pasted their own, which is what a teacher with a term's worth of
      * spelling words wants. The two are alternatives - a game is dealt from
      * one or the other, never both, so the buyer always knows what will print.
+     *
+     * Separate from either: extra_questions holds questions the buyer adds to
+     * a game that has already been dealt. Those are added to the pile rather
+     * than dealt into it, so they sit alongside whichever source was chosen.
      */
     public const QUESTIONS_LIBRARY = 'library';
     public const QUESTIONS_OWN     = 'own';
