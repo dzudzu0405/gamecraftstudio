@@ -68,7 +68,8 @@ use App\Services\Tiers;
             </div>
 
             <ul class="perks">
-                <?php foreach ($t['perks'] as $perk): ?>
+                <?php /* Everything the plan includes, not only what it adds */ ?>
+                <?php foreach (\App\Services\Tiers::perks($key) as $perk): ?>
                     <li><?= Icon::get('check', 14) ?> <span><?= H::e($perk) ?></span></li>
                 <?php endforeach; ?>
                 <?php foreach ($t['locked'] as $locked): ?>

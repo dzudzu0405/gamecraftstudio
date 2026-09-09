@@ -39,14 +39,21 @@ class Tiers
                 'reward_cards'    => 10,
                 'difficulties'    => ['beginner', 'standard'],
                 'projects_limit'  => 0, // 0 = unlimited
+                /*
+                  * Keyed, so a higher plan can override the line it supersedes
+                  * and inherit every line it does not mention. See perks().
+                  */
                 'perks' => [
-                    '12 maps: 6 with 12 missions, 6 with 18',
-                    '10 character sets, 3 poses each',
-                    'Your character on the mission and hero cards',
-                    '5 mission card designs',
-                    'Ready-written story and rules',
-                    'Print-ready export (PDF / PNG)',
-                    'As many games as you like',
+                    'maps'       => '12 maps: 6 with 12 missions, 6 with 18',
+                    'characters' => '10 character sets, 3 poses each',
+                    'moves'      => 'The paper die to cut out and fold',
+                    'missions'   => '5 mission card designs',
+                    'yourart'    => 'Your character on the mission and hero cards',
+                    'winner'     => '5 winner card designs',
+                    'rules'      => 'Rules written for you, in your game\'s language',
+                    'story'      => 'A prompt that writes the story for you',
+                    'export'     => 'Print-ready export (PDF / PNG)',
+                    'projects'   => 'As many games as you like',
                 ],
                 'locked' => [
                     '24-space maps (Advanced level)',
@@ -60,7 +67,8 @@ class Tiers
                 'name'        => 'Pro',
                 'price'       => 27,
                 'price_label' => '$27',
-                'tagline'     => 'Everything in Starter, plus the Standard difficulty level',
+                // Starter already has Standard; Advanced is what Pro unlocks
+                'tagline'     => 'Everything in Starter, plus move cards and the Advanced level',
                 'color'       => '#6C4BD6',
                 'badge'       => 'Most popular',
                 'popular'     => true,
@@ -75,13 +83,12 @@ class Tiers
                 'difficulties'    => ['beginner', 'standard', 'advanced'],
                 'projects_limit'  => 0, // 0 = unlimited
                 'perks' => [
-                    'Everything in the Starter tier',
-                    'Unlocks 24-space maps - the Advanced level',
-                    '24 maps: 9 with 12 missions, 9 with 18, 6 with 24',
-                    '20 character sets, 5 poses each - including the Starter ten',
-                    'Move cards instead of the dice, in 10 designs',
-                    'Your character on the mission, move and hero cards',
-                    '10 mission card designs',
+                    'levels'     => 'Unlocks the Advanced level and 24-space maps',
+                    'maps'       => '24 maps: 9 with 12 missions, 9 with 18, 6 with 24',
+                    'characters' => '20 character sets, 5 poses each',
+                    'moves'      => 'Move cards instead of the die, in 10 designs',
+                    'missions'   => '10 mission card designs',
+                    'yourart'    => 'Your character on the mission, move and hero cards',
                 ],
                 'locked' => [
                     'Selling on Amazon / Etsy',
@@ -108,13 +115,13 @@ class Tiers
                 'difficulties'    => ['beginner', 'standard', 'advanced'],
                 'projects_limit'  => 0,
                 'perks' => [
-                    'Everything in the Pro tier',
-                    'The whole library: 36 maps, 12 of each size',
-                    '30 character sets with all 8 poses',
-                    '15 move card and 15 mission card designs',
-                    'Export product listings for Amazon and Etsy',
-                    'Commercial licence for printed products',
-                    'Priority support',
+                    'maps'       => 'The whole library: 36 maps, 12 of each size',
+                    'characters' => '30 character sets, all 8 poses',
+                    'moves'      => '15 move card designs',
+                    'missions'   => '15 mission card designs',
+                    'listings'   => 'Export product listings for Amazon and Etsy',
+                    'licence'    => 'Commercial licence for printed products',
+                    'support'    => 'Priority support',
                 ],
                 'locked' => [],
             ],
@@ -153,6 +160,52 @@ class Tiers
     {
         $rank = self::rank($plan);
         return array_slice(self::ORDER, 0, $rank + 1);
+    }
+
+    /**
+     * The order the perks read in, whichever tier they came from.
+     *
+     * What the plan unlocks first, then how much of the library it holds,
+     * then the things every plan has, then what only the top one adds. A
+     * plain merge would have put "Unlocks the Advanced level" last, under
+     * lines it is more important than.
+     */
+    private const PERK_ORDER = [
+        'levels', 'maps', 'characters', 'moves', 'missions', 'winner',
+        'yourart', 'rules', 'story', 'export', 'projects',
+        'listings', 'licence', 'support',
+    ];
+
+    /**
+     * Everything a plan includes, its own and everything below it.
+     *
+     * Each plan is the one under it plus what it adds, and the card has to
+     * say so - a buyer comparing them should not find Pro listing fewer
+     * things than Starter. A line is keyed by what it describes, so a higher
+     * tier's "24 maps" replaces "12 maps" rather than sitting beside it, and
+     * anything it says nothing about is inherited untouched.
+     *
+     * @return string[]
+     */
+    public static function perks(?string $plan): array
+    {
+        $merged = [];
+
+        foreach (self::unlockedTiers($plan) as $tier) {
+            $merged = array_merge($merged, self::get($tier)['perks']);
+        }
+
+        $out = [];
+
+        foreach (self::PERK_ORDER as $key) {
+            if (isset($merged[$key])) {
+                $out[] = $merged[$key];
+                unset($merged[$key]);
+            }
+        }
+
+        // anything added later without a place in the order still gets shown
+        return array_merge($out, array_values($merged));
     }
 
     /** Difficulty levels this plan unlocks (SRS section 10) */
