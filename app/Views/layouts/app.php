@@ -16,6 +16,9 @@ $pageTitle = $pageTitle ?? 'Dashboard';
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= Url::asset('css/app.css') ?>?v=<?= GC_VERSION ?>">
+<?php /* The winner card, shared with the print sheets so the picker at step 2
+         shows the real thing rather than a drawing of it */ ?>
+<link rel="stylesheet" href="<?= Url::asset('css/hero.css') ?>?v=<?= GC_VERSION ?>">
 </head>
 <body>
 

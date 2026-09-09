@@ -400,11 +400,15 @@ $extraN = count(MissionMatcher::pairLines($extraQ, $extraA));
             <div class="card__head" style="padding:12px 16px"><h4>Components in use</h4></div>
             <div class="card__body" style="padding-top:10px">
                 <?php
+                /*
+                 * The winner card is not in this list: it is not a library row
+                 * any more but one of five CSS designs, so it gets its own line
+                 * below rather than sitting here reading "Not chosen" forever.
+                 */
                 $labels = [
                     'map'       => 'Map frame',
                     'character' => 'Character set',
                     'move'      => 'Move cards',
-                    'reward'    => 'Hero card',
                 ];
                 ?>
                 <?php foreach ($labels as $key => $label): ?>
@@ -423,6 +427,25 @@ $extraN = count(MissionMatcher::pairLines($extraQ, $extraA));
                         </div>
                     </div>
                 <?php endforeach; ?>
+
+                <?php $heroStyle = Project::heroStyle($project); ?>
+                <div class="flex items-center gap-1 mb-1">
+                    <div class="hero-mini" style="width:38px;height:30px;border:1px solid var(--line)">
+                        <div class="hero-card hero-card--<?= H::e($heroStyle) ?>"
+                             style="transform:scale(.082)">
+                            <div class="hero-card__rays"></div>
+                            <div class="hero-card__medal"><div class="hero-card__art"></div></div>
+                            <div class="hero-card__ribbon">Champion</div>
+                            <div class="hero-card__tails"></div>
+                        </div>
+                    </div>
+                    <div style="min-width:0;flex:1">
+                        <div class="small faint">Winner card</div>
+                        <div class="small bold" style="line-height:1.25">
+                            <?= H::e(Project::HERO_STYLES[$heroStyle]['name']) ?>
+                        </div>
+                    </div>
+                </div>
 
                 <a class="btn btn--ghost btn--sm btn--block mt-1" href="<?= Url::to('/create/' . $pid . '/step/2') ?>">
                     <?= Icon::get('palette', 14) ?> Change components

@@ -5,6 +5,7 @@ use App\Core\Helper as H;
 use App\Core\Icon;
 use App\Core\Url;
 use App\Core\View;
+use App\Models\Project;
 use App\Services\Library;
 
 echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
@@ -187,6 +188,49 @@ $missionFrame = function (array $item): ?string {
                 <div class="card__body">
                     <?php $renderPicker('move_item_id', $moves, $project['move_item_id'],
                         'No move card designs are available on your plan.', 1, $missionFrame); ?>
+                </div>
+            </div>
+
+            <!-- Winner card -->
+            <div class="card mb-2">
+                <div class="card__head">
+                    <h3>Winner card</h3>
+                    <span class="small muted">The page the winner keeps</span>
+                </div>
+                <div class="card__body">
+                    <?php
+                        /*
+                         * Real hero cards, shrunk - the same markup and the same
+                         * stylesheet the printer gets, so nothing here can promise
+                         * a look the paper does not deliver.
+                         */
+                        $current = Project::heroStyle($project);
+                    ?>
+                    <div class="pick-grid">
+                        <?php foreach (Project::HERO_STYLES as $key => $meta): ?>
+                            <label class="pick" title="<?= H::e($meta['hint']) ?>">
+                                <input type="radio" name="hero_style" value="<?= H::e($key) ?>"
+                                       <?= $key === $current ? 'checked' : '' ?>>
+                                <div class="pick__art">
+                                    <div class="hero-mini">
+                                        <div class="hero-card hero-card--<?= H::e($key) ?>">
+                                            <div class="hero-card__rays"></div>
+                                            <div class="hero-card__medal">
+                                                <div class="hero-card__art">
+                                                    <img src="<?= H::e($heroCharacter) ?>" alt="">
+                                                </div>
+                                            </div>
+                                            <div class="hero-card__ribbon">Champion</div>
+                                            <div class="hero-card__tails"></div>
+                                            <div class="hero-card__eyebrow">Hero of</div>
+                                            <div class="hero-card__name"><?= H::e(H::truncate($project['title'], 22)) ?></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pick__label"><?= H::e($meta['name']) ?></div>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </div>
 

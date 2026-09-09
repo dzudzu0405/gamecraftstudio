@@ -6,6 +6,7 @@
  */
 use App\Core\Helper as H;
 use App\Core\Url;
+use App\Models\Project;
 use App\Services\Art;
 use App\Services\Difficulty;
 use App\Services\Lang;
@@ -323,7 +324,9 @@ $qSize = function (string $question): string {
         <div class="sheet">
             <?php $head('6', $t('sheet.hero'), $t('sheet.hero_sub')); ?>
             <div class="sheet__body">
-                <div class="hero-card">
+                <?php /* One piece of markup for all five designs - what a style
+                         does not use, its CSS hides. */ ?>
+                <div class="hero-card hero-card--<?= H::e(Project::heroStyle($project)) ?>">
                     <div class="hero-card__rays"></div>
 
                     <div class="hero-card__medal">
@@ -333,6 +336,7 @@ $qSize = function (string $question): string {
                     </div>
 
                     <div class="hero-card__ribbon"><?= H::e($t('hero_card.champion')) ?></div>
+                    <div class="hero-card__tails"></div>
 
                     <div class="hero-card__stars">
                         <?php for ($s = 0; $s < 5; $s++): ?>

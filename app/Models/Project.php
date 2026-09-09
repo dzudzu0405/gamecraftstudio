@@ -167,6 +167,29 @@ class Project
         return 'forest';
     }
 
+    /**
+     * The winner card designs.
+     *
+     * The one page a child keeps, so there is more than one of it. All five
+     * are drawn in CSS from the same markup - no artwork to license, nothing
+     * to download, and they print on any printer.
+     */
+    public const HERO_STYLES = [
+        'medal'   => ['name' => 'Medal',   'hint' => 'A certificate with a gold medallion'],
+        'rosette' => ['name' => 'Rosette', 'hint' => 'A pleated award ribbon with hanging tails'],
+        'crest'   => ['name' => 'Crest',   'hint' => 'A shield under a deep banner'],
+        'pass'    => ['name' => 'Pass',    'hint' => 'A torn-edge backstage ticket'],
+        'comic'   => ['name' => 'Comic',   'hint' => 'A hard-edged burst, the loudest one'],
+    ];
+
+    /** Which winner card this game prints, falling back to the plain one */
+    public static function heroStyle(array $project): string
+    {
+        $style = (string) ($project['hero_style'] ?? '');
+
+        return isset(self::HERO_STYLES[$style]) ? $style : 'medal';
+    }
+
     /** The value the select posts when the buyer wants to write their own */
     public const SETTING_OTHER = '__other__';
 

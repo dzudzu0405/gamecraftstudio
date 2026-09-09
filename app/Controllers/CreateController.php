@@ -182,6 +182,8 @@ class CreateController extends Controller
                 $data['lockedMaps'] = $this->lockedCount(Library::KIND_MAP, $plan, (int) $project['cells']);
                 $data['characters'] = Library::withLocked(Library::KIND_CHARACTER, $plan);
                 $data['moves']      = Library::withLocked(Library::KIND_MOVE, $plan);
+                // the portrait the winner card previews are drawn around
+                $data['heroCharacter'] = PrintBundle::characterUrl($project);
                 break;
 
             case 3:
@@ -345,6 +347,12 @@ class CreateController extends Controller
 
         // reward_item_id is deliberately absent: step 2 no longer offers a hero
         // card picker, and a field the form never posts would be nulled below.
+        // The winner card is drawn in CSS, so it is a name rather than a library row
+        $heroStyle = $request->str('hero_style');
+        if (isset(Project::HERO_STYLES[$heroStyle])) {
+            $update['hero_style'] = $heroStyle;
+        }
+
         $fields = [
             'map_item_id'       => Library::KIND_MAP,
             'character_item_id' => Library::KIND_CHARACTER,

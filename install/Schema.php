@@ -119,6 +119,7 @@ class Schema
                 'reward_item_id'  => 'int null',
                 'background_id'   => 'int null',           // user_assets.id - the user's own artwork (FR-31)
                 'cover_seed'      => 'varchar:80 null',
+                'hero_style'      => "varchar:20 notnull default:medal",  // which winner card design prints
                 'story'           => 'text null',          // the story page
                 'how_to_play'     => 'text null',          // the rules page
                 'hero_name'       => 'varchar:120 null',
