@@ -8,6 +8,9 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
 use App\Core\Validator;
+use App\Services\AccessLink;
+use App\Services\Entitlements;
+use App\Services\LoginCode;
 use App\Services\Mailer;
 use App\Services\Tiers;
 
@@ -48,9 +51,20 @@ class AuthController extends Controller
         }
 
         Session::forget('_login_attempts');
+
+        // A brand new account still has to prove its address before the app
+        // opens up. Anything parked - a WarriorPlus link, the page they were
+        // heading for - waits in the session until it has.
+        if (LoginCode::isPending(Auth::user())) {
+            Response::redirect('/verify');
+            return;
+        }
+
         $intended = Session::pull('_intended', '/');
 
         Flash::success('Welcome back!');
+        AccessLink::applyPending(Auth::user(), $request->ip());
+
         Response::redirect(is_string($intended) ? $intended : '/');
     }
 
@@ -58,7 +72,6 @@ class AuthController extends Controller
     {
         $this->view('auth/register', [
             'pageTitle' => 'Create account',
-            'tiers'     => Tiers::all(),
         ], 'layouts/blank');
     }
 
@@ -68,8 +81,7 @@ class AuthController extends Controller
         $v->required('name', 'your name')->max('name', 120, 'your name')
           ->required('email', 'your email address')->email('email')->max('email', 190, 'your email address')
           ->required('password', 'a password')->min('password', 8, 'your password')->max('password', 200, 'your password')
-          ->matches('password_confirmation', 'password', 'the confirmation password')
-          ->in('plan', Tiers::ORDER, 'plan');
+          ->matches('password_confirmation', 'password', 'the confirmation password');
 
         if ($v->passes() && Auth::emailExists($request->str('email'))) {
             $v->rule('email', false, 'That email address is already registered.');
@@ -80,10 +92,15 @@ class AuthController extends Controller
             return;
         }
 
-        $plan = $request->str('plan', Tiers::STARTER);
-        if (!Tiers::exists($plan)) {
-            $plan = Tiers::STARTER;
-        }
+        /*
+         * Every new account starts on Starter, whatever the form said.
+         *
+         * Plans are paid for on WarriorPlus and arrive through a delivery link
+         * (see AccessController). Taking a plan from the registration form would
+         * mean anybody willing to edit one hidden field could hand themselves
+         * the Publisher tier for nothing.
+         */
+        $plan = Tiers::STARTER;
 
         $userId = Auth::register(
             $request->str('name'),
@@ -94,10 +111,23 @@ class AuthController extends Controller
 
         \App\Core\Database::update('users', ['plan_started_at' => date('Y-m-d H:i:s')], ['id' => $userId]);
 
+        Entitlements::log($userId, null, $plan, Entitlements::SOURCE_REGISTER, null, null, null, $request->ip());
+
         $this->sendWelcomeEmail($request->str('name'), $request->str('email'), $plan);
 
         Auth::login($userId);
+
+        // Nothing opens up until the address is confirmed - a plan can be
+        // handed to this account by link, so it has to be an address they hold
+        if (LoginCode::isPending(Auth::user())) {
+            Flash::success('Account created. One quick check and you are in.');
+            Response::redirect('/verify');
+            return;
+        }
+
         Flash::success('Account created. Time to build your first game!');
+        AccessLink::applyPending(Auth::user(), $request->ip());
+
         Response::redirect('/');
     }
 

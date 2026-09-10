@@ -37,6 +37,11 @@ $user = Auth::user();
             <a class="menu__item" href="<?= Url::to('/billing') ?>" role="menuitem">
                 <?= Icon::get('card', 16) ?> Billing
             </a>
+            <?php if (Auth::isAdmin()): ?>
+                <a class="menu__item" href="<?= Url::to('/admin') ?>" role="menuitem">
+                    <?= Icon::get('crown', 16) ?> Administration
+                </a>
+            <?php endif; ?>
             <div class="menu__sep"></div>
             <form method="post" action="<?= Url::to('/logout') ?>">
                 <?= Csrf::field() ?>

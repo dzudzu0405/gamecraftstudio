@@ -142,6 +142,25 @@ class Auth
         return false;
     }
 
+    /**
+     * Middleware: the account's email address has to be confirmed first.
+     *
+     * Runs after requireLogin, so there is always a user by this point. It only
+     * bites on accounts that have never confirmed - and only when email is set
+     * up at all, because otherwise no code could ever arrive and the site would
+     * lock out the very person trying to configure the mail settings.
+     */
+    public static function requireVerified(Request $request): bool
+    {
+        if (!\App\Services\LoginCode::isPending(self::user())) {
+            return true;
+        }
+
+        Session::put('_intended', $request->path);
+        Response::redirect('/verify');
+        return false;
+    }
+
     /** Middleware: administrators only */
     public static function requireAdmin(Request $request): bool
     {

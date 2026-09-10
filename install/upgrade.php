@@ -48,6 +48,15 @@ function step(string $message, bool $ok = true): void
     $log[] = ['message' => $message, 'ok' => $ok];
 }
 
+/*
+ * Columns this run actually created, keyed 'table.column'.
+ *
+ * Step 3 needs it: backfilling a column is only right the once, on the run that
+ * introduced it. Doing it every time would, for instance, mark every account
+ * still waiting on its email code as confirmed.
+ */
+$addedColumns = [];
+
 try {
     $pdo    = Database::connect();
     $driver = Database::driver();
@@ -100,6 +109,7 @@ try {
 
             try {
                 $pdo->exec($sql);
+                $addedColumns[$table . '.' . $name] = true;
                 step('Added the column ' . $table . '.' . $name);
             } catch (PDOException $e) {
                 // Already there under a different case, or added by another run
@@ -113,6 +123,26 @@ try {
     // ---------------------------------------------------------------
     //  3. Data the new columns cannot express on their own
     // ---------------------------------------------------------------
+
+    /*
+     * email_verified_at arrived with the six-digit code that new accounts type
+     * on their first password sign-in. Accounts that already existed never had
+     * the chance, so they are marked confirmed as of when they registered -
+     * otherwise this upgrade would lock every one of your buyers out of the app
+     * behind a code they were never asked for.
+     *
+     * Only on the run that adds the column. After that a NULL means somebody
+     * genuinely has not confirmed yet, and must not be overwritten.
+     */
+    if (isset($addedColumns['users.email_verified_at'])) {
+        $existing = Database::count('SELECT COUNT(*) FROM users WHERE email_verified_at IS NULL');
+
+        if ($existing > 0) {
+            Database::run('UPDATE users SET email_verified_at = created_at WHERE email_verified_at IS NULL');
+            step('Marked ' . $existing . ' existing account' . ($existing === 1 ? '' : 's')
+               . ' as email-confirmed, so nobody is locked out by the new code step');
+        }
+    }
 
     // background_mode arrived defaulting to 'theme', which tells the app to use
     // the theme's own scene and ignore any upload. Projects that already have an

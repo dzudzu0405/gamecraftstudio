@@ -4,11 +4,10 @@ use App\Core\Flash;
 use App\Core\Helper as H;
 use App\Core\Url;
 use App\Services\Art;
-use App\Services\Tiers;
 
 $errors = Flash::errors();
 Flash::clearErrors();
-$chosen = Flash::old('plan', Tiers::PRO);
+
 ?>
 <div class="auth">
 
@@ -29,7 +28,7 @@ $chosen = Flash::old('plan', Tiers::PRO);
             </div>
 
             <h1 class="auth__title">Create your account</h1>
-            <p class="auth__sub">Pick the plan that fits. You can change it any time.</p>
+            <p class="auth__sub">Free to join. Your plan follows your WarriorPlus purchase.</p>
 
             <form method="post" action="<?= Url::to('/register') ?>" novalidate>
                 <?= Csrf::field() ?>
@@ -65,28 +64,15 @@ $chosen = Flash::old('plan', Tiers::PRO);
                     </div>
                 </div>
 
-                <div class="field">
-                    <span class="label">Choose a plan</span>
-                    <div class="choice-grid">
-                        <?php foreach ($tiers as $key => $t): ?>
-                            <label class="choice" style="padding:11px 13px">
-                                <input type="radio" name="plan" value="<?= H::e($key) ?>"
-                                       <?= $chosen === $key ? 'checked' : '' ?>>
-                                <div class="choice__inner flex items-center gap-1">
-                                    <div class="flex-1">
-                                        <div class="choice__title">
-                                            <?= H::e($t['name']) ?>
-                                            <?php if ($t['popular']): ?>
-                                                <span class="badge badge--progress" style="margin-left:4px"><?= H::e($t['badge']) ?></span>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="choice__desc"><?= H::e($t['tagline']) ?></div>
-                                    </div>
-                                    <div class="bold nowrap" style="font-size:16px"><?= H::e($t['price_label']) ?></div>
-                                </div>
-                            </label>
-                        <?php endforeach; ?>
-                    </div>
+                <?php /* No plan picker: plans are paid for on WarriorPlus and arrive
+                         through the delivery link in the receipt. Every account starts
+                         on Starter and the link raises it. */ ?>
+                <div class="notice notice--info">
+                    <?= \App\Core\Icon::get('info', 16) ?>
+                    <span>
+                        Bought on WarriorPlus already? Create your account here, then open the
+                        access link in your receipt - your plan is applied to it straight away.
+                    </span>
                 </div>
 
                 <button class="btn btn--primary btn--lg btn--block" type="submit">Create account</button>
@@ -105,7 +91,7 @@ $chosen = Flash::old('plan', Tiers::PRO);
                     Continue with Google
                 </a>
                 <p class="small faint center mt-1" style="margin-bottom:0">
-                    Google accounts start on the Starter plan.
+                    Every new account starts on the Starter plan.
                 </p>
             <?php endif; ?>
 

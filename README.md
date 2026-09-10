@@ -12,10 +12,11 @@ Built with **plain PHP and MySQL** — no Composer, no Node.js, no SSH. Drag the
 2. [Running it locally](#2-running-it-locally)
 3. [Adding real artwork](#3-adding-real-artwork)
 4. [Email and Google sign-in](#4-email-and-google-sign-in)
-5. [Folder structure](#5-folder-structure)
-6. [How the product works](#6-how-the-product-works)
-7. [Coverage against the SRS](#7-coverage-against-the-srs)
-8. [Troubleshooting](#8-troubleshooting)
+5. [Selling on WarriorPlus, and the admin area](#5-selling-on-warriorplus-and-the-admin-area)
+6. [Folder structure](#6-folder-structure)
+7. [How the product works](#7-how-the-product-works)
+8. [Coverage against the SRS](#8-coverage-against-the-srs)
+9. [Troubleshooting](#9-troubleshooting)
 
 ---
 
@@ -292,7 +293,126 @@ The upgrade only ever adds what is missing, and is safe to run twice.
 
 ---
 
-## 5. Folder structure
+## 5. Selling on WarriorPlus, and the admin area
+
+Plans are bought on WarriorPlus, which takes the payment. GameCraft never
+charges anybody — it only decides what an account is allowed to do. The two
+halves are joined by a **delivery link**: one address per product, which you
+paste into WarriorPlus, and which raises whoever opens it to the plan it
+carries.
+
+### The buyer's journey
+
+1. They buy **Starter** on WarriorPlus and are given your Starter delivery link.
+2. Opening it shows what they bought and asks them to sign in — with Google, or
+   with an email address and password.
+3. A password account gets a **six-digit code** by email, once, to prove the
+   address is theirs. Google accounts skip this: Google has already checked.
+4. The plan lands on their account the moment they are signed in. Nothing to
+   type, nothing to copy.
+5. Later they buy **Pro** or **Publisher** and get a different link. Opening it
+   moves them up straight away.
+
+A link never lowers a plan, so somebody on Publisher can safely re-open the
+Starter link from their first receipt.
+
+### Setting the links up
+
+1. Sign in as an administrator and open **Administration → Access links**
+2. Create one link per product — name it after the WarriorPlus product so you
+   can tell them apart later, and choose which plan it hands out
+3. Press **Copy** and paste the address into that WarriorPlus product as its
+   delivery URL
+
+That is the whole setup. Repeat for Pro and Publisher.
+
+### What a link does and does not prove
+
+Opening a link is all it takes. There is no check back against WarriorPlus, so
+a link posted somewhere public would hand the plan to anyone who found it. Four
+things are there for when that matters:
+
+| Control | What it does |
+|---|---|
+| The code itself | 24 random characters — it cannot be guessed, only shared |
+| **Limit** | Stops the link after a set number of accounts. `0` means no limit |
+| **Stops working on** | An expiry date. Empty means it never expires |
+| **New address** | Rotates the code. The old link dies at once; everyone who already redeemed keeps their plan |
+
+Every redemption is recorded with the account and the address it came from, so
+a link that has got out shows up as a redemption count far higher than the
+product's sales. **Administration → Access links → *n* redemptions** lists them.
+
+### Handling a refund
+
+WarriorPlus refunds are not sent to the site, so this is done by hand:
+
+1. **Administration → Users**, find the account
+2. Set the plan back to what they should be on
+3. Type the reason in the box beside it — it is kept in the plan history
+
+Nothing they made is touched by a plan change. Their games, exports and uploads
+all stay exactly where they are.
+
+### What else the admin area does
+
+| Screen | What it is for |
+|---|---|
+| **Overview** | Account and plan totals, the newest sign-ups, recent plan changes |
+| **Users** | Search by name or email; filter by plan, role or status. Change a plan, make somebody an administrator, deactivate an account, confirm an email by hand, or delete an account entirely |
+| **Access links** | The delivery links, and who has used each one |
+| **Plan activity** | Every plan change the site has ever made, with the link or administrator behind it |
+
+Three things the screens will not let you do, because each would leave nobody
+able to get back in: remove your own administrator rights, deactivate or delete
+your own account, or remove the last administrator.
+
+**Deactivate rather than delete.** Deactivating blocks sign-in and nothing else;
+turning it back on puts everything back. Deleting removes the account's games,
+exports and uploaded images for good, and asks you to type the email address
+first for that reason.
+
+### The email code
+
+New accounts that sign up with a password are asked for a six-digit code once,
+on their first sign-in. It matters here because a delivery link raises whichever
+account redeems it, so an account has to be an address somebody actually holds.
+
+- Only a hash of the code is stored
+- It lasts fifteen minutes, allows six wrong guesses, and five sends an hour
+- Google accounts are never asked
+- Accounts that existed before this feature are treated as already confirmed,
+  so an upgrade never locks out your existing buyers
+- **If `mail` is not configured in `config.php`, the step is skipped entirely** —
+  asking for a code nobody can receive would lock out the whole site
+
+When a buyer's code will not arrive — a bouncing mailbox, a typo in the address
+they registered with — open their page under **Users** and press *Confirm this
+email by hand*.
+
+### Registration no longer picks a plan
+
+The sign-up form used to offer a choice of plan, which meant anybody editing one
+hidden field could give themselves Publisher for nothing. Every new account now
+starts on Starter, whatever is posted, and only a delivery link or an
+administrator can move it.
+
+### Upgrading a site that is already installed
+
+The admin area needs three new tables and one new column:
+
+1. Upload the new files over the old ones
+2. Upload the `install` folder too, if you deleted it
+3. Sign in as your administrator account
+4. Open `https://yourdomain.com/install/upgrade.php`
+5. Delete the `install` folder again
+
+Until that runs there are no delivery links and no plan history — so do it
+before pasting any link into WarriorPlus.
+
+---
+
+## 6. Folder structure
 
 ```
 gamecraft/
@@ -306,7 +426,7 @@ gamecraft/
 ├── app/
 │   ├── bootstrap.php       Startup: config, autoloader, session
 │   ├── Core/               Router, Database, Auth, View, CSRF, Validator...
-│   ├── Controllers/        One per feature area
+│   ├── Controllers/        One per feature area (Admin/ holds the admin area)
 │   ├── Models/             Project queries
 │   ├── Services/           The business logic (see below)
 │   └── Views/              Templates
@@ -317,8 +437,9 @@ gamecraft/
 │   └── js/app.js           Interactions (no external libraries)
 │
 ├── install/                ← DELETE after installing
-│   ├── Schema.php          The 12 table definitions
+│   ├── Schema.php          The 15 table definitions
 │   ├── Seeder.php          Starting content
+│   ├── upgrade.php         Brings an installed database up to date
 │   ├── install.sql         Dump for phpMyAdmin
 │   └── export-sql.php      Regenerates install.sql
 │
@@ -344,10 +465,13 @@ gamecraft/
 | `Art.php` | Draws the SVG placeholder artwork |
 | `Mailer.php` | Sends email over SMTP, written against the protocol directly |
 | `GoogleAuth.php` | The OAuth 2.0 calls behind Sign in with Google |
+| `Entitlements.php` | The only way a plan ever changes, and the history it writes |
+| `AccessLink.php` | The WarriorPlus delivery links and what redeeming one does |
+| `LoginCode.php` | The six-digit email confirmation code |
 
 ---
 
-## 6. How the product works
+## 7. How the product works
 
 The product is an **assembler**.
 
@@ -402,7 +526,7 @@ Random values are drawn for every blank, so 15 templates produce thousands of di
 
 ---
 
-## 7. Coverage against the SRS
+## 8. Coverage against the SRS
 
 ### Implemented
 
@@ -449,7 +573,7 @@ The build reads this as: each design set holds up to 12 artworks, but any single
 
 ---
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
 **The page is blank**
 
@@ -512,6 +636,11 @@ the Google console. Remember it must be `https://`, and must include any sub-fol
 - PHP execution blocked inside `uploads`
 - Direct access blocked to `app`, `storage` and `config.php`
 - Sign-in throttled to 6 failed attempts per minute
+- New password accounts confirm their email with a six-digit code — stored as a hash, good for 15 minutes, 6 guesses, 5 sends an hour
+- Registration cannot pick a plan; only a delivery link or an administrator can move one
+- Every plan change is recorded with its reason, the link or administrator behind it, and the address it came from
+- Delivery link codes are 24 random characters, can be capped, dated and rotated, and never lower a plan
+- The admin screens refuse to remove the last administrator, or to let you lock yourself out
 - Password reset links are stored only as a SHA-256 hash, expire after an hour and work once
 - The reset page never reveals whether an email address has an account
 - Google sign-in is guarded by a one-time state value and refuses unverified email addresses

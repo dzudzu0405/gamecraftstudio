@@ -27,6 +27,9 @@ class Schema
                 'google_id'     => 'varchar:64 null',
                 'avatar_url'    => 'varchar:255 null',
                 'plan_started_at' => 'datetime null',
+                // Set once the address has been proved: by Google, or by typing
+                // the six-digit code we email on a first password sign-in
+                'email_verified_at' => 'datetime null',
                 'last_login_at' => 'datetime null',
                 'created_at'    => 'datetime notnull',
                 'updated_at'    => 'datetime notnull',
@@ -45,6 +48,74 @@ class Schema
                 'request_ip' => 'varchar:45 null',
                 'created_at' => 'datetime notnull',
                 '#index'     => [['token_hash'], ['user_id'], ['expires_at']],
+            ],
+
+            // The six-digit codes emailed to prove an address belongs to the
+            // person typing it. Only a hash is stored, same reasoning as above.
+            'login_codes' => [
+                'id'         => 'pk',
+                'user_id'    => 'fk:users',
+                'code_hash'  => 'varchar:64 notnull',
+                'purpose'    => "varchar:20 notnull default:verify",
+                'expires_at' => 'datetime notnull',
+                'used_at'    => 'datetime null',
+                'attempts'   => 'int notnull default:0',
+                'request_ip' => 'varchar:45 null',
+                'created_at' => 'datetime notnull',
+                '#index'     => [['user_id'], ['expires_at']],
+            ],
+
+            /*
+             * WarriorPlus delivery links.
+             *
+             * One row per product sold. The code is what appears in the URL the
+             * buyer is handed after paying - /access/<code> - and opening it
+             * raises the signed-in account to this row's plan. A link only ever
+             * moves somebody up, never down, so a Starter link cannot cost a
+             * Publisher what they paid for.
+             *
+             * max_uses and expires_at are the brakes: both are off by default,
+             * because a WarriorPlus product sells for as long as it sells, but
+             * a link that leaks can be capped or shut off without touching the
+             * accounts that already redeemed it.
+             */
+            'access_links' => [
+                'id'         => 'pk',
+                'code'       => 'varchar:64 notnull',
+                'label'      => 'varchar:120 notnull',
+                'plan'       => "varchar:20 notnull default:starter",
+                'note'       => 'varchar:255 null',
+                'max_uses'   => 'int notnull default:0',   // 0 = unlimited
+                'uses'       => 'int notnull default:0',
+                'expires_at' => 'datetime null',
+                'is_active'  => 'tinyint notnull default:1',
+                'created_by' => 'int null',
+                'created_at' => 'datetime notnull',
+                'updated_at' => 'datetime notnull',
+                '#unique'    => [['code']],
+                '#index'     => [['plan'], ['is_active']],
+            ],
+
+            /*
+             * Every plan change, whoever made it.
+             *
+             * Refunds are handled by hand in the admin screens, so this log is
+             * what a decision is made from: which link an account came in on,
+             * how many other accounts came in on that same link, and which
+             * administrator moved somebody and when.
+             */
+            'plan_events' => [
+                'id'         => 'pk',
+                'user_id'    => 'fk:users',
+                'plan_from'  => 'varchar:20 null',
+                'plan_to'    => 'varchar:20 notnull',
+                'source'     => "varchar:20 notnull default:admin", // register | google | link | admin
+                'link_id'    => 'int null',
+                'actor_id'   => 'int null',   // the administrator, when source = admin
+                'note'       => 'varchar:255 null',
+                'ip'         => 'varchar:45 null',
+                'created_at' => 'datetime notnull',
+                '#index'     => [['user_id', 'created_at'], ['link_id'], ['created_at']],
             ],
 
             // The ready-made content library: maps, characters, move cards, hero cards

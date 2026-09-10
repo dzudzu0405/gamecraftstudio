@@ -9,7 +9,10 @@ use App\Core\Flash;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
+use App\Services\AccessLink;
+use App\Services\Entitlements;
 use App\Services\GoogleAuth;
+use App\Services\LoginCode;
 use App\Services\Mailer;
 use App\Services\Tiers;
 
@@ -104,6 +107,10 @@ class GoogleController extends Controller
 
         Auth::login($userId);
 
+        // A WarriorPlus link parked before signing in is applied now. Google has
+        // already verified the address, so there is no code step to wait for.
+        AccessLink::applyPending(Auth::user(), $request->ip());
+
         $intended = Session::pull('_intended', '/');
         Response::redirect(is_string($intended) ? $intended : '/');
     }
@@ -143,6 +150,7 @@ class GoogleController extends Controller
                 return null;
             }
             $this->refreshAvatar((int) $user['id'], $profile, $now);
+            $this->ensureVerified($user);
             return (int) $user['id'];
         }
 
@@ -159,6 +167,10 @@ class GoogleController extends Controller
                 'avatar_url' => $profile['picture'] ?: ($user['avatar_url'] ?? null),
                 'updated_at' => $now,
             ], ['id' => (int) $user['id']]);
+
+            // Google only got this far because it had verified the address, so
+            // an account that never confirmed by code is confirmed by this
+            $this->ensureVerified($user);
 
             Flash::success('Your Google account is now linked. You can sign in either way from now on.');
             return (int) $user['id'];
@@ -186,14 +198,35 @@ class GoogleController extends Controller
             'google_id'       => $profile['id'],
             'avatar_url'      => $profile['picture'] ?: null,
             'plan_started_at' => $now,
+            // fetchProfile() refuses an unverified address, so by here Google
+            // has already done the check the six-digit code would have done
+            'email_verified_at' => $now,
             'created_at'      => $now,
             'updated_at'      => $now,
         ]);
+
+        Entitlements::log($userId, null, Tiers::STARTER, Entitlements::SOURCE_GOOGLE);
 
         $this->sendWelcome($profile['email'], $profile['name']);
 
         Flash::success('Welcome to GameCraft Studio! Your account is ready.');
         return $userId;
+    }
+
+    /**
+     * Stamps an account as verified the first time it comes in through Google.
+     *
+     * Somebody who registered with a password, never typed the emailed code and
+     * then pressed the Google button has proved the same thing a different way,
+     * so sending them to the code screen afterwards would be asking twice.
+     */
+    private function ensureVerified(array $user): void
+    {
+        if (!empty($user['email_verified_at'])) {
+            return;
+        }
+
+        LoginCode::markVerified((int) $user['id']);
     }
 
     /** Keep the profile picture current, but do not write on every sign-in for nothing */

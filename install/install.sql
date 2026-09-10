@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `google_id` VARCHAR(64) NULL,
   `avatar_url` VARCHAR(255) NULL,
   `plan_started_at` DATETIME NULL,
+  `email_verified_at` DATETIME NULL,
   `last_login_at` DATETIME NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
@@ -50,6 +51,54 @@ CREATE TABLE IF NOT EXISTS `password_resets` (
   KEY `idx_password_resets_token_hash` (`token_hash`),
   KEY `idx_password_resets_user_id` (`user_id`),
   KEY `idx_password_resets_expires_at` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `login_codes` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT UNSIGNED NOT NULL,
+  `code_hash` VARCHAR(64) NOT NULL,
+  `purpose` VARCHAR(20) NOT NULL DEFAULT 'verify',
+  `expires_at` DATETIME NOT NULL,
+  `used_at` DATETIME NULL,
+  `attempts` INT NOT NULL DEFAULT 0,
+  `request_ip` VARCHAR(45) NULL,
+  `created_at` DATETIME NOT NULL,
+  KEY `idx_login_codes_user_id` (`user_id`),
+  KEY `idx_login_codes_expires_at` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `access_links` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `code` VARCHAR(64) NOT NULL,
+  `label` VARCHAR(120) NOT NULL,
+  `plan` VARCHAR(20) NOT NULL DEFAULT 'starter',
+  `note` VARCHAR(255) NULL,
+  `max_uses` INT NOT NULL DEFAULT 0,
+  `uses` INT NOT NULL DEFAULT 0,
+  `expires_at` DATETIME NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_by` INT NULL,
+  `created_at` DATETIME NOT NULL,
+  `updated_at` DATETIME NOT NULL,
+  UNIQUE (`code`),
+  KEY `idx_access_links_plan` (`plan`),
+  KEY `idx_access_links_is_active` (`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `plan_events` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT UNSIGNED NOT NULL,
+  `plan_from` VARCHAR(20) NULL,
+  `plan_to` VARCHAR(20) NOT NULL,
+  `source` VARCHAR(20) NOT NULL DEFAULT 'admin',
+  `link_id` INT NULL,
+  `actor_id` INT NULL,
+  `note` VARCHAR(255) NULL,
+  `ip` VARCHAR(45) NULL,
+  `created_at` DATETIME NOT NULL,
+  KEY `idx_plan_events_user_id_created_at` (`user_id`, `created_at`),
+  KEY `idx_plan_events_link_id` (`link_id`),
+  KEY `idx_plan_events_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `library_items` (

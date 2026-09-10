@@ -9,6 +9,7 @@ use App\Core\Flash;
 use App\Core\Request;
 use App\Core\Response;
 use App\Models\Project;
+use App\Services\Entitlements;
 use App\Services\Library;
 use App\Services\Tiers;
 
@@ -98,13 +99,17 @@ class BillingController extends Controller
             }
         }
 
-        Database::update('users', [
-            'plan'            => $plan,
-            'plan_started_at' => date('Y-m-d H:i:s'),
-            'updated_at'      => date('Y-m-d H:i:s'),
-        ], ['id' => $this->userId()]);
-
-        Auth::refresh();
+        // Through Entitlements rather than a direct update, so an administrator
+        // moving their own plan shows up in the same log as everything else
+        Entitlements::setPlan(
+            $this->userId(),
+            $plan,
+            Entitlements::SOURCE_ADMIN,
+            $this->userId(),
+            null,
+            'Changed from the Billing screen',
+            $request->ip()
+        );
 
         $up = Tiers::rank($plan) > Tiers::rank($current);
         Flash::success(($up ? 'Upgraded to the ' : 'Moved to the ') . Tiers::name($plan) . ' plan.');

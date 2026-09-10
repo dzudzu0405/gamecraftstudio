@@ -47,6 +47,20 @@ $groups = [
     ],
 ];
 
+// Administration is only in the menu for administrators. Everyone else never
+// sees it, and the routes refuse them anyway (Auth::requireAdmin).
+if (Auth::isAdmin()) {
+    $groups[] = [
+        'label' => 'Administration',
+        'items' => [
+            ['/admin',          'grid',  'Overview', true],
+            ['/admin/users',    'users', 'Users'],
+            ['/admin/links',    'card',  'Access links'],
+            ['/admin/activity', 'clock', 'Plan activity'],
+        ],
+    ];
+}
+
 // Discover holds Marketplace and Community. Both are still sample content with
 // no way to buy or post, so the group stays hidden unless config.php asks for it.
 if (!Config::get('discover_enabled', false)) {
@@ -78,8 +92,20 @@ if (!Config::get('discover_enabled', false)) {
                     <div class="nav-group__label"><?= H::e($group['label']) ?></div>
                 <?php endif; ?>
 
-                <?php foreach ($group['items'] as [$path, $icon, $label]): ?>
-                    <?php $active = H::isActive($current, $path); ?>
+                <?php foreach ($group['items'] as $item): ?>
+                    <?php
+                    [$path, $icon, $label] = $item;
+
+                    /*
+                     * A fourth element asks for an exact match. Administration
+                     * needs it: every one of its pages sits under /admin, so
+                     * without this the Overview item would light up on all of
+                     * them alongside the page actually open.
+                     */
+                    $active = ($item[3] ?? false)
+                        ? $current === $path
+                        : H::isActive($current, $path);
+                    ?>
                     <a class="nav-item<?= $active ? ' nav-item--active' : '' ?>"
                        href="<?= Url::to($path) ?>"
                        <?= $active ? 'aria-current="page"' : '' ?>

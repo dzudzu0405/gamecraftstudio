@@ -77,6 +77,10 @@ class InstallController extends Controller
                 'locale'          => 'en',
                 'is_active'       => 1,
                 'plan_started_at' => date('Y-m-d H:i:s'),
+                // The owner's own address, typed into the installer on this very
+                // machine. Sending them a code before email is even configured
+                // would lock them out of the site they just installed.
+                'email_verified_at' => date('Y-m-d H:i:s'),
                 'created_at'      => date('Y-m-d H:i:s'),
                 'updated_at'      => date('Y-m-d H:i:s'),
             ]);

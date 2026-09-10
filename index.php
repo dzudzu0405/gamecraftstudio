@@ -46,8 +46,12 @@ Csrf::verify($request);
 // -----------------------------------------------------------------
 $router = new Router();
 
-$auth  = [[Auth::class, 'requireLogin']];
-$guest = [[Auth::class, 'requireGuest']];
+// The app proper: signed in, and the email address confirmed. The two steps are
+// separate so /verify itself can require the first without requiring the second.
+$auth      = [[Auth::class, 'requireLogin'], [Auth::class, 'requireVerified']];
+$loggedIn  = [[Auth::class, 'requireLogin']];
+$guest     = [[Auth::class, 'requireGuest']];
+$admin     = [[Auth::class, 'requireLogin'], [Auth::class, 'requireVerified'], [Auth::class, 'requireAdmin']];
 
 // --- Installation ---
 $router->get('/install',          'InstallController@index');
@@ -59,6 +63,15 @@ $router->post('/login',           'AuthController@login',        $guest);
 $router->get('/register',         'AuthController@showRegister', $guest);
 $router->post('/register',        'AuthController@register',     $guest);
 $router->post('/logout',          'AuthController@logout');
+
+// --- Confirming an email address with the six-digit code (first sign-in only) ---
+$router->get('/verify',           'VerifyController@show',   $loggedIn);
+$router->post('/verify',          'VerifyController@check',  $loggedIn);
+$router->post('/verify/resend',   'VerifyController@resend', $loggedIn);
+
+// --- WarriorPlus delivery links. Open to guests: it parks the code and asks
+//     them to sign in, then applies the plan when they come back. ---
+$router->get('/access/{code}',    'AccessController@show');
 
 // --- Forgotten password ---
 $router->get('/forgot',           'PasswordController@showForgot', $guest);
@@ -131,6 +144,23 @@ if (App\Core\Config::get('discover_enabled', false)) {
 // --- Plans and billing (FR-21, FR-22, FR-28, FR-29) ---
 $router->get('/billing',           'BillingController@index',   $auth);
 $router->post('/billing/plan',     'BillingController@changePlan', $auth);
+
+// --- Administration: accounts, plans and the WarriorPlus delivery links ---
+$router->get('/admin',                        'Admin\DashboardController@index', $admin);
+$router->get('/admin/users',                  'Admin\UserController@index',      $admin);
+$router->get('/admin/users/{id}',             'Admin\UserController@show',       $admin);
+$router->post('/admin/users/{id}/plan',       'Admin\UserController@setPlan',    $admin);
+$router->post('/admin/users/{id}/role',       'Admin\UserController@setRole',    $admin);
+$router->post('/admin/users/{id}/status',     'Admin\UserController@setStatus',  $admin);
+$router->post('/admin/users/{id}/verify',     'Admin\UserController@verifyEmail', $admin);
+$router->post('/admin/users/{id}/delete',     'Admin\UserController@destroy',    $admin);
+$router->get('/admin/links',                  'Admin\LinkController@index',      $admin);
+$router->post('/admin/links',                 'Admin\LinkController@store',      $admin);
+$router->get('/admin/links/{id}/uses',        'Admin\LinkController@redemptions', $admin);
+$router->post('/admin/links/{id}',            'Admin\LinkController@update',     $admin);
+$router->post('/admin/links/{id}/rotate',     'Admin\LinkController@rotate',     $admin);
+$router->post('/admin/links/{id}/delete',     'Admin\LinkController@destroy',    $admin);
+$router->get('/admin/activity',               'Admin\ActivityController@index',  $admin);
 
 // --- Account settings ---
 $router->get('/settings',          'SettingsController@index',  $auth);
