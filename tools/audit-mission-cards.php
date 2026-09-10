@@ -14,6 +14,11 @@ use App\Services\PrintBundle;
 
 $mode = $argv[1] ?? 'one';
 
+// Optional "first-last" range, so one row can be looked at on its own
+[$from, $to] = array_pad(explode('-', $argv[2] ?? ''), 2, null);
+$from = (int) ($from ?: 1);
+$to   = (int) ($to ?: PrintBundle::CARD_STYLES);
+
 $QUESTIONS = [
     'short'  => 'What is 7 + 5?',
     'medium' => 'Cora has 7 conkers and finds exactly the same number again. How many now?',
@@ -30,7 +35,7 @@ $pose = '/uploads/library/characters/char-01-1.png';
 $css = [];
 $cards = [];
 
-for ($style = 1; $style <= PrintBundle::CARD_STYLES; $style++) {
+for ($style = $from; $style <= $to; $style++) {
     $rel = Library::framePath('missions', $style);
     $css[] = ".s{$style} { background-image: url('/uploads/{$rel}'); }";
 
@@ -73,7 +78,7 @@ for ($style = 1; $style <= PrintBundle::CARD_STYLES; $style++) {
     }
 }
 
-$cols = $mode === 'one' ? 4 : count($QUESTIONS);
+$cols = $mode === 'one' ? 3 : count($QUESTIONS);
 
 $html = '<!doctype html><meta charset="utf-8"><title>Mission frames</title>'
       . '<link rel="stylesheet" href="/assets/css/print.css">'

@@ -459,6 +459,16 @@ html, body {
   word-break: break-word;
   hyphens: auto;
 }
+/*
+ * On a framed card the question grows to fill the band, and the words sat at
+ * the top of it - hard against the border of the box the frame drew. Centring
+ * the block inside the space it was given costs nothing (the box is the same
+ * size either way) and leaves the same air above the first line as below the
+ * last. Grid rather than flex: a flex item would size itself to the longest
+ * word and stop wrapping.
+ */
+.card-cut--framed .card-cut__q { display: grid; align-content: center; }
+
 .card-cut__q--lg { font-size: 14px;  line-height: 1.35; }
 .card-cut__q--sm { font-size: 10px;  line-height: 1.35; }
 .card-cut__q--xs { font-size: 8.6px; line-height: 1.3; }

@@ -460,21 +460,21 @@ class PrintBundle
      * Adjust a row here if a frame reads badly; nothing else needs touching.
      */
     public const SAFE_ZONES = [
-        1  => ['mission' => [17.8, 21.9], 'move' => [22.8, 23.1]],
-        2  => ['mission' => [19.1, 11.2], 'move' => [24.4, 24.4]],
-        3  => ['mission' => [28.4, 14.7], 'move' => [25.9, 25.6]],
-        4  => ['mission' => [20.0, 10.6], 'move' => [25.9, 25.9]],
-        5  => ['mission' => [22.0, 20.0], 'move' => [23.4, 23.1]],
-        6  => ['mission' => [67.0, 11.0], 'move' => [22.8, 22.8]],
-        7  => ['mission' => [66.0, 10.0], 'move' => [24.4, 24.7]],
-        8  => ['mission' => [24.7, 10.0], 'move' => [23.4, 23.4]],
-        9  => ['mission' => [67.0, 10.0], 'move' => [26.6, 22.0]],
-        10 => ['mission' => [55.0, 26.0], 'move' => [26.6, 26.6]],
-        11 => ['mission' => [66.0, 17.0], 'move' => [26.6, 26.6]],
-        12 => ['mission' => [8.0, 68.0], 'move' => [21.9, 22.2]],
-        13 => ['mission' => [68.0, 10.0], 'move' => [21.9, 21.6]],
-        14 => ['mission' => [66.0, 12.0], 'move' => [23.8, 23.8]],
-        15 => ['mission' => [65.0, 8.0], 'move' => [23.4, 23.8]],
+        1 => ['mission' => [54.0, 24.0], 'move' => [22.8, 23.1]],
+        2 => ['mission' => [62.0, 13.0], 'move' => [24.4, 24.4]],
+        3 => ['mission' => [62.0, 15.0], 'move' => [25.9, 25.6]],
+        4 => ['mission' => [66.0, 10.0], 'move' => [25.9, 25.9]],
+        5 => ['mission' => [51.4, 18.7], 'move' => [23.4, 23.1]],
+        6 => ['mission' => [62.1, 17.8], 'move' => [22.8, 22.8]],
+        7 => ['mission' => [58.9, 16.8], 'move' => [24.4, 24.7]],
+        8 => ['mission' => [67.0, 9.0], 'move' => [23.4, 23.4]],
+        9 => ['mission' => [58.3, 19.2], 'move' => [26.6, 22.0]],
+        10 => ['mission' => [51.9, 26.3], 'move' => [26.6, 26.6]],
+        11 => ['mission' => [57.9, 19.9], 'move' => [26.6, 26.6]],
+        12 => ['mission' => [55.9, 16.7], 'move' => [21.9, 22.2]],
+        13 => ['mission' => [56.4, 18.0], 'move' => [21.9, 21.6]],
+        14 => ['mission' => [65.5, 11.5], 'move' => [23.8, 23.8]],
+        15 => ['mission' => [61.3, 12.8], 'move' => [23.4, 23.8]],
     ];
 
     /**
@@ -488,21 +488,21 @@ class PrintBundle
      * Capped at 94: a line centred lower than that lands on the cut edge.
      */
     public const CAPTION_AT = [
-        1   => ['mission' => 93.2, 'move' => 87.1],
-        2   => ['mission' => 94.0, 'move' => 86.4],
-        3   => ['mission' => null, 'move' => 84.1],
-        4   => ['mission' => null, 'move' => 81.2],
-        5   => ['mission' => null, 'move' => 87.0],
-        6   => ['mission' => null, 'move' => 87.3],
-        7   => ['mission' => 93.0, 'move' => 86.1],
-        8   => ['mission' => 94.0, 'move' => 94.0],
-        9   => ['mission' => null, 'move' => 92.1],
-        10  => ['mission' => null, 'move' => 78.6],
-        11  => ['mission' => 86.1, 'move' => 81.4],
-        12  => ['mission' => 93.0, 'move' => 87.7],
-        13  => ['mission' => null, 'move' => 87.9],
-        14  => ['mission' => 92.5, 'move' => 86.8],
-        15  => ['mission' => null, 'move' => 86.8],
+        1 => ['mission' => 93.0, 'move' => 87.1],
+        2 => ['mission' => 94.0, 'move' => 86.4],
+        3 => ['mission' => null, 'move' => 84.1],
+        4 => ['mission' => 93.0, 'move' => 81.2],
+        5 => ['mission' => 88.0, 'move' => 87.0],
+        6 => ['mission' => 86.0, 'move' => 87.3],
+        7 => ['mission' => 89.0, 'move' => 86.1],
+        8 => ['mission' => 95.0, 'move' => 94.0],
+        9 => ['mission' => 88.0, 'move' => 92.1],
+        10 => ['mission' => null, 'move' => 78.6],
+        11 => ['mission' => 85.0, 'move' => 81.4],
+        12 => ['mission' => 90.0, 'move' => 87.7],
+        13 => ['mission' => 87.0, 'move' => 87.9],
+        14 => ['mission' => 92.0, 'move' => 86.8],
+        15 => ['mission' => 92.0, 'move' => 86.8],
     ];
 
     /**
@@ -518,14 +518,13 @@ class PrintBundle
      * its box small beats a question outside it large.
      */
     private const EXACT_BANDS = [
-        6  => ['mission' => true],
-        7  => ['mission' => true],
-        9  => ['mission' => true],
-        10 => ['mission' => true],
-        11 => ['mission' => true],
-        12 => ['mission' => true],
-        13 => ['mission' => true],
-        14 => ['mission' => true],
+        1  => ['mission' => true],  2  => ['mission' => true],
+        3  => ['mission' => true],  4  => ['mission' => true],
+        5  => ['mission' => true],  6  => ['mission' => true],
+        7  => ['mission' => true],  8  => ['mission' => true],
+        9  => ['mission' => true],  10 => ['mission' => true],
+        11 => ['mission' => true],  12 => ['mission' => true],
+        13 => ['mission' => true],  14 => ['mission' => true],
         15 => ['mission' => true],
     ];
 
@@ -539,7 +538,7 @@ class PrintBundle
      * separately from the words.
      */
     public const REVERSE_BAND    = [2 => true, 13 => true, 14 => true];
-    public const REVERSE_CAPTION = [2 => true, 13 => true];
+    public const REVERSE_CAPTION = [2 => true];
 
     /** Does this style print its question in white? */
     public static function reversed(int $style): bool
@@ -569,9 +568,21 @@ class PrintBundle
      * those reads as a character in front of a picture.
      */
     private const HERO_WINDOWS = [
-        11 => ['mission' => ['top' => 22.0, 'height' => 41.0, 'left' =>  9.0, 'right' =>  9.0]],
-        12 => ['mission' => ['top' => 47.0, 'height' => 31.0, 'left' => 21.0, 'right' => 21.0]],
-        13 => ['mission' => ['top' => 20.0, 'height' => 45.0, 'left' =>  9.0, 'right' =>  9.0]],
+        1  => ['mission' => ['top' => 17.8, 'height' => 34.2, 'left' =>  9.0, 'right' =>  9.0]],
+        2  => ['mission' => ['top' => 19.3, 'height' => 40.7, 'left' =>  9.0, 'right' =>  9.0]],
+        3  => ['mission' => ['top' => 28.5, 'height' => 31.5, 'left' =>  9.0, 'right' =>  9.0]],
+        4  => ['mission' => ['top' => 20.0, 'height' => 44.0, 'left' =>  9.0, 'right' =>  9.0]],
+        5  => ['mission' => ['top' =>  3.5, 'height' => 45.3, 'left' =>  9.0, 'right' =>  9.0]],
+        6  => ['mission' => ['top' =>  5.6, 'height' => 53.7, 'left' => 11.0, 'right' => 11.0]],
+        7  => ['mission' => ['top' => 17.7, 'height' => 27.5, 'left' => 16.0, 'right' => 16.0]],
+        8  => ['mission' => ['top' => 24.8, 'height' => 40.2, 'left' =>  9.0, 'right' =>  9.0]],
+        9  => ['mission' => ['top' => 21.5, 'height' => 31.2, 'left' => 12.0, 'right' => 12.0]],
+        10 => ['mission' => ['top' => 17.0, 'height' => 34.4, 'left' => 12.0, 'right' => 12.0]],
+        11 => ['mission' => ['top' => 21.0, 'height' => 36.4, 'left' => 12.0, 'right' => 12.0]],
+        12 => ['mission' => ['top' =>  7.3, 'height' => 46.5, 'left' => 12.0, 'right' => 12.0]],
+        13 => ['mission' => ['top' => 18.4, 'height' => 37.8, 'left' =>  9.0, 'right' =>  9.0]],
+        14 => ['mission' => ['top' => 17.7, 'height' => 47.7, 'left' =>  9.0, 'right' =>  9.0]],
+        15 => ['mission' => ['top' => 19.5, 'height' => 41.3, 'left' => 12.0, 'right' => 12.0]],
     ];
 
     /**
