@@ -329,6 +329,7 @@ html, body {
 .card-cut--tight .card-cut__q--lg     { font-size: 11.5px; line-height: 1.3; }
 .card-cut--tight .card-cut__q--sm     { font-size: 8.6px; line-height: 1.25; }
 .card-cut--tight .card-cut__q--xs     { font-size: 7.6px; line-height: 1.2; }
+.card-cut--tight .card-cut__q--xxs    { font-size: 6.6px; line-height: 1.2; }
 .card-cut--tight .card-cut__a {
   font-size: 8px;
   padding-top: 3px;
@@ -358,6 +359,21 @@ html, body {
 .card-cut--framed .card-cut__a { text-shadow: 0 1px 0 rgba(255, 255, 255, .65); }
 .card-cut--framed .card-cut__a { border-top-color: rgba(0, 0, 0, .18); }
 .card-cut--framed .card-cut__sticker { background: rgba(255, 255, 255, .72); }
+
+/*
+ * A frame that painted its text panel dark. Everything above assumes the words
+ * sit on pale paper - dark ink, and a white shadow under it to lift the type
+ * off a busy background - and all of that has to turn over here, shadow
+ * included: a white shadow under white type is a blur.
+ */
+.card-cut--reverse .card-cut__q,
+.card-cut--reverse .card-cut__a,
+.card-cut--reverse .card-cut__tag {
+  color: #FFFFFF;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+}
+.card-cut--reverse .card-cut__a { border-top-color: rgba(255, 255, 255, .4); }
+.card-cut--reverse-foot > .card-cut__game { color: #FFFFFF; opacity: .6; }
 
 /* The move card carries a big number, so it needs less room at the top */
 
@@ -433,6 +449,8 @@ html, body {
 .card-cut__q--lg { font-size: 14px;  line-height: 1.35; }
 .card-cut__q--sm { font-size: 10px;  line-height: 1.35; }
 .card-cut__q--xs { font-size: 8.6px; line-height: 1.3; }
+/* The last step down, for a question longer than the panel was drawn for */
+.card-cut__q--xxs { font-size: 7.4px; line-height: 1.25; }
 .card-cut__a {
   font-size: 9.5px;
   color: var(--ink-soft);

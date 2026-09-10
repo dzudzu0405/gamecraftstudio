@@ -57,6 +57,25 @@ $foot = function () use ($brand, $lang, &$sheetNo) {
 // Card frames the buyer supplied, if this style has any
 $frames = PrintBundle::cardFrames($project);
 
+/*
+ * Three of the frames paint a dark panel for the words. The ink these cards
+ * use is nearly black, so on those the question is set in white instead - and
+ * on two of the three the game's name below it as well, because their caption
+ * strip is dark too.
+ */
+$reverse = PrintBundle::reversed($frames['style']) ? ' card-cut--reverse' : '';
+if (PrintBundle::reversedCaption($frames['style'])) {
+    $reverse .= ' card-cut--reverse-foot';
+}
+
+/*
+ * The game's name is printed low on the card so a spilled box can be sorted.
+ * One design draws its writing panel too small to hold both that and a long
+ * question, and there the question wins - see PrintBundle::captionFits().
+ */
+$missionCaption = PrintBundle::captionFits($frames['style'], 'mission');
+$moveCaption    = PrintBundle::captionFits($frames['style'], 'move');
+
 // Mission cards walk through the character's poses instead of repeating one
 $poseCount = count($frames['heroes']);
 $poseNo    = 0;
@@ -64,16 +83,11 @@ $movePose  = 0;   // move cards keep their own place in the pose cycle
 
 /*
  * Step the question's type size down as it gets longer, so a long one stays
- * inside its card. The thresholds are character counts, chosen against the
- * seeded templates: "7 + 5 = ?" is tiny, a word problem runs past 130.
+ * inside its card. How far down depends on the frame as well as the question:
+ * PrintBundle knows how tall a band each design drew.
  */
-$qSize = function (string $question): string {
-    $len = mb_strlen(trim($question));
-
-    if ($len <= 24)  return 'card-cut__q--lg';
-    if ($len <= 80)  return '';
-    if ($len <= 130) return 'card-cut__q--sm';
-    return 'card-cut__q--xs';
+$qSize = function (string $question) use ($frames): string {
+    return PrintBundle::questionClass($frames['style'], $question);
 };
 ?>
 
@@ -224,7 +238,11 @@ $qSize = function (string $question): string {
                                     </div>
                                 </div>
 
-                                <div class="card-cut__game"><?= $cardName ?></div>
+                                <?php if ($moveCaption): ?>
+                                    <?php if ($missionCaption): ?>
+                                        <div class="card-cut__game"><?= $cardName ?></div>
+                                    <?php endif; ?>
+                                <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
 
@@ -280,7 +298,7 @@ $qSize = function (string $question): string {
                     <div class="sheet__body">
                         <div class="cards">
                             <?php foreach ($chunk as $m): ?>
-                                <div class="card-cut<?= $frames['mission'] ? ' card-cut--framed card-cut--art' : '' ?><?= $frames['window'] ? ' card-cut--tight' : '' ?>">
+                                <div class="card-cut<?= $frames['mission'] ? ' card-cut--framed card-cut--art' . $reverse : '' ?><?= $frames['window'] ? ' card-cut--tight' : '' ?>">
                                     <?php $pose = $poseCount ? ' hero-' . ($poseNo++ % $poseCount + 1) : ''; ?>
 
                                     <?php if ($poseCount && $frames['window']): ?>

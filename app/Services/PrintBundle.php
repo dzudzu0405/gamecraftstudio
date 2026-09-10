@@ -450,6 +450,13 @@ class PrintBundle
      * band for the words. One guessed figure for the whole set put the answer
      * line on top of the stars, which is what these replace.
      *
+     * Nine of them were re-measured against the panel the frame actually DRAWS
+     * to be written in, rather than against where its clear background happens
+     * to start. The difference matters on frames like 13 and 14, which paint a
+     * coloured box low on the card: the first reading put the question a tenth
+     * of the card ABOVE the box it belongs in, floating on the picture area.
+     * Those rows are listed in EXACT_BANDS so nothing widens them again.
+     *
      * Adjust a row here if a frame reads badly; nothing else needs touching.
      */
     public const SAFE_ZONES = [
@@ -458,16 +465,16 @@ class PrintBundle
         3  => ['mission' => [28.4, 14.7], 'move' => [25.9, 25.6]],
         4  => ['mission' => [20.0, 10.6], 'move' => [25.9, 25.9]],
         5  => ['mission' => [22.0, 20.0], 'move' => [23.4, 23.1]],
-        6  => ['mission' => [22.0, 20.0], 'move' => [22.8, 22.8]],
-        7  => ['mission' => [64.0, 10.0], 'move' => [24.4, 24.7]],
+        6  => ['mission' => [67.0, 11.0], 'move' => [22.8, 22.8]],
+        7  => ['mission' => [66.0, 10.0], 'move' => [24.4, 24.7]],
         8  => ['mission' => [24.7, 10.0], 'move' => [23.4, 23.4]],
-        9  => ['mission' => [24.1, 20.0], 'move' => [26.6, 22.0]],
-        10 => ['mission' => [20.9, 20.0], 'move' => [26.6, 26.6]],
-        11 => ['mission' => [20.9, 20.0], 'move' => [26.6, 26.6]],
+        9  => ['mission' => [67.0, 10.0], 'move' => [26.6, 22.0]],
+        10 => ['mission' => [55.0, 26.0], 'move' => [26.6, 26.6]],
+        11 => ['mission' => [66.0, 17.0], 'move' => [26.6, 26.6]],
         12 => ['mission' => [8.0, 68.0], 'move' => [21.9, 22.2]],
-        13 => ['mission' => [17.8, 20.0], 'move' => [21.9, 21.6]],
-        14 => ['mission' => [18.1, 20.0], 'move' => [23.8, 23.8]],
-        15 => ['mission' => [62.0, 10.0], 'move' => [23.4, 23.8]],
+        13 => ['mission' => [68.0, 10.0], 'move' => [21.9, 21.6]],
+        14 => ['mission' => [66.0, 12.0], 'move' => [23.8, 23.8]],
+        15 => ['mission' => [65.0, 8.0], 'move' => [23.4, 23.8]],
     ];
 
     /**
@@ -505,25 +512,91 @@ class PrintBundle
      * right where the frame has spare background around it. On these it has
      * none: the band is exactly the panel the frame drew, and a millimetre
      * either way puts the words on top of the drawing.
+     *
+     * The cost is real - some of these panels are only a sixth of the card, so
+     * a long question steps down to the smallest size to fit. A question inside
+     * its box small beats a question outside it large.
      */
     private const EXACT_BANDS = [
+        6  => ['mission' => true],
+        7  => ['mission' => true],
+        9  => ['mission' => true],
+        10 => ['mission' => true],
+        11 => ['mission' => true],
         12 => ['mission' => true],
+        13 => ['mission' => true],
+        14 => ['mission' => true],
+        15 => ['mission' => true],
     ];
+
+    /**
+     * Frames whose text panel is dark, so the words are set in white on it.
+     *
+     * Measured the same way as the bands: the panel's own colour, sampled a few
+     * percent inside its top edge. 2, 13 and 14 paint a brown, a deep teal and
+     * a violet panel, and the ink these cards use is nearly black. 14's caption
+     * strip is light again below the panel, which is why the caption is listed
+     * separately from the words.
+     */
+    public const REVERSE_BAND    = [2 => true, 13 => true, 14 => true];
+    public const REVERSE_CAPTION = [2 => true, 13 => true];
+
+    /** Does this style print its question in white? */
+    public static function reversed(int $style): bool
+    {
+        return self::REVERSE_BAND[$style] ?? false;
+    }
+
+    /** Does this style print the game's name in white? */
+    public static function reversedCaption(int $style): bool
+    {
+        return self::REVERSE_CAPTION[$style] ?? false;
+    }
 
     /**
      * Frames that drew their picture window somewhere other than above the
      * words, as top / height / left / right in percent of the card.
      *
-     * Frame 12 is the one that needs this: it draws a wide panel at the top
-     * and a round badge below, so the question goes in the panel and the hero
-     * goes in the badge - the other way round from every other frame.
+     * Frame 12 is the odd one: it draws a wide panel at the top and a round
+     * badge below, so the question goes in the panel and the hero goes in the
+     * badge - the other way round from every other frame.
+     *
+     * 11 and 13 are here for a plainer reason. The window is otherwise taken
+     * from the top of the card down to the text band, and both of them write
+     * MISSION across the top; without a row here the character stands on the
+     * word. The frames that decorate their top with a ring or a scatter of
+     * stars are left to the derived window, because a character in front of
+     * those reads as a character in front of a picture.
      */
     private const HERO_WINDOWS = [
+        11 => ['mission' => ['top' => 22.0, 'height' => 41.0, 'left' =>  9.0, 'right' =>  9.0]],
         12 => ['mission' => ['top' => 47.0, 'height' => 31.0, 'left' => 21.0, 'right' => 21.0]],
+        13 => ['mission' => ['top' => 20.0, 'height' => 45.0, 'left' =>  9.0, 'right' =>  9.0]],
     ];
 
     /** How much of the card height one caption line needs */
     private const CAPTION_ROOM = 6.0;
+
+    /** A band left shorter than this by the caption goes without one instead */
+    private const MIN_CAPTION_BAND = 15.0;
+
+    /**
+     * Whether this frame prints the game's name at all.
+     *
+     * A frame with somewhere of its own to put it always does. A frame that
+     * has to take the room out of its text band only does so while the band
+     * can spare it.
+     */
+    public static function captionFits(int $style, string $kind): bool
+    {
+        if ((self::CAPTION_AT[$style][$kind] ?? null) !== null) {
+            return true;
+        }
+
+        [$top, $bottom] = self::safeZone($style, $kind);
+
+        return (100.0 - $top - $bottom - self::CAPTION_ROOM) >= self::MIN_CAPTION_BAND;
+    }
 
     /**
      * The band the words get, once the caption has been given its room.
@@ -544,7 +617,14 @@ class PrintBundle
         // so the name sits at the band's foot and the question gives up the
         // room. The band cannot grow upwards to make that back: above it is
         // the frame's own decoration, which is why the band stops there.
-        if ((self::CAPTION_AT[$style][$kind] ?? null) === null) {
+        //
+        // Unless the band cannot spare it. Frame 10 draws a panel a seventh of
+        // the card tall, and handing a sixth of that to a signature line left
+        // nothing for a long question. The question is the card; the name is a
+        // convenience for sorting a spilled box. Below MIN_CAPTION_BAND the
+        // name goes and captionFits() stops it being printed.
+        if ((self::CAPTION_AT[$style][$kind] ?? null) === null
+            && self::captionFits($style, $kind)) {
             $bottom += self::CAPTION_ROOM;
         }
 
@@ -558,6 +638,85 @@ class PrintBundle
 
         // No room below the decoration - just inside the foot of the text band
         return $at ?? max(0.0, 100.0 - $bandBottom - 3.0);
+    }
+
+    /**
+     * Question type sizes, largest first, as [class, normal px, tight px].
+     *
+     * The tight column is what card-cut--tight sets in print.css; both are kept
+     * here because the fitting below has to know the size the class will
+     * actually render at.
+     */
+    private const Q_SIZES = [
+        ['card-cut__q--lg',  14.0, 11.5],
+        ['',                 11.5,  9.5],
+        ['card-cut__q--sm',  10.0,  8.6],
+        ['card-cut__q--xs',   8.6,  7.6],
+        ['card-cut__q--xxs',  7.4,  6.6],
+    ];
+
+    /** A printed card, in CSS pixels at 96dpi: 60 x 80mm */
+    private const CARD_PX_H = 302.0;
+
+    /** The column the words are set in - the card less its 10% side insets */
+    private const CARD_PX_COL = 181.0;
+
+    /**
+     * Average character width as a fraction of the type size.
+     *
+     * Measured against the rendered cards rather than assumed: 0.5 read a line
+     * as fuller than it was and stepped the type down a size it did not need
+     * to lose.
+     */
+    private const CHAR_WIDTH = 0.5;
+
+    /**
+     * The size class a question is set at on a given frame.
+     *
+     * This used to be a character count and nothing else, which was fine while
+     * every frame gave the words about the same room. It does not survive the
+     * measured bands: frame 10 draws a panel a seventh of the card tall and
+     * frame 7 draws one a quarter of it, and the same question cannot be set
+     * the same size in both. A count alone put a long question two lines past
+     * the bottom of the smaller panels, where overflow:hidden ate the answer.
+     *
+     * So the room is worked out instead - band height, less what the picture
+     * and the answer line take - and the largest size that fits in it wins.
+     * The estimate is deliberately plain (half the type size per character);
+     * it only has to choose between five steps, not typeset the line.
+     */
+    public static function questionClass(int $style, string $question): string
+    {
+        $len = mb_strlen(trim($question));
+        if ($len === 0) {
+            return '';
+        }
+
+        // A frame with a window keeps its picture outside the words' box, so
+        // the words get the whole band; the rest hold the hero and the sticker
+        // row inside it and are left with about half
+        $tight = self::heroWindow($style) !== null;
+
+        [$top, $bottom] = self::textBand($style, 'mission');
+        $room = (100.0 - $top - $bottom) / 100.0 * self::CARD_PX_H;
+
+        if ($tight) {
+            $room -= 20.0;              // the answer line and its rule
+        } else {
+            $room = $room * 0.5 - 48.0; // the hero, then the sticker and answer
+        }
+
+        foreach (self::Q_SIZES as [$class, $normal, $small]) {
+            $size    = $tight ? $small : $normal;
+            $perLine = max(8.0, self::CARD_PX_COL / ($size * self::CHAR_WIDTH));
+            $lines   = max(1, (int) ceil($len / $perLine));
+
+            if ($lines * $size * 1.3 <= $room) {
+                return $class;
+            }
+        }
+
+        return 'card-cut__q--xxs';
     }
 
     /** A band narrower than this cannot hold a question, so it is opened out */
