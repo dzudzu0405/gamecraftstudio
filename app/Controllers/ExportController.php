@@ -8,8 +8,8 @@ use App\Core\Flash;
 use App\Core\Request;
 use App\Core\Response;
 use App\Models\Project;
-use App\Services\Difficulty;
 use App\Services\Library;
+use App\Services\ListingKit;
 use App\Services\MissionMatcher;
 use App\Services\PrintBundle;
 use App\Services\Tiers;
@@ -210,7 +210,7 @@ class ExportController extends Controller
             'pageTitle' => 'Sales listing - ' . $project['title'],
             'project'   => $project,
             'listing'   => $existing,
-            'draft'     => $this->buildListingDraft($project),
+            'draft'     => $this->buildListingDraft($project, (string) ($existing['channel'] ?? 'etsy')),
         ]);
     }
 
@@ -251,52 +251,20 @@ class ExportController extends Controller
         Response::redirect('/listing/' . (int) $project['id']);
     }
 
-    /** Drafts the listing copy from the project's own details */
-    private function buildListingDraft(array $project): array
+    /**
+     * Drafts the listing copy from the project's own details.
+     *
+     * The wording, the character limits and the keyword rules all live in
+     * ListingKit now - they are the same job whether a listing is being
+     * drafted here or exported somewhere else later, and they were the sort
+     * of thing that quietly rots when it sits inside a controller.
+     */
+    private function buildListingDraft(array $project, string $channel = 'etsy'): array
     {
-        $diff  = Difficulty::get((string) $project['difficulty']);
-        $ages  = \App\Core\Helper::ageRange((int) $project['age_min'], (int) $project['age_max']);
-        $count = MissionMatcher::countForProject((int) $project['id']);
-
-        $title = $project['title'] . ' - Printable Adventure Board Game for Kids '
-               . $ages . ' | ' . $diff['cells'] . ' Spaces | Instant Download PDF';
-
-        $bullets = [
-            'PRINT AT HOME - instant digital download, no shipping, print as many times as you like.',
-            'COMPLETE SET - game map, story, rules, ' . Difficulty::MOVE_CARDS_PER_GAME
-                . ' move cards, ' . $count . ' mission cards, winner hero card and player tokens.',
-            'AGES ' . $ages . ' - ' . $diff['cells'] . ' mission spaces, plays in about '
-                . $diff['play_minutes'] . ' minutes with '
-                . \App\Core\Helper::playerRange((int) $project['players_min'], (int) $project['players_max']) . '.',
-            'LEARNING THROUGH PLAY - every space asks a question, so children practise while they play.',
-            'READY TO PRINT - standard A4 and US Letter friendly, cut lines included on every card sheet.',
-        ];
-
-        $description = trim((string) $project['story']) . "\n\n"
-            . "WHAT YOU GET\n"
-            . "1. Game map (1 page)\n"
-            . "2. Story page\n"
-            . "3. How to play page\n"
-            . "4. " . Difficulty::MOVE_CARDS_PER_GAME . " move cards\n"
-            . "5. " . $count . " mission cards\n"
-            . "6. Winner hero card\n"
-            . "7. Player tokens\n\n"
-            . "HOW TO USE\n"
-            . "Download the PDF, print on A4 or Letter paper, cut along the marked lines and play.\n\n"
-            . "This is a digital product. Nothing will be shipped.";
-
-        $tags = implode(', ', [
-            'printable board game', 'kids game', 'family game night', 'homeschool',
-            'classroom game', 'instant download', 'adventure game', 'educational game',
-            $project['theme'] . ' theme', 'ages ' . $ages,
-        ]);
-
-        return [
-            'title'         => mb_substr($title, 0, 200),
-            'bullet_points' => implode("\n", $bullets),
-            'description'   => $description,
-            'tags'          => $tags,
-            'price'         => '4.99',
-        ];
+        return ListingKit::draft(
+            $project,
+            MissionMatcher::countForProject((int) $project['id']),
+            $channel
+        );
     }
 }

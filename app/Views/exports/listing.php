@@ -65,6 +65,33 @@ $v['price'] = isset($listing['price_cents'])
                     <textarea class="textarea" id="f-title" name="title" maxlength="200"
                               style="min-height:64px" data-counter="#c-title"><?= H::e($v['title']) ?></textarea>
                     <div class="small faint right" id="c-title"></div>
+
+                    <?php
+                    /*
+                     * The same product titled for the other marketplace.
+                     * Etsy stops at 140 characters and reads the front of the
+                     * line hardest; Amazon allows 200 and has room for the
+                     * spaces, the level and the player count. Switching the
+                     * channel above does not rewrite what you have edited, so
+                     * both are here to copy from.
+                     */
+                    $other = ($listing['channel'] ?? 'etsy') === 'amazon'
+                        ? ['label' => 'Etsy title', 'text' => $draft['etsy_title'], 'max' => 140]
+                        : ['label' => 'Amazon title', 'text' => $draft['amazon_title'], 'max' => 200];
+                    ?>
+                    <div class="mt-2" style="border-top:1px solid var(--line);padding-top:10px">
+                        <div class="small muted mb-1">
+                            <?= H::e($other['label']) ?>
+                            <span class="faint">(<?= mb_strlen($other['text']) ?>/<?= (int) $other['max'] ?>)</span>
+                        </div>
+                        <textarea class="textarea" id="f-title-other" readonly
+                                  style="min-height:56px"><?= H::e($other['text']) ?></textarea>
+                        <div class="right mt-1">
+                            <button type="button" class="btn btn--ghost btn--sm" data-copy="#f-title-other">
+                                <?= Icon::get('copy', 14) ?> Copy
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -105,9 +132,32 @@ $v['price'] = isset($listing['price_cents'])
                 <div class="card__body">
                     <textarea class="textarea" id="f-tags" name="tags" maxlength="400"
                               style="min-height:80px"><?= H::e($v['tags']) ?></textarea>
-                    <div class="small muted mt-1">Comma separated. Etsy allows up to 13 tags.</div>
+                    <div class="small muted mt-1">
+                        Comma separated. Etsy allows 13 tags, up to 20 characters each -
+                        these are drafted inside both limits.
+                    </div>
                 </div>
             </div>
+
+            <?php if (!empty($draft['backend_keywords'])): ?>
+                <div class="card mt-2">
+                    <div class="card__head">
+                        <h3>Amazon backend keywords</h3>
+                        <button type="button" class="btn btn--ghost btn--sm" data-copy="#f-keywords">
+                            <?= Icon::get('copy', 14) ?> Copy
+                        </button>
+                    </div>
+                    <div class="card__body">
+                        <textarea class="textarea" id="f-keywords" readonly
+                                  style="min-height:120px"><?= H::e($draft['backend_keywords']) ?></textarea>
+                        <div class="small muted mt-1">
+                            One phrase per box, seven boxes, 50 characters each. Nothing here
+                            repeats a word from the title above - Amazon indexes both together,
+                            so a word used twice buys nothing the first one did not.
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
 
         </div>
 
