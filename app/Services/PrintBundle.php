@@ -540,6 +540,18 @@ class PrintBundle
     public const REVERSE_BAND    = [2 => true, 13 => true, 14 => true];
     public const REVERSE_CAPTION = [2 => true];
 
+    /**
+     * Move frames dark enough that their number is set in white.
+     *
+     * Keyed to the MOVE card's own panel, not to the mission card it is paired
+     * with. Those two do not always agree: 13 and 14 paint a dark box on the
+     * mission card and leave the move card pale, so a number that copied the
+     * mission's white ink would have been white on pale blue.
+     *
+     * Measured the same way: only design 2 is brown on both.
+     */
+    public const REVERSE_MOVE = [2 => true];
+
     /** Does this style print its question in white? */
     public static function reversed(int $style): bool
     {
@@ -550,6 +562,12 @@ class PrintBundle
     public static function reversedCaption(int $style): bool
     {
         return self::REVERSE_CAPTION[$style] ?? false;
+    }
+
+    /** Does this style print its move card number in white? */
+    public static function reversedMove(int $style): bool
+    {
+        return self::REVERSE_MOVE[$style] ?? false;
     }
 
     /**

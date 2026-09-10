@@ -487,12 +487,23 @@ html, body {
   justify-content: center;
   text-align: center;
 }
+/*
+ * The number is set in the same ink as every other word on the cards.
+ *
+ * It used to be the brand purple, which was chosen against nothing in
+ * particular and then printed on fifteen different palettes: 1.2:1 against the
+ * brown frame, where it all but vanished, and under 3.5:1 on four more. Ink
+ * clears 7:1 on every light frame, and the one dark frame turns the number
+ * over to white instead. A colour that suits all fifteen turns out to be the
+ * one that is not trying to be a colour.
+ */
 .card-move__steps {
   font-size: 46px;
   font-weight: 800;
   line-height: 1;
-  color: var(--accent);
+  color: var(--ink);
 }
+.card-cut--reverse .card-move__steps { color: #FFFFFF; }
 .card-move__steps.is-back { color: #C0564F; }
 
 /* --------------------------------------------------------------------------

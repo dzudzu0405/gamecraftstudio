@@ -76,6 +76,11 @@ if (PrintBundle::reversedCaption($frames['style'])) {
 $missionCaption = PrintBundle::captionFits($frames['style'], 'mission');
 $moveCaption    = PrintBundle::captionFits($frames['style'], 'move');
 
+// The move card is judged on its own panel - see PrintBundle::REVERSE_MOVE
+$moveReverse = PrintBundle::reversedMove($frames['style'])
+    ? ' card-cut--reverse card-cut--reverse-foot'
+    : '';
+
 // Mission cards walk through the character's poses instead of repeating one
 $poseCount = count($frames['heroes']);
 $poseNo    = 0;
@@ -219,7 +224,7 @@ $qSize = '';
                 <div class="sheet__body">
                     <div class="cards">
                         <?php foreach ($chunk as $c): ?>
-                            <div class="card-cut card-move<?= $frames['move'] ? ' card-cut--framed card-move--art' : '' ?>">
+                            <div class="card-cut card-move<?= $frames['move'] ? ' card-cut--framed card-move--art' . $moveReverse : '' ?>">
                                 <div class="card-cut__inner">
                                     <?php /* The chosen character rides the move cards too, cycling
                                              its poses. With no character set, fall back to the
