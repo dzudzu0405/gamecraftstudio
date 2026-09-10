@@ -45,6 +45,39 @@ class MapComposer
     ];
 
     /**
+     * Where each map frame's drawing starts, as a percent down its own file.
+     *
+     * Measured off the alpha channel of the artwork, the way the card frames'
+     * text bands were. The frames were all drawn to fill the page, so most of
+     * them open their first row - or the START marker - level with the game's
+     * name, and the two touched. boardOffset needs this to drop each frame
+     * clear of the title by exactly as much as that frame needs and no more.
+     *
+     * A frame that is not listed - a map added later, or one supplied by the
+     * user - is left where it is rather than moved by a guess.
+     */
+    public const BOARD_TOP = [
+        'map-12-01' =>  9.8, 'map-12-02' => 12.8, 'map-12-03' =>  9.9,
+        'map-12-04' =>  7.9, 'map-12-05' =>  9.5, 'map-12-06' => 11.0,
+        'map-12-07' => 12.3, 'map-12-08' => 11.0, 'map-12-09' => 10.5,
+        'map-12-10' =>  9.8, 'map-12-11' => 10.0, 'map-12-12' => 10.7,
+        'map-18-01' =>  9.1, 'map-18-02' =>  8.8, 'map-18-03' =>  8.5,
+        'map-18-04' =>  6.9, 'map-18-05' => 11.5, 'map-18-06' =>  8.5,
+        'map-18-07' => 14.6, 'map-18-08' => 13.9, 'map-18-09' => 13.5,
+        'map-18-10' => 13.9, 'map-18-11' => 10.9, 'map-18-12' =>  5.9,
+        'map-24-01' =>  9.3, 'map-24-02' =>  7.7, 'map-24-03' =>  7.1,
+        'map-24-04' =>  6.3, 'map-24-05' =>  8.7, 'map-24-06' =>  8.3,
+        'map-24-07' =>  5.9, 'map-24-08' => 11.7, 'map-24-09' =>  8.2,
+        'map-24-10' => 13.2, 'map-24-11' =>  9.0, 'map-24-12' =>  6.2,
+    ];
+
+    /** The foot of the title band, in canvas units - see titleLayer() */
+    private const TITLE_BOTTOM = 112.0;
+
+    /** The clear space the board keeps below it: 38 of 1131 is about 7mm */
+    private const TITLE_CLEAR = 38.0;
+
+    /**
      * @param array       $project       Project record
      * @param string|null $backgroundUrl Background image URL. null = flat colour only
      * @param array       $options       showNumbers, showPath, showTitle, width, height
@@ -118,8 +151,11 @@ class MapComposer
             //
             // "meet" rather than "slice": the whole board has to be on the page,
             // and cropping one would cut spaces off the end of the path.
+            $mapTop = self::boardOffset($project, $h, (bool) $showTitle);
+
             $svg .= '<image href="' . self::esc($frameUrl) . '" xlink:href="' . self::esc($frameUrl) . '"';
-            $svg .= ' x="0" y="0" width="' . $w . '" height="' . $h . '" preserveAspectRatio="xMidYMid meet"/>';
+            $svg .= ' x="0" y="' . $mapTop . '" width="' . $w . '"';
+            $svg .= ' height="' . round($h - $mapTop, 1) . '" preserveAspectRatio="xMidYMid meet"/>';
         } else {
             // --- Layer 2: the trail joining the spaces ---
             if ($showPath) {
@@ -257,6 +293,47 @@ class MapComposer
      * right to left). This keeps the trail continuous and never crossing itself,
      * exactly like a real board game.
      */
+    /**
+     * How far down the page a frame starts, so its drawing clears the title.
+     *
+     * The frame is then fitted into what is left of the page rather than being
+     * pushed off the bottom of it, so the board is never cropped: it comes down
+     * and gives up a few percent of its size for the privilege. A frame already
+     * drawn low gives up almost nothing, which is the point of measuring them
+     * one at a time instead of moving them all by the same amount.
+     */
+    private static function boardOffset(array $project, int $h, bool $showTitle): float
+    {
+        // Nothing to clear
+        if (!$showTitle) {
+            return 0.0;
+        }
+
+        $pct = self::BOARD_TOP[(string) self::frameCode($project)] ?? null;
+        if ($pct === null) {
+            return 0.0;
+        }
+
+        // The drawing lands at top + p x (h - top); this is that solved for top
+        $p   = $pct / 100;
+        $top = (self::TITLE_BOTTOM + self::TITLE_CLEAR - $p * $h) / (1 - $p);
+
+        return max(0.0, min($h * 0.12, round($top, 1)));
+    }
+
+    /** The library code of the frame this project prints on, if it has one */
+    private static function frameCode(array $project): ?string
+    {
+        $itemId = (int) ($project['map_item_id'] ?? 0);
+        if ($itemId <= 0) {
+            return null;
+        }
+
+        $item = Library::find($itemId);
+
+        return isset($item['code']) ? (string) $item['code'] : null;
+    }
+
     /**
      * The board drawn on the frame's own artwork, when it has any.
      *
