@@ -74,12 +74,6 @@ return [
                    . 'normal de seis caras.',
     ],
 
-    'move_card' => [
-        'forward' => ['one' => 'Avanza {n} casilla', 'other' => 'Avanza {n} casillas'],
-        'back'    => ['one' => 'Respuesta incorrecta: retrocede {n} casilla',
-                      'other' => 'Respuesta incorrecta: retrocede {n} casillas'],
-    ],
-
     'mission' => [
         'empty' => 'Este proyecto todavía no tiene cartas de misión. Vuelve al Studio y elige '
                  . '"Match mission cards".',

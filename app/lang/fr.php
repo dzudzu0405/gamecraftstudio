@@ -75,12 +75,6 @@ return [
                    . 'dé ordinaire à six faces.',
     ],
 
-    'move_card' => [
-        'forward' => ['one' => 'Avance de {n} case', 'other' => 'Avance de {n} cases'],
-        'back'    => ['one' => 'Mauvaise réponse : recule de {n} case',
-                      'other' => 'Mauvaise réponse : recule de {n} cases'],
-    ],
-
     'mission' => [
         'empty' => 'Ce projet n’a pas encore de cartes mission. Retourne dans le Studio et choisis '
                  . '"Match mission cards".',

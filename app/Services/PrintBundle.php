@@ -406,7 +406,6 @@ class PrintBundle
     public static function moveCards(array $project): array
     {
         $copies = (int) max(1, round(Difficulty::MOVE_CARDS_PER_GAME / count(self::MOVE_FACES)));
-        $lang   = Lang::of($project);
 
         $cards = [];
         $no    = 1;
@@ -417,8 +416,6 @@ class PrintBundle
                     'no'      => $no++,
                     'steps'   => $face['forward'],
                     'back'    => $face['back'],
-                    'label'   => Lang::choose('move_card.forward', $face['forward'], $lang),
-                    'penalty' => Lang::choose('move_card.back', $face['back'], $lang),
                     'sticker' => 'footprint',
                 ];
             }
@@ -522,7 +519,7 @@ class PrintBundle
      * goes in the badge - the other way round from every other frame.
      */
     private const HERO_WINDOWS = [
-        12 => ['mission' => ['top' => 50.0, 'height' => 24.0, 'left' => 28.0, 'right' => 28.0]],
+        12 => ['mission' => ['top' => 47.0, 'height' => 31.0, 'left' => 21.0, 'right' => 21.0]],
     ];
 
     /** How much of the card height one caption line needs */
@@ -608,7 +605,11 @@ class PrintBundle
             return null;
         }
 
-        return ['top' => 8.0, 'height' => round($top - 12.0, 1), 'left' => 16.0, 'right' => 16.0];
+        // The window is opened as wide as the frame's decoration allows: the
+        // character is the thing a child looks at, and it was being fitted into
+        // a box with clear paper on all four sides of it. It stops 3% short of
+        // the text band so the drawing never sits on the words.
+        return ['top' => 3.0, 'height' => round($top - 6.0, 1), 'left' => 9.0, 'right' => 9.0];
     }
 
     /**

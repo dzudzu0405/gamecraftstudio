@@ -215,17 +215,25 @@ html, body {
    -------------------------------------------------------------------------- */
 
 /*
+ * A card is 60mm x 80mm - the size asked for, and the size a standard card
+ * sleeve takes. The track is stated in millimetres rather than 1fr so the
+ * printed card measures 6 x 8cm however tall the sheet body happens to be.
+ *
  * The gap is what stops one card's cut line from being its neighbour's. With
  * gap:0 the dashed borders sat on top of each other, so a slightly wandering
- * pair of scissors took a slice off the card next door. 1.5mm gives the blade
- * somewhere to go and still fits 3 x 3 on the sheet.
+ * pair of scissors took a slice off the card next door.
+ *
+ * 3 x 3 = 9 to the sheet: 3 x 60 + 2 x 2 = 184mm across, 3 x 80 + 2 x 2 =
+ * 244mm down. A fourth row would need 326mm on a page that is 297mm tall, so
+ * twelve 6 x 8cm cards cannot share one A4 whatever the margins do.
  */
 .cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: 1fr;
-  gap: 1.5mm;
-  height: 100%;
+  grid-template-columns: repeat(3, 60mm);
+  grid-auto-rows: 80mm;
+  gap: 2mm;
+  justify-content: center;
+  align-content: start;
 }
 
 .card-cut {
@@ -233,7 +241,7 @@ html, body {
   padding: 5mm 4mm;
   display: flex;
   flex-direction: column;
-  min-height: 82mm;
+  overflow: hidden;
   position: relative;
   page-break-inside: avoid;
   break-inside: avoid;
@@ -269,8 +277,14 @@ html, body {
   top: var(--mission-top, 22%);
   bottom: var(--mission-bottom, 20%);
 }
+/*
+ * A move card carries a picture and a number, not a paragraph, so it does not
+ * need the cautious band a question needs. The top is lifted twelve points
+ * above it - never past 8%, which is the frame's own border - and the room
+ * goes to the character.
+ */
 .card-move--art .card-cut__inner {
-  top: var(--move-top, 24%);
+  top: max(8%, calc(var(--move-top, 24%) - 12%));
   bottom: var(--move-bottom, 24%);
   align-items: center;
   justify-content: center;
@@ -291,7 +305,7 @@ html, body {
 /* Frames without a window still show the hero above the question */
 .card-cut__hero {
   flex: 0 0 auto;
-  height: 38%;
+  height: 50%;
   display: grid;
   place-items: center;
   margin-bottom: 4px;
@@ -432,25 +446,6 @@ html, body {
   color: var(--accent);
 }
 .card-move__steps.is-back { color: #C0564F; }
-.card-move__label {
-  font-size: 11px;
-  font-weight: 700;
-  margin-top: 6px;
-}
-
-/*
- * The penalty is deliberately quieter than the step number: it is what you
- * read second, after you have seen how far you get to move.
- */
-.card-move__penalty {
-  font-size: 8.5px;
-  font-style: italic;
-  font-weight: 600;
-  color: #C0564F;
-  margin-top: 3px;
-  line-height: 1.25;
-  max-width: 90%;
-}
 
 /* --------------------------------------------------------------------------
    Paper die - printed in place of the move cards
@@ -548,10 +543,15 @@ html, body {
 .card-move__icon { margin-bottom: 4px; }
 .card-move__icon img { width: 26px; height: 26px; }
 
-/* The character, sized so the step number is still the loudest thing here */
+/*
+ * The character, as big as the card allows. It used to share the card with two
+ * lines of type that said what the number meant and what a wrong answer cost;
+ * both were in the rules already and both ran off the edge, so the words went
+ * and the drawing took the room back.
+ */
 .card-move__hero {
   width: 100%;
-  height: 34%;
+  height: 62%;
   margin-bottom: 3px;
   background-repeat: no-repeat;
   background-position: center;
@@ -645,8 +645,6 @@ html, body {
   }
   .sheet--map .map-wrap svg,
   .sheet--map .map-wrap img { max-height: none; }
-
-  .card-cut { min-height: 78mm; }
 
   /* Never split a card across two pages */
   .cards, .tokens, .hero-card { break-inside: avoid; }

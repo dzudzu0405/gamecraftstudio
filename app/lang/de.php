@@ -74,12 +74,6 @@ return [
                    . 'normalen sechsseitigen Würfel.',
     ],
 
-    'move_card' => [
-        'forward' => ['one' => 'Rücke {n} Feld vor', 'other' => 'Rücke {n} Felder vor'],
-        'back'    => ['one' => 'Falsche Antwort: {n} Feld zurück',
-                      'other' => 'Falsche Antwort: {n} Felder zurück'],
-    ],
-
     'mission' => [
         'empty' => 'Dieses Projekt hat noch keine Missionskarten. Geh zurück ins Studio und wähle '
                  . '"Match mission cards".',

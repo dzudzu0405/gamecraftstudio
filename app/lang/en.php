@@ -75,11 +75,6 @@ return [
                    . 'six-sided die.',
     ],
 
-    'move_card' => [
-        'forward' => ['one' => 'Move forward {n} space', 'other' => 'Move forward {n} spaces'],
-        'back'    => ['one' => 'Wrong answer: back {n} space', 'other' => 'Wrong answer: back {n} spaces'],
-    ],
-
     'mission' => [
         'empty' => 'This project has no mission cards yet. Go back to the Studio and choose '
                  . '"Match mission cards".',

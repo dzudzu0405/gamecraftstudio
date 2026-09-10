@@ -222,10 +222,6 @@ $qSize = function (string $question): string {
                                     <div class="card-move__steps <?= $c['steps'] < 0 ? 'is-back' : '' ?>">
                                         <?= $c['steps'] < 0 ? '&minus;' . abs($c['steps']) : '+' . $c['steps'] ?>
                                     </div>
-                                    <div class="card-move__label"><?= H::e($c['label']) ?></div>
-                                    <?php /* The same card also carries the cost of a wrong answer */ ?>
-                                    <div class="card-move__penalty"><?= H::e($c['penalty']) ?></div>
-
                                 </div>
 
                                 <div class="card-cut__game"><?= $cardName ?></div>
