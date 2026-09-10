@@ -68,10 +68,10 @@ for ($style = $from; $style <= $to; $style++) {
                  . $inner
                  . '<div class="card-cut__q ' . $cls . '">' . htmlspecialchars($q) . '</div>'
                  . '<div class="card-cut__a">Answer: 14</div>'
+                 . '</div>'                       // closes card-cut__inner
                  . (PrintBundle::captionFits($style, 'mission')
                         ? '<div class="card-cut__game">STAR RESCUE MISSION</div>' : '')
-                 . '</div>'
-                 . '</div>'
+                 . '</div>'                       // closes card-cut
                  . '<figcaption>' . $style . ' &middot; ' . $label . ' &middot; band '
                  . $band[0] . '-' . $band[1] . ' &middot; ' . ($cls ?: 'base') . '</figcaption>'
                  . '</figure>';
