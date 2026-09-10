@@ -11,7 +11,7 @@
   --ink:        #2B2438;
   --ink-soft:   #6B6478;
   --line:       #D8D0E0;
-  --cut:        #C4BCD2;
+  --cut:        #8F86A3;   /* the cut line - darker than the rules, it is meant to be followed with scissors */
   --accent:     #6C4BD6;
   --font: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
 }
@@ -236,8 +236,15 @@ html, body {
   align-content: start;
 }
 
+/*
+ * The cut line is an OUTLINE, not a border: an outline is drawn outside the
+ * box, so it lands in the 2mm gutter and the card it marks measures the full
+ * 60 x 80mm. A border would have to come out of the card to make room for
+ * itself, and on a framed card it would be drawn over the artwork's own edge,
+ * where a pale dashed line is invisible.
+ */
 .card-cut {
-  border: 1px dashed var(--cut);
+  outline: 1px dashed var(--cut);
   padding: 5mm 4mm;
   display: flex;
   flex-direction: column;
@@ -249,15 +256,15 @@ html, body {
 
 /*
  * A card printed on supplied artwork. The frame becomes the background and the
- * drawn borders come off; everything else is positioned against the frame's own
- * measured areas, which arrive as custom properties from PrintBundle.
+ * padding comes off - the cut line stays, since it is what the scissors follow;
+ * everything else is positioned against the frame's own measured areas, which
+ * arrive as custom properties from PrintBundle.
  *
  * top/bottom percentages resolve against the HEIGHT of the containing block,
  * which is why the content sits in an absolutely positioned box rather than
  * relying on padding - padding percentages would resolve against the width.
  */
 .card-cut--framed {
-  border: 0;
   padding: 0;
   position: relative;
   background-repeat: no-repeat;
