@@ -574,8 +574,14 @@ class PrintBundle
         13 => ['mission' => ['top' => 20.0, 'height' => 45.0, 'left' =>  9.0, 'right' =>  9.0]],
     ];
 
-    /** How much of the card height one caption line needs */
-    private const CAPTION_ROOM = 6.0;
+    /**
+     * How much of the card height one caption line needs.
+     *
+     * 5% of 80mm is 4mm for a line set at 6.5px, which is a little over 1.7mm
+     * tall. It was 6, and on the frames that draw a small panel that extra
+     * percent was coming straight out of the question.
+     */
+    private const CAPTION_ROOM = 5.0;
 
     /** A band left shorter than this by the caption goes without one instead */
     private const MIN_CAPTION_BAND = 15.0;
@@ -658,8 +664,8 @@ class PrintBundle
     /** A printed card, in CSS pixels at 96dpi: 60 x 80mm */
     private const CARD_PX_H = 302.0;
 
-    /** The column the words are set in - the card less its 10% side insets */
-    private const CARD_PX_COL = 181.0;
+    /** The column the words are set in - the card less its 14% side insets */
+    private const CARD_PX_COL = 163.0;
 
     /**
      * Average character width as a fraction of the type size.
@@ -669,6 +675,31 @@ class PrintBundle
      * to lose.
      */
     private const CHAR_WIDTH = 0.5;
+
+    /**
+     * One size for the whole deck, taken from its longest question.
+     *
+     * Sizing each card on its own length is what a browser would do and it
+     * printed badly: nine cards of one design on one sheet, "Add ten to 25" set
+     * half as large again as the word problem beside it. They are shuffled into
+     * a single pile and drawn one after another, so they have to look like one
+     * deck. The longest question decides, and every card follows it.
+     *
+     * @param array $cards Mission rows, each with a 'question'
+     */
+    public static function deckQuestionClass(int $style, array $cards): string
+    {
+        $longest = '';
+
+        foreach ($cards as $card) {
+            $q = trim((string) ($card['question'] ?? ''));
+            if (mb_strlen($q) > mb_strlen($longest)) {
+                $longest = $q;
+            }
+        }
+
+        return self::questionClass($style, $longest);
+    }
 
     /**
      * The size class a question is set at on a given frame.
@@ -693,17 +724,17 @@ class PrintBundle
         }
 
         // A frame with a window keeps its picture outside the words' box, so
-        // the words get the whole band; the rest hold the hero and the sticker
-        // row inside it and are left with about half
+        // the words get the whole band; the rest hold the hero inside it and
+        // are left with about half
         $tight = self::heroWindow($style) !== null;
 
         [$top, $bottom] = self::textBand($style, 'mission');
         $room = (100.0 - $top - $bottom) / 100.0 * self::CARD_PX_H;
 
         if ($tight) {
-            $room -= 20.0;              // the answer line and its rule
+            $room -= 18.0;              // the answer line and its rule
         } else {
-            $room = $room * 0.5 - 48.0; // the hero, then the sticker and answer
+            $room = $room * 0.5 - 32.0; // the hero, then the answer line
         }
 
         foreach (self::Q_SIZES as [$class, $normal, $small]) {

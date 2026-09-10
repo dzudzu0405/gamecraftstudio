@@ -272,10 +272,16 @@ html, body {
   background-size: 100% 100%;
 }
 
+/*
+ * 14% in from each edge, not 10%. The words are the only thing on the card
+ * with a hard left edge, so a narrow margin reads as a mistake in a way the
+ * picture above it never does - and the panels these sit in are rounded, which
+ * eats the corners of a line that runs too wide.
+ */
 .card-cut__inner {
   position: absolute;
-  left: 10%;
-  right: 10%;
+  left: 14%;
+  right: 14%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -323,7 +329,14 @@ html, body {
  * the type comes down and the "Space 1 - Vocabulary" line goes: the question
  * and its answer are what has to fit.
  */
-.card-cut--tight .card-cut__top { display: none; }
+/*
+ * The sticker chip goes on any card printed on artwork. It was a small purple
+ * icon in a rounded box, and it cost the words a fifth of a short band to say
+ * nothing the card was not already saying - every one of them now carries the
+ * game's own character. A card with no artwork at all keeps it: there the chip
+ * is the only picture on the card.
+ */
+.card-cut--framed .card-cut__top { display: none; }
 /* A window frame leaves less room, so every step is one notch smaller again */
 .card-cut--tight .card-cut__q         { font-size: 9.5px; line-height: 1.3; }
 .card-cut--tight .card-cut__q--lg     { font-size: 11.5px; line-height: 1.3; }

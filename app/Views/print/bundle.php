@@ -82,13 +82,11 @@ $poseNo    = 0;
 $movePose  = 0;   // move cards keep their own place in the pose cycle
 
 /*
- * Step the question's type size down as it gets longer, so a long one stays
- * inside its card. How far down depends on the frame as well as the question:
- * PrintBundle knows how tall a band each design drew.
+ * The type size for the mission deck. One size for all of them, taken from the
+ * longest question and from how tall a band this design drew - see
+ * PrintBundle::deckQuestionClass().
  */
-$qSize = function (string $question) use ($frames): string {
-    return PrintBundle::questionClass($frames['style'], $question);
-};
+$qSize = '';
 ?>
 
 <?php if ($frames['mission'] || $frames['move']): ?>
@@ -279,6 +277,7 @@ $qSize = function (string $question) use ($frames): string {
         </div>
 
     <?php elseif ($section['key'] === 'mission'): ?>
+        <?php $qSize = PrintBundle::deckQuestionClass($frames['style'], $d['cards']); ?>
         <!-- ===== 5. Mission cards ===== -->
         <?php if (!$d['cards']): ?>
             <div class="sheet">
@@ -320,7 +319,7 @@ $qSize = function (string $question) use ($frames): string {
                                             </span>
                                         </div>
 
-                                        <div class="card-cut__q <?= $qSize((string) $m['question']) ?>"><?= H::e($m['question']) ?></div>
+                                        <div class="card-cut__q <?= $qSize ?>"><?= H::e($m['question']) ?></div>
 
                                         <?php /* No answer here - a card the child holds must not
                                                  carry it. Every answer is on the key at the back. */ ?>

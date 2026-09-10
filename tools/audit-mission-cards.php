@@ -53,7 +53,9 @@ for ($style = 1; $style <= PrintBundle::CARD_STYLES; $style++) {
             ? '<div class="card-cut__window pose"></div><div class="card-cut__inner">'
             : '<div class="card-cut__inner"><div class="card-cut__hero pose"></div>';
 
-        $cls = PrintBundle::questionClass($style, $q);
+        // The real deck takes one size from its longest question; here each
+        // sample question stands in for a deck whose longest is that long
+        $cls = PrintBundle::deckQuestionClass($style, [['question' => $q]]);
 
         $cards[] = '<figure data-style="' . $style . '" data-len="' . mb_strlen($q) . '">'
                  . '<div class="card-cut card-cut--framed card-cut--art s' . $style . $mods . '"'
