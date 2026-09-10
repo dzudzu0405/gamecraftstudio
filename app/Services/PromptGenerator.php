@@ -71,6 +71,193 @@ class PromptGenerator
         'farm'   => 'a countryside farm of red barns, vegetable patches and haystacks',
     ];
 
+    /**
+     * The scenery each theme is built out of, in three layers.
+     *
+     * THEME_EN gives one sentence per theme, and one sentence is the same
+     * sentence every time: two buyers who pick the same adventure and leave
+     * the place blank get the same prompt, run it in the same tool, and put
+     * two near-identical backdrops up for sale on the same marketplace.
+     *
+     * So the theme supplies parts instead of a finished line, and the parts
+     * are combined by the project's own seed. Same project, same backdrop,
+     * every time it is regenerated; different projects, different ground.
+     *
+     * Everything in here is landscape and nothing in here is alive. The
+     * backdrop prompt spends twenty lines asking for empty scenery, and one
+     * word like "grazing sheep" three lines above it wins that argument.
+     *
+     * Two words are banned from these lists for the same reason. Nothing is
+     * "distant" or "far away": distance draws a horizon, and the prompt then
+     * spends a line asking for no horizon, because a line across the picture
+     * reads as a seam once the board is printed over it. And no colour is
+     * named at full strength - "red barns" three lines above "pale tints
+     * only" is the same argument again, and the barn wins it.
+     */
+    private const SCENERY = [
+        'forest' => [
+            'ground' => ['a floor of deep moss', 'a slope of fallen leaves', 'a shallow bank of soft earth', 'a clearing of low grass', 'a stretch of fern and root'],
+            'middle' => ['stands of tall straight trunks', 'thickets of slender saplings', 'a scattering of leaning old trees', 'open glades between the trunks'],
+            'small'  => ['fallen leaves', 'smooth grey stones', 'low ferns', 'bare twigs', 'patches of pale lichen', 'shallow puddles'],
+        ],
+        'dino' => [
+            'ground' => ['a valley floor of cracked earth', 'a plain of low scrub', 'a slope of loose grey ash', 'a wide bed of dry riverstones', 'a stretch of trampled ground'],
+            'middle' => ['groves of giant ferns', 'stands of tall cycads', 'ridges of bare rock', 'low ash mounds'],
+            'small'  => ['fallen logs', 'scattered boulders', 'curling fern fronds', 'dry reeds', 'flat slabs of stone', 'shallow dust hollows'],
+        ],
+        'space' => [
+            'ground' => ['an open field of deep sky', 'a drift of pale nebula cloud', 'a quiet stretch of empty space', 'a plain of faint star haze', 'a slow band of cosmic dust'],
+            'middle' => ['small planet discs', 'faint asteroid belts', 'pale moon discs', 'thin trails of drifting rock'],
+            'small'  => ['faint dust bands', 'small drifting stones', 'pale ring arcs', 'soft cloud wisps', 'shallow crater discs', 'thin vapour trails'],
+        ],
+        'ocean' => [
+            'ground' => ['a floor of rippled sand', 'a shallow bed of pale silt', 'a slope of soft seabed', 'a flat stretch of sandy bottom', 'a bank of drifting sediment'],
+            'middle' => ['low coral shelves', 'beds of seagrass', 'scattered rock outcrops', 'stands of tall kelp'],
+            'small'  => ['small shells', 'rounded pebbles', 'sea fans', 'strands of weed', 'faint ripple lines', 'patches of pale coral'],
+        ],
+        'pirate' => [
+            'ground' => ['a beach of pale sand', 'a shelf of worn rock', 'a stretch of dune grass', 'a flat of dried tidal sand', 'a slope down to still water'],
+            'middle' => ['leaning palm trees', 'a wooden jetty', 'low headlands', 'stands of coastal scrub'],
+            'small'  => ['driftwood', 'coils of old rope', 'scattered shells', 'weathered planks', 'clumps of grass', 'smooth stones'],
+        ],
+        'magic' => [
+            'ground' => ['a floor of pale drifting mist', 'a meadow of low soft growth', 'a quiet hollow', 'a bank of mossy ground', 'a clearing under thin fog'],
+            'middle' => ['tall toadstools', 'floating islands of rock', 'twisted slender trees', 'arches of worn stone'],
+            'small'  => ['small mushrooms', 'curling vines', 'scattered pebbles', 'wisps of mist', 'fallen petals', 'thin bare branches'],
+        ],
+        'castle' => [
+            'ground' => ['rolling green hills', 'a meadow of short grass', 'a slope of open pasture', 'a wide grassy plain', 'a valley floor of soft turf'],
+            'middle' => ['low tower shapes', 'low stone walls', 'rows of banners on poles', 'a winding cart track'],
+            'small'  => ['scattered wildflowers', 'small hedges', 'stone markers', 'wooden fence posts', 'clumps of grass', 'shallow ruts'],
+        ],
+        'desert' => [
+            'ground' => ['a floor of fine sand', 'a plain of sun-baked earth', 'a slope of low dunes', 'a stretch of pale gravel', 'a wide flat of dry ground'],
+            'middle' => ['sandstone arches', 'stands of tall cacti', 'worn rock shelves', 'clusters of dry palms'],
+            'small'  => ['small stones', 'tufts of dry grass', 'wind ripples in the sand', 'low scrub', 'cracked earth patches', 'scattered pebbles'],
+        ],
+        'arctic' => [
+            'ground' => ['a field of soft snow', 'a plain of flat white ice', 'a slope of drifted snow', 'a stretch of frozen ground', 'a shelf of pale ice'],
+            'middle' => ['low icebergs', 'long low hills', 'ridges of packed snow', 'low ice ridges'],
+            'small'  => ['small ice blocks', 'wind ripples in the snow', 'shallow drifts', 'frost patches', 'thin cracks in the ice', 'low snow mounds'],
+        ],
+        'candy' => [
+            'ground' => ['a meadow of soft pastel grass', 'a plain of powdered sugar', 'a slope of pale icing', 'a stretch of smooth marzipan ground', 'a bank beside a slow chocolate river'],
+            'middle' => ['lollipop trees', 'gumdrop hills', 'candy cane posts', 'rows of wafer fencing'],
+            'small'  => ['small sweets', 'scattered sprinkles', 'sugar pebbles', 'wrapped candies', 'soft cream swirls', 'jelly beans'],
+        ],
+        'robot' => [
+            'ground' => ['a floor of plain concrete', 'a walkway of flat panels', 'a stretch of open factory floor', 'a yard of worn paving', 'a bay of smooth decking'],
+            'middle' => ['runs of pipes along the walls', 'steel gantries', 'rows of quiet machines', 'stacked crates and frames'],
+            'small'  => ['small gears', 'coiled cables', 'bolts and plates', 'low railings', 'vent grilles', 'stacked panels'],
+        ],
+        'farm' => [
+            'ground' => ['a field of short green grass', 'a slope of ploughed earth', 'a yard of packed dirt', 'a meadow of low pasture', 'a stretch of open field'],
+            'middle' => ['barn walls and open sheds', 'rows of vegetable beds', 'wooden fences', 'stacked haystacks'],
+            'small'  => ['hay bales', 'wooden posts', 'small stones', 'rows of young plants', 'shallow ruts', 'clumps of grass'],
+        ],
+    ];
+
+    /**
+     * Words the backdrop cannot afford, and what to say instead.
+     *
+     * Eight of the twenty built-in adventures describe themselves brightly -
+     * "a bright coral reef under a sunlit ocean", "a sunny farm of red barns"
+     * - and two of them ask for a light source outright: northern lights,
+     * lightning. That wording is right where it came from. SETTINGS feeds the
+     * read-aloud story as well, and a story about a quiet overcast farm is a
+     * duller story.
+     *
+     * It is only wrong here. The backdrop spends a whole block asking for
+     * pale, even, low-contrast scenery with no bright spot anywhere, and then
+     * opens with PLACE: a sunny farm of red barns - the first line of a
+     * prompt being the one an image model weighs hardest.
+     *
+     * So the adventure keeps its own words everywhere else and gets toned
+     * down on the way into this one prompt. Buyers who type their own place
+     * pass through the same table.
+     */
+    private const TONE_DOWN = [
+        '/\bbright\b/i'          => 'soft',
+        '/\bsunlit\b/i'          => 'pale',
+        '/\bsunny\b/i'           => 'quiet',
+        '/\bgolden\b/i'          => 'pale straw',
+        '/\bcolourful\b/i'       => 'gently coloured',
+        '/\bcolorful\b/i'        => 'gently coloured',
+        '/\bglowing\b/i'         => 'faint',
+        '/\bvibrant\b/i'         => 'soft',
+        '/\bred\b/i'             => 'faded',
+        '/\bdramatic\b/i'        => 'wide pale',
+        // The two that ask for a light source, which the prompt forbids outright
+        '/\bnorthern lights\b/i' => 'a faint wash of colour in the sky',
+        '/\band lightning\b/i'   => 'and slow rain',
+        '/\blightning\b/i'       => 'slow rain',
+    ];
+
+    /** The same place, said quietly enough to print a board over */
+    private static function muted(string $scene): string
+    {
+        return trim(preg_replace(
+            array_keys(self::TONE_DOWN),
+            array_values(self::TONE_DOWN),
+            $scene
+        ) ?? $scene);
+    }
+
+    /**
+     * One theme's scenery, combined into a place and three small details.
+     *
+     * The seed is the project, so the same game always draws the same ground
+     * and a buyer who comes back to the page gets what they had before.
+     * Ground and middle move at different rates - five grounds against four
+     * middles gives twenty pairings before anything repeats - and the three
+     * details are read off at different offsets so they are never the same
+     * three in the same order.
+     *
+     * @return array{place: string, details: array<int, string>}
+     */
+    private static function scenery(string $theme, string $seed): array
+    {
+        $pack = self::SCENERY[$theme] ?? self::SCENERY['forest'];
+
+        $ground = $pack['ground'];
+        $middle = $pack['middle'];
+        $small  = $pack['small'];
+
+        $i = (int) abs(crc32($seed . '|' . $theme));
+
+        // "repeating evenly across it", not "with": the middle layer is
+        // texture spread over the whole sheet, not scenery behind something
+        $place = $ground[$i % count($ground)]
+               . ', with ' . $middle[intdiv($i, count($ground)) % count($middle)]
+               . ' repeating evenly across it';
+
+        $c = count($small);
+
+        return [
+            'place'   => $place,
+            'details' => [
+                $small[$i % $c],
+                $small[($i + 2) % $c],
+                $small[($i + 4) % $c],
+            ],
+        ];
+    }
+
+    /**
+     * What makes one project's backdrop different from the next one's.
+     *
+     * The id once it has one, and what the buyer typed before that, so the
+     * picture does not jump the first time the project is saved.
+     */
+    private static function seedFor(array $project): string
+    {
+        $id = (int) ($project['id'] ?? 0);
+
+        return $id > 0
+            ? 'project-' . $id
+            : trim((string) ($project['title'] ?? '')) . '|' . trim((string) ($project['setting'] ?? ''));
+    }
+
     public static function styleKeys(): array
     {
         return array_keys(self::STYLES);
@@ -109,9 +296,23 @@ class PromptGenerator
         $cells = MapComposer::normalizeCells((int) ($project['cells'] ?? 18));
         $scene = Project::sceneFor($project['setting'] ?? null);
 
-        // Nothing typed -> fall back to the theme's own scene
+        /*
+         * The ground this particular project stands on, and three things
+         * lying on it.
+         *
+         * Keyed by the adventure rather than by the theme. A buyer can pick
+         * Ocean Rescue while the game's theme is still forest - the theme
+         * decides the palette, the adventure decides the place - and details
+         * read off the theme in that case scatter fallen leaves and puddles
+         * across a coral reef.
+         */
+        $setting      = trim((string) ($project['setting'] ?? ''));
+        $sceneryTheme = Project::SETTING_THEMES[$setting] ?? $theme;
+        $scenery      = self::scenery($sceneryTheme, self::seedFor($project));
+
+        // Nothing typed -> the theme builds a place of its own
         if ($scene === '') {
-            $scene = self::THEME_EN[$theme] ?? self::THEME_EN['forest'];
+            $scene = $scenery['place'];
         }
 
         $styleEn = self::STYLE_EN[$style] ?? self::STYLE_EN['storybook'];
@@ -120,7 +321,7 @@ class PromptGenerator
         $lines = [];
         $lines[] = 'Draw an EMPTY LANDSCAPE to print behind a children\'s board game.';
         $lines[] = '';
-        $lines[] = 'PLACE: ' . rtrim($scene, '.') . '.';
+        $lines[] = 'PLACE: ' . rtrim(self::muted($scene), '.') . '.';
         $lines[] = 'STYLE: ' . $styleEn . '.';
         $lines[] = 'ASPECT RATIO: 16:11 landscape (about 1600 x 1100 pixels).';
         $lines[] = '';
@@ -155,6 +356,8 @@ class PromptGenerator
         $lines[] = 'The board covers the middle and reaches the corners, so there is no quiet corner';
         $lines[] = 'to hide the interesting part in. Spread the same soft, quiet texture across the';
         $lines[] = 'whole sheet instead.';
+        $lines[] = '- Build that texture out of these, thinly and evenly, none of them larger or';
+        $lines[] = '  darker than the rest: ' . implode(', ', $scenery['details']) . '.';
         $lines[] = '- No subject and no focal point. Nothing the eye lands on, anywhere.';
         $lines[] = '- Do not make one side busy and the other empty, and do not leave a bright open';
         $lines[] = '  middle - the middle is where most of the spaces sit.';
