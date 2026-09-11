@@ -1081,9 +1081,21 @@ class PrintBundle
             }
         }
 
-        // Nothing uploaded yet - use the generated scene
         $theme = Project::artTheme($project);
-        $seed  = (string) ($project['cover_seed'] ?? ($project['slug'] ?? 'map'));
+
+        /*
+         * A ready-made theme brings its own painting, which is the whole point
+         * of picking one: the buyer skips the background step and this is what
+         * they skipped it for. It is also the picture the theme tile showed
+         * them at step 1, so it had better be the one that prints.
+         */
+        $rel = Project::themeArt($theme);
+        if ($rel !== null) {
+            return self::fileToDataUri(dirname(__DIR__, 2) . '/uploads/' . $rel);
+        }
+
+        // No painting for this theme - fall back to the drawn scene
+        $seed = (string) ($project['cover_seed'] ?? ($project['slug'] ?? 'map'));
         return Art::dataUri(Art::scene($theme, $seed, MapComposer::WIDTH, MapComposer::HEIGHT));
     }
 

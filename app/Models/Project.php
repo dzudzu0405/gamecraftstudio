@@ -501,6 +501,42 @@ class Project
         return $slug;
     }
 
+    /**
+     * The painting a ready-made theme prints, if one has been supplied.
+     *
+     * Twelve scenes drawn for the twelve themes, kept in two sizes: the full
+     * one is what a game that picked a ready-made theme prints behind its
+     * board, and the small one is what the theme tile and the project card
+     * show. The tile is a PREVIEW of the background, so the two have to be the
+     * same picture - showing a buyer one scene on the tile and printing them
+     * another would be the tile lying about what it does.
+     *
+     * Returns null when the file is not there, and every caller falls back to
+     * the generated SVG scene, which is what the app drew before these
+     * existed and still draws for anything else that wants a bit of scenery.
+     *
+     * @return string|null path relative to uploads/
+     */
+    public static function themeArt(string $theme, bool $tile = false): ?string
+    {
+        $theme = trim($theme);
+        if ($theme === '' || !isset(Art::THEMES[$theme])) {
+            return null;
+        }
+
+        $rel = 'library/themes/' . $theme . ($tile ? '-tile' : '') . '.jpg';
+
+        return is_file(dirname(__DIR__, 2) . '/uploads/' . $rel) ? $rel : null;
+    }
+
+    /** The same picture as a URL, or null to fall back to the drawn scene */
+    public static function themeArtUrl(string $theme, bool $tile = false): ?string
+    {
+        $rel = self::themeArt($theme, $tile);
+
+        return $rel !== null ? Url::upload($rel) : null;
+    }
+
     /** Cover image shown on the project card */
     public static function coverUrl(array $project, int $w = 480, int $h = 330): string
     {
@@ -516,7 +552,15 @@ class Project
         }
 
         $theme = self::artTheme($project);
-        $seed  = (string) ($project['cover_seed'] ?? ($project['slug'] ?? 'cover'));
+
+        // The theme's own painting, so the card shows the game the buyer will
+        // actually print rather than a drawing of the same idea
+        $art = self::themeArtUrl($theme, true);
+        if ($art !== null) {
+            return $art;
+        }
+
+        $seed = (string) ($project['cover_seed'] ?? ($project['slug'] ?? 'cover'));
         return Url::to('art/scene/' . rawurlencode($theme) . '/' . rawurlencode($seed) . '.svg?w=' . $w . '&h=' . $h);
     }
 

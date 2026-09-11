@@ -136,9 +136,18 @@ echo View::partial('partials/stepbar', compact('project', 'step', 'labels'));
                             <label class="pick">
                                 <input type="radio" name="theme" value="<?= H::e($key) ?>" required
                                        <?= Project::usesThemeBackground($project) && $project['theme'] === $key ? 'checked' : '' ?>>
+                                <?php /* The theme's own painting when one has been supplied,
+                                         which is the picture this theme will print; the drawn
+                                         scene is the fallback. */ ?>
+                                <?php $art = Project::themeArtUrl($key, true); ?>
                                 <div class="pick__art">
-                                    <img src="<?= Url::to('art/scene/' . rawurlencode($key) . '/theme-' . rawurlencode($key) . '.svg?w=300&h=225') ?>"
-                                         alt="" loading="lazy" width="300" height="225">
+                                    <?php if ($art !== null): ?>
+                                        <img src="<?= H::e($art) ?>" alt="" loading="lazy"
+                                             width="480" height="330">
+                                    <?php else: ?>
+                                        <img src="<?= Url::to('art/scene/' . rawurlencode($key) . '/theme-' . rawurlencode($key) . '.svg?w=300&h=225') ?>"
+                                             alt="" loading="lazy" width="300" height="225">
+                                    <?php endif; ?>
                                 </div>
                                 <div class="pick__label"><?= H::e($label) ?></div>
                             </label>
