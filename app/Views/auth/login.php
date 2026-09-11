@@ -4,7 +4,6 @@ use App\Core\Flash;
 use App\Core\Helper as H;
 use App\Core\Icon;
 use App\Core\Url;
-use App\Services\Art;
 use App\Services\GoogleAuth;
 
 $errors = Flash::errors();
@@ -90,7 +89,18 @@ $googleOn = GoogleAuth::isEnabled();
 
     <div class="auth__art">
         <div class="auth__art-inner">
-            <?= Art::scene('magic', 'login-art', 440, 300) ?>
+            <?php /* Three finished boards, fanned. The page is selling what the
+                     studio makes, and what it makes is a printed sheet - so they
+                     are drawn as sheets, with a white edge and a shadow under
+                     them, rather than as pictures in a frame. */ ?>
+            <div class="board-fan" aria-hidden="true">
+                <img class="board-fan__sheet board-fan__sheet--left"
+                     src="<?= Url::asset('img/board-baby-rescue.jpg') ?>" alt="">
+                <img class="board-fan__sheet board-fan__sheet--right"
+                     src="<?= Url::asset('img/board-candy-land.jpg') ?>" alt="">
+                <img class="board-fan__sheet board-fan__sheet--front"
+                     src="<?= Url::asset('img/board-magic-academy.jpg') ?>" alt="">
+            </div>
 
             <h2 class="mt-3" style="font-size:23px">Printable games for kids, in minutes</h2>
             <p class="muted mt-1">

@@ -1240,6 +1240,66 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
 }
 .auth__stat span { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
 
+/* --------------------------------------------------------------------------
+   Three finished boards, fanned - the picture on the sign-in page
+   -------------------------------------------------------------------------- */
+
+/*
+ * The depth is real rather than painted: a perspective on the container and a
+ * rotateY on the two outer sheets, so their far edges actually recede. Painting
+ * the same effect into a flat image would have meant three fixed sizes and a
+ * re-export every time one of the boards changed.
+ *
+ * The height is the 300px the drawn scene used, so the heading below it does
+ * not move.
+ */
+.board-fan {
+  position: relative;
+  height: 300px;
+  perspective: 1100px;
+}
+
+/*
+ * A sheet of paper: white edge, soft shadow under it, and the corners rounded
+ * the way a printed card is cut. transform-origin sits at the centre so the
+ * two outer ones turn about their own middle rather than swinging out of the
+ * panel.
+ */
+.board-fan__sheet {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 66%;
+  aspect-ratio: 1013 / 717;
+  border-radius: 9px;
+  border: 4px solid #FFFFFF;
+  box-shadow: 0 18px 36px rgba(72, 46, 122, .22);
+  object-fit: cover;
+  backface-visibility: hidden;
+}
+
+/*
+ * The outer two sit back and turn inwards; the front one comes forward and
+ * tips slightly, which is what stops the group reading as three flat rectangles
+ * laid on top of each other.
+ */
+.board-fan__sheet--left {
+  z-index: 1;
+  width: 60%;
+  transform: translate(-50%, -50%) translate3d(-48%, -14%, -90px) rotateY(30deg) rotate(-9deg);
+}
+.board-fan__sheet--right {
+  z-index: 2;
+  width: 60%;
+  transform: translate(-50%, -50%) translate3d(48%, -10%, -70px) rotateY(-30deg) rotate(9deg);
+}
+.board-fan__sheet--front {
+  z-index: 3;
+  width: 68%;
+  transform: translate(-50%, -50%) translate3d(0, 12%, 0) rotateX(6deg);
+  box-shadow: 0 26px 46px rgba(72, 46, 122, .28);
+}
+
 /* "or" rule between the password form and the Google button */
 .auth__divider {
   display: flex;

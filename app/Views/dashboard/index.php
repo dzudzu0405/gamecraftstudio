@@ -51,7 +51,7 @@ $steps = [
              kids; this is one, so it makes the claim better than a hillside
              with a castle on it did. */ ?>
     <div class="hero__art" aria-hidden="true">
-        <img src="<?= Url::asset('img/dashboard-hero.jpg') ?>" alt=""
+        <img src="<?= Url::asset('img/board-candy-land.jpg') ?>" alt=""
              width="1010" height="713">
     </div>
 </section>
