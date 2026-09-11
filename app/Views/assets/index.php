@@ -114,7 +114,7 @@ $folders = [
                         <div class="stat__value">
                             <?= (int) $p['with_art'] ?><span class="faint" style="font-size:14px">/<?= (int) $p['target'] ?></span>
                         </div>
-                        <div class="stat__sub"><?= (int) $p['in_db'] ?> items in the library</div>
+                        <div class="stat__sub"><?= H::e($p['note']) ?></div>
                         <div class="bar">
                             <div class="bar__fill" style="width:<?= min(100, (int) $p['percent']) ?>%;
                                  background:<?= $p['percent'] >= 100 ? 'var(--green)' : 'var(--amber)' ?>"></div>

@@ -39,6 +39,9 @@ class Library
     /** Mission card frames: artwork only, with no library row behind them */
     public const KIND_MISSION   = 'mission';
 
+    /** How many mission card designs the set is meant to hold */
+    public const MISSION_FRAMES = 15;
+
     /**
      * The drawing that stands for a character set.
      *
@@ -377,21 +380,37 @@ class Library
             $rows[$kind] = [
                 'label'    => $info['label'],
                 'target'   => $info['target'],
-                'in_db'    => count($items),
+                'note'     => count($items) . ' items in the library',
                 'with_art' => $withArt,
                 'percent'  => $info['target'] > 0 ? (int) round($withArt / $info['target'] * 100) : 0,
             ];
         }
 
-        // Mission cards are counted by base template instead (section 11: 15 templates)
+        /*
+         * Mission card frames are artwork with no library row behind them, so
+         * they are counted off the disk: missions/mission-01.png upwards.
+         *
+         * This row used to count mission_templates against a target of 15 and
+         * read "472/15" - two different things in one fraction. 15 was the
+         * number of base QUESTION templates the seeder first shipped (FR-35),
+         * and 472 is what the bank grew into: 118 patterns in each of four
+         * languages. Neither number was about a picture, on a panel that
+         * measures pictures.
+         */
+        $withArt = 0;
+        for ($style = 1; $style <= self::MISSION_FRAMES; $style++) {
+            if (self::framePath('missions', $style) !== null) {
+                $withArt++;
+            }
+        }
+
         $rows['mission'] = [
-            'label'    => 'Mission card templates',
-            'target'   => 15,
-            'in_db'    => Database::count('SELECT COUNT(*) FROM mission_templates WHERE is_active = 1'),
-            'with_art' => Database::count('SELECT COUNT(*) FROM mission_templates WHERE is_active = 1'),
-            'percent'  => 0,
+            'label'    => 'Mission card designs',
+            'target'   => self::MISSION_FRAMES,
+            'note'     => $withArt . ' files in uploads/library/missions',
+            'with_art' => $withArt,
+            'percent'  => (int) round(min(100, $withArt / self::MISSION_FRAMES * 100)),
         ];
-        $rows['mission']['percent'] = (int) round(min(100, $rows['mission']['in_db'] / 15 * 100));
 
         return $rows;
     }
