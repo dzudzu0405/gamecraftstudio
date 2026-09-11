@@ -23,7 +23,6 @@ use App\Core\Url;
  *        uploads/library/characters/{code}-1.jpg  <- pose 1 of a character set
  *        uploads/library/characters/{code}-2.jpg  <- pose 2 ...
  *        uploads/library/moves/{code}.jpg         <- move card back
- *        uploads/library/rewards/{code}.jpg       <- winner hero card
  *
  *      Accepted extensions: .jpg .jpeg .png .webp
  *
@@ -36,7 +35,6 @@ class Library
     public const KIND_MAP       = 'map';
     public const KIND_CHARACTER = 'character';
     public const KIND_MOVE      = 'move';
-    public const KIND_REWARD    = 'reward';
 
     /** Mission card frames: artwork only, with no library row behind them */
     public const KIND_MISSION   = 'mission';
@@ -92,7 +90,6 @@ class Library
         self::KIND_MAP       => 'maps',
         self::KIND_CHARACTER => 'characters',
         self::KIND_MOVE      => 'moves',
-        self::KIND_REWARD    => 'rewards',
         self::KIND_MISSION   => 'missions',
     ];
 
@@ -107,7 +104,6 @@ class Library
             self::KIND_MAP       => 'Map frames',
             self::KIND_CHARACTER => 'Character sets',
             self::KIND_MOVE      => 'Move cards',
-            self::KIND_REWARD    => 'Hero cards',
         ][$kind] ?? ucfirst($kind);
     }
 
@@ -351,8 +347,6 @@ class Library
                 return Url::to('art/character/' . rawurlencode($seed) . '/' . max(1, $variant) . '.svg');
             case self::KIND_MOVE:
                 return Url::to('art/card/move/' . rawurlencode($theme) . '.svg');
-            case self::KIND_REWARD:
-                return Url::to('art/card/reward/' . rawurlencode($theme) . '.svg');
             case self::KIND_MAP:
             default:
                 return Url::to('art/scene/' . rawurlencode($theme) . '/' . rawurlencode($seed) . '.svg');
@@ -370,7 +364,6 @@ class Library
             self::KIND_MAP       => ['label' => 'Maps',              'target' => 36],
             self::KIND_CHARACTER => ['label' => 'Character sets',    'target' => 30],
             self::KIND_MOVE      => ['label' => 'Move card designs', 'target' => 15],
-            self::KIND_REWARD    => ['label' => 'Hero card designs', 'target' => 30],
         ];
 
         foreach ($targets as $kind => $info) {

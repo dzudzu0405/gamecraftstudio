@@ -174,8 +174,8 @@ $steps = [
                     <div class="quota__l">Character sets</div>
                 </div>
                 <div class="quota">
-                    <div class="quota__n"><?= (int) $libraryStats['rewards'] ?></div>
-                    <div class="quota__l">Hero cards</div>
+                    <div class="quota__n"><?= (int) $libraryStats['moves'] ?></div>
+                    <div class="quota__l">Move card designs</div>
                 </div>
             </div>
 

@@ -422,9 +422,8 @@ class CreateController extends Controller
     {
         $update = [];
 
-        // reward_item_id is deliberately absent: step 2 no longer offers a hero
-        // card picker, and a field the form never posts would be nulled below.
-        // The winner card is drawn in CSS, so it is a name rather than a library row
+        // The winner card is drawn in CSS, so the choice is a style name rather
+        // than a library row - see Project::HERO_STYLES
         $heroStyle = $request->str('hero_style');
         if (isset(Project::HERO_STYLES[$heroStyle])) {
             $update['hero_style'] = $heroStyle;

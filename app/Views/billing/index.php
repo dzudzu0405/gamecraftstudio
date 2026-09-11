@@ -61,10 +61,6 @@ use App\Services\Tiers;
                     <div class="quota__n"><?= (int) $u['missions'] ?></div>
                     <div class="quota__l">Mission templates</div>
                 </div>
-                <div class="quota">
-                    <div class="quota__n"><?= (int) $u['rewards'] ?></div>
-                    <div class="quota__l">Hero cards</div>
-                </div>
             </div>
 
             <ul class="perks">

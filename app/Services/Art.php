@@ -468,11 +468,11 @@ class Art
     //  Card backs
     // ---------------------------------------------------------------
 
-    /** @param string $kind move | mission | reward */
+    /** @param string $kind move | mission */
     public static function cardBack(string $kind, string $theme, int $w = 300, int $h = 420): string
     {
         $p = self::palette($theme);
-        $base = ['move' => $p[2], 'mission' => $p[3], 'reward' => $p[5]][$kind] ?? $p[2];
+        $base = ['move' => $p[2], 'mission' => $p[3]][$kind] ?? $p[2];
         $id = 'c' . substr(md5($kind . $theme), 0, 6);
 
         $svg  = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $w . ' ' . $h . '" width="' . $w . '" height="' . $h . '" role="img">';
@@ -485,7 +485,7 @@ class Art
         $svg .= '<rect width="' . $w . '" height="' . $h . '" rx="22" fill="url(#dots' . $id . ')"/>';
         $svg .= '<rect x="14" y="14" width="' . ($w - 28) . '" height="' . ($h - 28) . '" rx="16" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="0.55"/>';
 
-        $icon = ['move' => 'footprint', 'mission' => 'flag', 'reward' => 'trophy'][$kind] ?? 'star';
+        $icon = ['move' => 'footprint', 'mission' => 'flag'][$kind] ?? 'star';
         $svg .= '<g transform="translate(' . ($w / 2 - 44) . ',' . ($h / 2 - 44) . ')">' . self::icon($icon, 88, '#FFFFFF', 0.92) . '</g>';
         $svg .= '</svg>';
         return $svg;

@@ -40,7 +40,6 @@ class DashboardController extends Controller
                 'maps'       => Library::countForPlan(Library::KIND_MAP, $plan),
                 'characters' => Library::countForPlan(Library::KIND_CHARACTER, $plan),
                 'moves'      => Library::countForPlan(Library::KIND_MOVE, $plan),
-                'rewards'    => Library::countForPlan(Library::KIND_REWARD, $plan),
             ],
 
             'exportCount'   => Database::count('SELECT COUNT(*) FROM exports WHERE user_id = ?', [$userId]),

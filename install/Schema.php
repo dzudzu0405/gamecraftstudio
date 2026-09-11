@@ -187,7 +187,6 @@ class Schema
                 'map_item_id'     => 'int null',           // library_items.kind = map
                 'character_item_id' => 'int null',
                 'move_item_id'    => 'int null',
-                'reward_item_id'  => 'int null',
                 'background_id'   => 'int null',           // user_assets.id - the user's own artwork (FR-31)
                 'cover_seed'      => 'varchar:80 null',
                 'hero_style'      => "varchar:20 notnull default:medal",  // which winner card design prints

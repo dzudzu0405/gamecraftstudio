@@ -12,7 +12,6 @@ $folders = [
     Library::KIND_MAP       => 'maps',
     Library::KIND_CHARACTER => 'characters',
     Library::KIND_MOVE      => 'moves',
-    Library::KIND_REWARD    => 'rewards',
 ];
 ?>
 
@@ -139,7 +138,6 @@ $folders = [
                             <tr><td>Maps</td><td><code>uploads/library/maps/</code></td><td><code>map-18-01.jpg</code></td></tr>
                             <tr><td>Characters</td><td><code>uploads/library/characters/</code></td><td><code>char-01-1.jpg</code> (pose 1)</td></tr>
                             <tr><td>Move cards</td><td><code>uploads/library/moves/</code></td><td><code>move-01.jpg</code></td></tr>
-                            <tr><td>Hero cards</td><td><code>uploads/library/rewards/</code></td><td><code>reward-01.jpg</code></td></tr>
                         </tbody>
                     </table>
                     <p class="mt-2">

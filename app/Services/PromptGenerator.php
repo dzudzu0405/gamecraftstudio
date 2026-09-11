@@ -420,7 +420,6 @@ class PromptGenerator
         $subject = [
             'move'    => 'a pair of footprints and a small compass',
             'mission' => 'a waving flag planted on a small hill',
-            'reward'  => 'a golden trophy surrounded by sparkles',
         ][$kind] ?? 'a bright star';
 
         $lines = [];

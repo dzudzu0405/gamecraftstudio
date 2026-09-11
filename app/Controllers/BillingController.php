@@ -36,7 +36,6 @@ class BillingController extends Controller
                 'maps'       => Library::countForPlan(Library::KIND_MAP, $tier),
                 'characters' => Library::countForPlan(Library::KIND_CHARACTER, $tier),
                 'moves'      => Library::countForPlan(Library::KIND_MOVE, $tier),
-                'rewards'    => Library::countForPlan(Library::KIND_REWARD, $tier),
                 'missions'   => Database::count(
                     'SELECT COUNT(*) FROM mission_templates WHERE is_active = 1 AND tier IN ('
                     . implode(',', array_fill(0, count(Tiers::unlockedTiers($tier)), '?')) . ')',

@@ -27,7 +27,6 @@ class AssetController extends Controller
         Library::KIND_MAP       => 'Maps',
         Library::KIND_CHARACTER => 'Characters',
         Library::KIND_MOVE      => 'Move cards',
-        Library::KIND_REWARD    => 'Hero cards',
     ];
 
     public function index(Request $request): void

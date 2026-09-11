@@ -185,41 +185,6 @@ class Seeder
             }
         }
 
-        // --- 30 winner hero cards ---
-        $rewardNames = [
-            'Explorer Badge',    'Gold Courage Cup',  'Bright Mind Award',
-            'Persistence Medal', 'Creativity Star',   'Golden Key',
-            'Wisdom Gem',        'Guardian Shield',   'Little Crown',
-            'Treasure Map',      'Victory Flag',      'Kindness Heart',
-        ];
-
-        $rewardTierPlan = [Tiers::STARTER => 10, Tiers::PRO => 10, Tiers::PUBLISHER => 10];
-        $index = 0;
-        foreach ($rewardTierPlan as $tier => $qty) {
-            for ($i = 0; $i < $qty; $i++) {
-                $theme = $themes[$index % count($themes)];
-                $code  = 'reward-' . str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT);
-                Database::insert('library_items', [
-                    'kind'       => 'reward',
-                    'tier'       => $tier,
-                    'code'       => $code,
-                    'name'       => ($rewardNames[$index % count($rewardNames)]) . ' - ' . Art::themeLabel($theme),
-                    'theme'      => $theme,
-                    'cells'      => null,
-                    'poses'      => null,
-                    'card_count' => 1,
-                    'art_seed'   => $code,
-                    'image_path' => null,
-                    'meta'       => null,
-                    'sort_order' => $index,
-                    'is_active'  => 1,
-                    'created_at' => self::$now,
-                ]);
-                $index++;
-                $n++;
-            }
-        }
-
         return $n;
     }
 
@@ -329,7 +294,6 @@ class Seeder
                 'map_item_id'       => $map['id'] ?? null,
                 'character_item_id' => $char['id'] ?? null,
                 'move_item_id'      => null,
-                'reward_item_id'    => null,
                 'background_id'     => null,
                 'cover_seed'        => 'demo-' . $i,
                 'story'             => $seed['story'],

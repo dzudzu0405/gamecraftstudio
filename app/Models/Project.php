@@ -400,7 +400,6 @@ class Project
             'map_item_id'       => $data['map_item_id'] ?? null,
             'character_item_id' => $data['character_item_id'] ?? null,
             'move_item_id'      => $data['move_item_id'] ?? null,
-            'reward_item_id'    => $data['reward_item_id'] ?? null,
             'background_id'     => null,
             'cover_seed'        => 'p' . bin2hex(random_bytes(4)),
             'story'             => $data['story'] ?? null,
@@ -600,7 +599,6 @@ class Project
             'map'       => 'map_item_id',
             'character' => 'character_item_id',
             'move'      => 'move_item_id',
-            'reward'    => 'reward_item_id',
         ] as $key => $col) {
             $out[$key] = !empty($project[$col]) ? Library::find((int) $project[$col]) : null;
         }

@@ -45,7 +45,7 @@ class ArtController extends Controller
     /** Card back: /art/card/{kind}/{theme}.svg */
     public function card(Request $request, array $params): void
     {
-        $kind  = in_array($params['kind'] ?? '', ['move', 'mission', 'reward'], true) ? $params['kind'] : 'move';
+        $kind  = in_array($params['kind'] ?? '', ['move', 'mission'], true) ? $params['kind'] : 'move';
         $theme = $this->safeTheme($params['theme'] ?? 'forest');
 
         $w = max(80,  min(900,  $request->int('w', 300)));
