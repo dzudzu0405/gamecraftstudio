@@ -3,7 +3,6 @@ use App\Core\Helper as H;
 use App\Core\Icon;
 use App\Core\Url;
 use App\Core\View;
-use App\Services\Art;
 use App\Services\Library;
 use App\Services\Tiers;
 
@@ -47,8 +46,13 @@ $steps = [
         </p>
     </div>
 
+    <?php /* A finished game rather than a drawing of scenery. The panel next to
+             it claims the studio turns an idea into a printable board game for
+             kids; this is one, so it makes the claim better than a hillside
+             with a castle on it did. */ ?>
     <div class="hero__art" aria-hidden="true">
-        <?= Art::scene('magic', 'dashboard-hero', 620, 420) ?>
+        <img src="<?= Url::asset('img/dashboard-hero.jpg') ?>" alt=""
+             width="1010" height="713">
     </div>
 </section>
 

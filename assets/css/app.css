@@ -343,6 +343,21 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
 .hero__art { flex: 0 0 40%; min-width: 0; position: relative; }
 .hero__art svg, .hero__art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
+/*
+ * The picture in there is a finished game board, so all of it has to be on
+ * screen. The panel is 40% of a flex row and changes shape a long way between
+ * window widths - 1.65 wide at 1600px, 0.62 at 900px - and cover would answer
+ * that by showing a vertical strip of cookies rather than a game.
+ *
+ * contain instead, on a ground that carries on the picture's own sky: #F9FAFC
+ * is its top edge and #DEE9E4 its bottom, both read off the file, so the
+ * letterboxing does not read as letterboxing.
+ */
+.hero__art img {
+  object-fit: contain;
+  background: linear-gradient(#F9FAFC, #DEE9E4);
+}
+
 /* --------------------------------------------------------------------------
    The "How it works" block (FR-08)
    -------------------------------------------------------------------------- */
