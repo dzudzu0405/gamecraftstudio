@@ -24,7 +24,6 @@ use App\Core\Url;
  *        uploads/library/characters/{code}-2.jpg  <- pose 2 ...
  *        uploads/library/moves/{code}.jpg         <- move card back
  *        uploads/library/rewards/{code}.jpg       <- winner hero card
- *        uploads/library/templates/{code}.jpg     <- game template cover
  *
  *      Accepted extensions: .jpg .jpeg .png .webp
  *
@@ -95,7 +94,6 @@ class Library
         self::KIND_MOVE      => 'moves',
         self::KIND_REWARD    => 'rewards',
         self::KIND_MISSION   => 'missions',
-        'template'           => 'templates',
     ];
 
     private const EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
@@ -359,27 +357,6 @@ class Library
             default:
                 return Url::to('art/scene/' . rawurlencode($theme) . '/' . rawurlencode($seed) . '.svg');
         }
-    }
-
-    /** Cover image for a ready-made game template */
-    public static function templateImage(array $tpl): string
-    {
-        $stored = trim((string) ($tpl['image_path'] ?? ''));
-        if ($stored !== '' && is_file(self::uploadsDir() . '/' . ltrim($stored, '/'))) {
-            return Url::upload(ltrim($stored, '/'));
-        }
-
-        $code = trim((string) ($tpl['code'] ?? ''));
-        if ($code !== '') {
-            foreach (self::EXTENSIONS as $ext) {
-                $rel = 'library/templates/' . $code . '.' . $ext;
-                if (self::fileExists($rel)) {
-                    return Url::upload($rel);
-                }
-            }
-        }
-
-        return Url::to('art/scene/' . rawurlencode((string) ($tpl['theme'] ?? 'forest')) . '/' . rawurlencode((string) ($tpl['art_seed'] ?? $code)) . '.svg');
     }
 
     /**

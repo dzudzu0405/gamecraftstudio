@@ -24,7 +24,6 @@ use Install\Schema;
 const DATA_TABLES = [
     'library_items',
     'mission_templates',
-    'game_templates',
     'community_posts',
     'marketplace_items',
 ];

@@ -27,12 +27,6 @@ class DashboardController extends Controller
             'plan'          => Tiers::get($plan),
             'planKey'       => $plan,
 
-            // FR-17: how many ready-made templates exist
-            'templateCount' => Database::count('SELECT COUNT(*) FROM game_templates WHERE is_active = 1'),
-            'templates'     => Database::all(
-                'SELECT * FROM game_templates WHERE is_active = 1 ORDER BY uses_count DESC LIMIT 4'
-            ),
-
             // FR-19: community inspiration. Empty while Discover is switched off,
             // which also hides the card on the dashboard.
             'community'     => Config::get('discover_enabled', false)

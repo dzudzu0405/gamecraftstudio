@@ -32,7 +32,6 @@ class Seeder
 
         $report['library_items']     = self::seedLibrary();
         $report['mission_templates'] = self::seedMissionTemplates();
-        $report['game_templates']    = self::seedGameTemplates();
 
         if ($withDemoData) {
             $report['community_posts']   = self::seedCommunity();
@@ -263,85 +262,6 @@ class Seeder
         return count($templates);
     }
 
-    // ---------------------------------------------------------------
-    //  Ready-made game templates (FR-17: "over 50")
-    // ---------------------------------------------------------------
-
-    private static function seedGameTemplates(): int
-    {
-        if (Database::count('SELECT COUNT(*) FROM game_templates') > 0) {
-            return 0;
-        }
-
-        $themes = array_keys(Art::THEMES);
-        $levels = [
-            'beginner' => ['cells' => 12, 'age' => [4, 6],  'players' => [2, 4]],
-            'standard' => ['cells' => 18, 'age' => [6, 9],  'players' => [2, 4]],
-            'advanced' => ['cells' => 24, 'age' => [8, 12], 'players' => [3, 6]],
-        ];
-
-        $subjectSets = [
-            'math,logic', 'literacy,life', 'english,nature',
-            'science,nature', 'math,science', 'logic,life',
-            'literacy,english', 'geography,nature',
-        ];
-
-        $titles = [
-            'forest' => 'Secret of the Woods',    'dino'   => 'Dinosaur Rescue Mission',
-            'space'  => 'Space Explorer Quest',   'ocean'  => 'Treasure Beneath the Waves',
-            'pirate' => 'Pirate Voyage',          'magic'  => 'Magic Academy Challenge',
-            'castle' => 'The Golden Bell',        'desert' => 'The Hidden Oasis',
-            'arctic' => 'Arctic Adventure',       'candy'  => 'Candy Land Quest',
-            'robot'  => 'Robot Factory Rescue',   'farm'   => 'A Day on the Farm',
-        ];
-
-        $n = 0;
-        $i = 0;
-
-        // 12 themes x 3 levels = 36, plus 18 more variants = 54 templates (over 50 - FR-17)
-        foreach ([1, 2] as $round) {
-            foreach ($themes as $theme) {
-                foreach ($levels as $level => $cfg) {
-                    if ($round === 2 && $i % 2 === 0) {
-                        $i++;
-                        continue;   // the second pass only takes half, landing on 54
-                    }
-
-                    $tier = $level === 'advanced' ? Tiers::PRO : Tiers::STARTER;
-                    if ($round === 2) {
-                        $tier = Tiers::PUBLISHER;
-                    }
-
-                    $code = 'tpl-' . $theme . '-' . $level . ($round === 2 ? '-b' : '');
-                    $suffix = $round === 2 ? ' (extended)' : '';
-
-                    Database::insert('game_templates', [
-                        'code'        => $code,
-                        'name'        => ($titles[$theme] ?? ucfirst($theme)) . $suffix,
-                        'description' => 'A ' . $cfg['cells'] . '-space map with ' . ($cfg['cells'] * 5)
-                                       . ' mission cards, suited to ages ' . $cfg['age'][0] . '-' . $cfg['age'][1] . '.',
-                        'theme'       => $theme,
-                        'difficulty'  => $level,
-                        'subjects'    => $subjectSets[$i % count($subjectSets)],
-                        'tier'        => $tier,
-                        'age_min'     => $cfg['age'][0],
-                        'age_max'     => $cfg['age'][1],
-                        'players_min' => $cfg['players'][0],
-                        'players_max' => $cfg['players'][1],
-                        'art_seed'    => $code,
-                        'image_path'  => null,
-                        'uses_count'  => random_int(3, 240),
-                        'is_active'   => 1,
-                        'created_at'  => self::$now,
-                    ]);
-                    $i++;
-                    $n++;
-                }
-            }
-        }
-
-        return $n;
-    }
 
     // ---------------------------------------------------------------
     //  Sample projects for the first account

@@ -3,7 +3,6 @@ use App\Core\Helper as H;
 use App\Core\Icon;
 use App\Core\Url;
 use App\Core\View;
-use App\Services\Library;
 use App\Services\Tiers;
 
 /**
@@ -39,11 +38,6 @@ $steps = [
             </a>
         </div>
 
-        <!-- FR-07 -->
-        <p class="hero__hint">
-            Not sure where to start?
-            <a href="<?= Url::to('/templates') ?>" class="bold">Explore <?= (int) $templateCount ?> ready-made templates <?= Icon::get('arrow-right', 13) ?></a>
-        </p>
     </div>
 
     <?php /* A finished game rather than a drawing of scenery. The panel next to
@@ -101,12 +95,11 @@ $steps = [
         <div class="empty">
             <div class="empty__icon"><?= Icon::get('puzzle', 40) ?></div>
             <div class="empty__title">No projects yet</div>
-            <div class="empty__desc">Start from a ready-made template, or build your first game from scratch.</div>
+            <div class="empty__desc">Build your first game from scratch - it takes five steps.</div>
             <div class="flex gap-1" style="justify-content:center">
                 <a class="btn btn--primary" href="<?= Url::to('/create') ?>">
                     <?= Icon::get('plus', 16) ?> Create New Game
                 </a>
-                <a class="btn btn--ghost" href="<?= Url::to('/templates') ?>">Browse templates</a>
             </div>
         </div>
     <?php else: ?>
@@ -125,33 +118,8 @@ $steps = [
     <?php endif; ?>
 </section>
 
-<!-- ===== Bottom row: templates / community / plan ===== -->
+<!-- ===== Bottom row: community / plan ===== -->
 <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(290px,1fr))">
-
-    <!-- FR-17, FR-18 -->
-    <div class="card">
-        <div class="card__head">
-            <h3>Templates</h3>
-            <a class="section__link" href="<?= Url::to('/templates') ?>">Browse all</a>
-        </div>
-        <div class="card__body">
-            <p class="small muted mb-2">
-                <?= (int) $templateCount ?> professionally designed templates, sorted by age and theme -
-                usable as they are.
-            </p>
-            <div class="grid grid--cards" style="gap:10px">
-                <?php foreach ($templates as $t): ?>
-                    <a href="<?= Url::to('/templates') ?>" style="text-decoration:none;color:inherit">
-                        <div style="border-radius:10px;overflow:hidden;border:1px solid var(--line)">
-                            <img src="<?= H::e(Library::templateImage($t)) ?>" alt="" loading="lazy"
-                                 style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block">
-                        </div>
-                        <div class="small bold mt-1" style="line-height:1.3"><?= H::e(H::truncate($t['name'], 30)) ?></div>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </div>
 
     <!-- FR-19, FR-20. No posts means Discover is off, so the card goes too. -->
     <?php if ($community): ?>

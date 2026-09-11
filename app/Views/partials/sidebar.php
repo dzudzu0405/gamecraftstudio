@@ -25,7 +25,6 @@ $groups = [
     [
         'label' => 'Library',
         'items' => [
-            ['/templates',  'template', 'Templates'],
             ['/library',    'book',     'Game Library'],
             ['/assets',     'image',    'Asset Library'],
             ['/exports',    'download', 'My Exports'],

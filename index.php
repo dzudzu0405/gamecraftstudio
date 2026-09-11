@@ -126,8 +126,6 @@ $router->get('/listing/{id}',      'ExportController@listing',  $auth);
 $router->post('/listing/{id}',     'ExportController@saveListing', $auth);
 
 // --- Library and the other modules ---
-$router->get('/templates',         'TemplateController@index',  $auth);
-$router->post('/templates/{id}/use', 'TemplateController@use',   $auth);
 $router->get('/library',           'LibraryController@index',   $auth);
 $router->get('/assets',            'AssetController@index',     $auth);
 $router->post('/assets/upload',    'AssetController@upload',    $auth);

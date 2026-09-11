@@ -140,7 +140,6 @@ $folders = [
                             <tr><td>Characters</td><td><code>uploads/library/characters/</code></td><td><code>char-01-1.jpg</code> (pose 1)</td></tr>
                             <tr><td>Move cards</td><td><code>uploads/library/moves/</code></td><td><code>move-01.jpg</code></td></tr>
                             <tr><td>Hero cards</td><td><code>uploads/library/rewards/</code></td><td><code>reward-01.jpg</code></td></tr>
-                            <tr><td>Template covers</td><td><code>uploads/library/templates/</code></td><td><code>tpl-forest-standard.jpg</code></td></tr>
                         </tbody>
                     </table>
                     <p class="mt-2">

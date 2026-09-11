@@ -260,28 +260,6 @@ class Schema
                 '#index'      => [['user_id', 'created_at'], ['project_id']],
             ],
 
-            // 50+ ready-made game templates (FR-17)
-            'game_templates' => [
-                'id'          => 'pk',
-                'code'        => 'varchar:60 notnull',
-                'name'        => 'varchar:160 notnull',
-                'description' => 'varchar:400 null',
-                'theme'       => 'varchar:30 notnull',
-                'difficulty'  => 'varchar:20 notnull',
-                'subjects'    => 'varchar:255 null',
-                'tier'        => 'varchar:20 notnull',
-                'age_min'     => 'int notnull default:6',
-                'age_max'     => 'int notnull default:9',
-                'players_min' => 'int notnull default:2',
-                'players_max' => 'int notnull default:4',
-                'art_seed'    => 'varchar:80 notnull',
-                'image_path'  => 'varchar:255 null',
-                'uses_count'  => 'int notnull default:0',
-                'is_active'   => 'tinyint notnull default:1',
-                'created_at'  => 'datetime notnull',
-                '#unique'     => [['code']],
-                '#index'      => [['theme'], ['difficulty'], ['tier']],
-            ],
 
             // Community inspiration (FR-19, FR-20)
             'community_posts' => [

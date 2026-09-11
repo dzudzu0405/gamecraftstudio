@@ -30,7 +30,6 @@ use App\Core\Url;
 </table>
 
 <p style="margin:0;font-size:13px;color:#7A7288;">
-  Not sure where to begin? The
-  <a href="<?= H::e(Url::full('/templates')) ?>" style="color:#6C4BD6;">ready-made templates</a>
-  give you a finished game to start from.
+  Not sure where to begin? Pick a map and a theme, and the studio writes the
+  prompt for the background - the first four steps take a few minutes.
 </p>
